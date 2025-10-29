@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import York_Contruction_72_logo from "../../../assets/York_Construction_72_logo.svg";
 
 const Header = () => {
   return (
@@ -16,10 +17,15 @@ const Header = () => {
       <Link to="/">
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <img
-            src="/logo.svg"
+            src={York_Contruction_72_logo}
             alt="Logo"
-            style={{ width: "150px", height: "40px" }}
+            style={{ width: "5%" }}
           />
+          <span
+            style={{ fontSize: "20px", fontWeight: "bold", color: "black" }}
+          >
+            LipSum
+          </span>
         </div>
       </Link>
 
