@@ -53,16 +53,18 @@ const Header = () => {
           />{" "}
         </svg>
         {/* 프로필 이미지 */}
-        <img
-          src="https://avatars.githubusercontent.com/u/108007761?v=4"
-          alt="avatar"
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            objectFit: "cover",
-          }}
-        />
+        <button type="button" style={{ cursor: "pointer" }}>
+          <img
+            src="https://avatars.githubusercontent.com/u/108007761?v=4"
+            alt="avatar"
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              objectFit: "cover",
+            }}
+          />
+        </button>
       </div>
     </header>
   );
