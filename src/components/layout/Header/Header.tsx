@@ -13,16 +13,25 @@ const Header = () => {
       }}
     >
       {/* 로고 영역 */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <img
-          src="/logo.svg"
-          alt="Logo"
-          style={{ width: "150px", height: "40px" }}
-        />
-      </div>
+      <Link to="/">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <img
+            src="/logo.svg"
+            alt="Logo"
+            style={{ width: "150px", height: "40px" }}
+          />
+        </div>
+      </Link>
 
       {/* 메뉴 링크 */}
-      <nav style={{ display: "flex", gap: "57px", color: "black" }}>
+      <nav
+        className="header-nav"
+        style={{ display: "flex", gap: "57px", color: "black" }}
+      >
+        <style>{`
+          .header-nav a { color: black; text-decoration: none; }
+          .header-nav a:hover { color: blue; }
+        `}</style>
         <Link to="/community">커뮤니티</Link>
         <Link to="/exchange">거래소</Link>
         <Link to="/events">이벤트</Link>
@@ -53,7 +62,13 @@ const Header = () => {
           />{" "}
         </svg>
         {/* 프로필 이미지 */}
-        <button type="button" style={{ cursor: "pointer" }}>
+        <button
+          type="button"
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            alert("프로필 클릭!");
+          }}
+        >
           <img
             src="https://avatars.githubusercontent.com/u/108007761?v=4"
             alt="avatar"
