@@ -1,10 +1,29 @@
 import { Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import York_Construction_72_logo from '../../../assets/York_Construction_72_logo.svg';
+import ProfileDropdown from './ProfileDropDown';
 
 const Header = () => {
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    const toggleDropdown = () => setOpenDropdown((prev) => !prev);
+
+    // 드롭다운 바깥 클릭 시 닫기
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+                setOpenDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     return (
-        <header className="flex items-center px-5 py-3 bg-white border-b border-gray-300">
-            {/* 로고 영역 */}
+        <header className="relative flex items-center px-5 py-3 bg-white border-b border-gray-300">
+            {/* 로고 */}
             <Link to="/">
                 <div className="flex items-center gap-3">
                     <img src={York_Construction_72_logo} alt="Logo" className="w-10" />
@@ -12,32 +31,32 @@ const Header = () => {
                 </div>
             </Link>
 
-            {/* 메뉴 링크 */}
+            {/* 메뉴 */}
             <nav className="flex gap-14 ml-10 text-black">
-                <Link className="hover:text-blue-600 transition-colors" to="/community">
+                <Link className="hover:text-blue-600" to="/community">
                     커뮤니티
                 </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/exchange">
+                <Link className="hover:text-blue-600" to="/exchange">
                     거래소
                 </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/events">
+                <Link className="hover:text-blue-600" to="/events">
                     이벤트
                 </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/contact">
+                <Link className="hover:text-blue-600" to="/contact">
                     문의
                 </Link>
             </nav>
 
-            {/* 오른쪽 알림 + 프로필 */}
-            <div className="ml-auto flex items-center gap-3">
-                {/* 알림 아이콘 */}
+            {/* 알림 + 프로필 */}
+            <div className="ml-auto flex items-center gap-3 relative" ref={dropdownRef}>
+                {/* 알림 */}
                 <svg
+                    className="w-6 h-6 text-gray-700 cursor-pointer hover:text-black"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={1.5}
                     stroke="currentColor"
-                    className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer transition-colors"
                 >
                     <path
                         strokeLinecap="round"
@@ -46,14 +65,16 @@ const Header = () => {
                     />
                 </svg>
 
-                {/* 프로필 이미지 */}
-                <button type="button" onClick={() => alert('프로필 클릭!')} className="cursor-pointer">
+                {/* 프로필 클릭 시 드롭다운 */}
+                <button onClick={toggleDropdown}>
                     <img
                         src="https://avatars.githubusercontent.com/u/108007761?v=4"
                         alt="avatar"
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover cursor-pointer"
                     />
                 </button>
+
+                {openDropdown && <ProfileDropdown />}
             </div>
         </header>
     );
