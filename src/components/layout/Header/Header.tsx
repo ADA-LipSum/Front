@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { useRef, useEffect, useState } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
-import York_Construction_72_logo from '../../../assets/York_Construction_72_logo.svg';
+import York_Construction_72_logo from '../../../assets/LipSum.svg';
 import ProfileDropdown from '../../../pages/Profile/Dropdown'; // 로그인 상태에서만 렌더
 
 const Header = () => {
