@@ -25,10 +25,10 @@ type AuthContextType = {
   logout: () => void;
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 const api = axios.create({
-  baseURL: "https://overpolemical-maria-lapidifical.ngrok-free.dev",
+  baseURL: "http://3.38.107.119:8080/",
   headers: { "Content-Type": "application/json" },
   withCredentials: false, // 세션-쿠키가 아니라 토큰이므로 false 유지
 });
@@ -45,17 +45,28 @@ function decodeJwt(token: string): any | null {
   }
 }
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+// ✅ 여기: initialUser 추가
+type AuthProviderProps = {
+  children: React.ReactNode;
+  initialUser?: User;
+};
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({
   children,
+  initialUser = null,
 }) => {
-  const [user, setUser] = useState<User>(null);
+  // ✅ 초기값을 props로부터 받도록 변경
+  const [user, setUser] = useState<User>(initialUser);
 
   // 새로고침 시 유저/토큰 복구 + axios 헤더 주입
   useEffect(() => {
     const savedUser = localStorage.getItem("auth_user");
     const tokenType = localStorage.getItem("token_type");
     const accessToken = localStorage.getItem("access_token");
+
+    // ✅ savedUser가 있을 때만 덮어쓰기 (없으면 initialUser 유지)
     if (savedUser) setUser(JSON.parse(savedUser));
+
     if (tokenType && accessToken) {
       api.defaults.headers.common["Authorization"] =
         `${tokenType} ${accessToken}`;
