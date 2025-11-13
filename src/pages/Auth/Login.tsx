@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useAuth } from "../../auth/AuthContext.tsx";
+import { useAuth } from "../../auth/AuthContext";
 
 const Login = () => {
   const [id, setId] = useState("");
