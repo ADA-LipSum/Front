@@ -1,7 +1,7 @@
 import { Button } from "./Button";
 
 const meta = {
-  title: "Global/Button",
+  title: "Test/Button",
   component: Button,
   argTypes: {
     backgroundColor: { control: "color" },
