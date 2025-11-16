@@ -1,32 +1,30 @@
 // src/pages/Login.tsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../auth/AuthContext.tsx";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../auth/AuthContext.tsx';
+
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [err, setErr] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErr("");
+    setErr('');
 
     const ok = await login(email, password);
     if (ok) {
-      navigate("/"); // 성공 시 홈으로
+      navigate('/'); // 성공 시 홈으로
     } else {
-      setErr("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setErr('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="p-6 bg-white rounded shadow-md w-80"
-      >
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded shadow-md w-80">
         <h2 className="mb-4 text-lg font-bold">로그인</h2>
 
         <div className="mb-4">
@@ -37,7 +35,7 @@ const Login = () => {
             type="email"
             id="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
             required
           />
@@ -51,7 +49,7 @@ const Login = () => {
             type="password"
             id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
             required
           />

@@ -1,9 +1,236 @@
-import { useAuth } from "../../auth/AuthContext";
+import { useState } from 'react';
+
+import { Avatar } from '../../components/Avatar';
+import { Icon } from '@iconify/react';
+import ActivityCalendar from 'react-github-calendar';
+import { labels } from '../../components/githubCalendarLabels';
+import BlogCarousel from '../../components/BlogCarousel';
+import { Div } from '../../components/Div';
+
+const blogMockData = [
+  {
+    title: '제목1',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목2',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목3',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목4',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목5',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목6',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목7',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+  {
+    title: '제목8',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
+  },
+];
+
+const banners = [
+  // 넣을 배너 이미지 URL들
+  'https://static.solved.ac/profile_bg/profile/kit2025b-706ff93c-5758-4136-8c62-7df54b1065ef.png',
+  'https://static.solved.ac/profile_bg/profile/kit2025a-a3bae173-3be5-4451-ba7f-c1995dca9959.jpeg',
+  'https://static.solved.ac/profile_bg/profile/halloween2025-34185f0e-62a4-4499-bea4-9e91d37aa15c.jpeg',
+  'https://static.solved.ac/profile_bg/profile/lemoncup-c805203e-d3f6-4865-a36d-6ea5ba8dce5c.png',
+  'https://static.solved.ac/profile_bg/profile/iam2025half-2523fbbd-ffa5-4445-8588-e34975e98af8.png',
+  'https://static.solved.ac/profile_bg/profile/skh2025-118a72a5-6440-4ca5-aebe-75f854cf1a94.png',
+  'https://static.solved.ac/profile_bg/profile/k512_2025-d13477dc-0ea4-4094-84cb-12353698ebd4.png',
+  'https://static.solved.ac/profile_bg/profile/ucpc2025-2df0cbcc-0aa5-438a-8532-1a7ef2eeab44.png',
+  'https://static.solved.ac/profile_bg/suapc2021w/suapc2021w.png',
+];
 
 export default function Profile() {
-  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedBanner, setSelectedBanner] = useState<number | null>(null);
+
+  const handleEditClick = () => {
+    setIsEditing(!isEditing);
+  };
+  const handleBannerClick = (idx: number) => {
+    setSelectedBanner(idx);
+  };
+  const handleButtonClick = () => {
+    if (selectedBanner !== null) {
+      console.log(`Selected banner index: ${selectedBanner}`);
+      setIsEditing(!isEditing);
+    } else {
+      console.log('No banner selected');
+    }
+  };
 
   return (
-    <div>{!user ? <p>로그인이 필요함.</p> : <p>로그인 되어 있음.</p>}</div>
+    <div className="flex flex-col items-center h-screen">
+      <Div
+        className="flex w-full text-center bg-center bg-cover h-1/3 outline-1"
+        src={`${selectedBanner !== null ? banners[selectedBanner] : null}`}
+      >
+        배너
+        <Icon
+          className="absolute right-0 p-2 cursor-pointer"
+          style={{ color: isEditing ? '#3B89FF' : 'white' }}
+          icon="mdi:pencil"
+          width="44"
+          height="44"
+          onClick={handleEditClick}
+        />
+      </Div>
+      <div className="flex flex-row w-full">
+        {/* 프로필 섹션 */}
+        <section className="relative flex flex-col w-1/3 px-16">
+          {/* 이름 & 간단 소개 */}
+          <div className="pt-24 mb-6">
+            <Avatar
+              size="10rem"
+              src="https://api.dicebear.com/9.x/identicon/svg"
+              className="absolute bg-cover border-4 border-purple-300 rounded-full left-30 -top-20"
+            />
+            <h2 className="w-full ml-3 text-2xl font-black text-left">주석 안쓰는 개발자</h2>
+
+            <p className="p-4 mt-3 font-medium text-gray-700 border border-gray-500 text-md rounded-3xl">
+              프론트엔드 공부 중인 김태호입니다. 그리고 저는 주석을 잘 안답니다. 그리고 코드를
+              깔끔하게 짜지 않습니다. 저에게만 보이는 코드가 좋습니다.
+            </p>
+
+            <div className="flex items-center gap-3 mt-2 text-gray-600">
+              {/* <FaGithub className="cursor-pointer hover:text-black" />
+              <FaLinkedin className="cursor-pointer hover:text-sky-700" />
+              <FaStackOverflow className="cursor-pointer hover:text-orange-500" /> */}
+            </div>
+          </div>
+
+          {/* 기술 스택 */}
+          <div>
+            <div className="flex flex-row flex-wrap">
+              <h3 className="mb-3 text-lg font-bold">기술 스택</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {[
+                'React',
+                'Spring Boot',
+                'Kotlin',
+                'Ruby',
+                'Java',
+                'JS',
+                'Docker',
+                'Go',
+                'Linux',
+                'NextJS',
+                'Kubernetes',
+                'AWS',
+                'NestJS',
+                'VueJS',
+              ].map(tech => (
+                <span
+                  key={tech}
+                  className="w-auto h-10 px-3 py-1 text-sm font-medium bg-gray-200 rounded-sm cursor-pointer hover:bg-gray-300"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+        {!isEditing ? (
+          <section className="w-2/3 p-4 pr-12">
+            {/* 블로그 */}
+            <div className="w-full mb-4 h-3/5">
+              <h3 className="text-lg font-bold leading-9.5">블로그</h3>
+              <BlogCarousel data={blogMockData} />
+            </div>
+            {/* 깃허브 잔디 */}
+            <div className="flex justify-center h-auto p-6 border rounded-2xl font-notosans">
+              <ActivityCalendar
+                username="rlaxogh76"
+                blockSize={14}
+                colorScheme="light"
+                labels={labels}
+                showWeekdayLabels={true}
+                hideTotalCount={true}
+              />
+            </div>
+          </section>
+        ) : (
+          <section className="w-2/3 p-4 pr-12">
+            {/* 배너 수정 로직 */}
+            <div>
+              <div className="flex flex-row justify-between mb-4">
+                <div className="flex flex-row">
+                  <h3 className="items-center text-lg font-bold leading-9.5">수집한 배너</h3>
+                  <Icon
+                    className="p-2 cursor-pointer"
+                    icon="mdi-light:information"
+                    width="40"
+                    height="40"
+                  />
+                </div>
+                <button
+                  className="p-3 text-white bg-blue-600 rounded-lg"
+                  onClick={handleButtonClick}
+                >
+                  변경사항 저장
+                </button>
+              </div>
+
+              {/* 배너 이미지 */}
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                {banners.map((src, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-full h-32 overflow-hidden cursor-pointer rounded-xl"
+                    onClick={() => handleBannerClick(idx)}
+                  >
+                    <img src={src} alt={`banner-${idx}`} className="object-cover w-full h-full" />
+                    {selectedBanner === idx && (
+                      <div
+                        className="absolute inset-0"
+                        style={{ backgroundColor: 'rgba(59, 137, 255, 0.6)' }}
+                      >
+                        <Icon
+                          className="absolute text-white -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                          icon="material-symbols:check"
+                          width="60"
+                          height="60"
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* 페이지 인디케이터 */}
+              <div className="flex justify-center gap-2 mt-2">
+                {[0, 1, 2, 3, 4].map(dot => (
+                  <div key={dot} className={`w-2 h-2 rounded-full bg-neutral-500`} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
   );
 }

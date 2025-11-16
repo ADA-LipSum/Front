@@ -1,29 +1,26 @@
 // src/components/Header.tsx
-import { Link } from "react-router-dom";
-import { useRef, useEffect, useState } from "react";
-import { useAuth } from "../../../auth/AuthContext";
-import York_Construction_72_logo from "../../../assets/York_Construction_72_logo.svg";
-import ProfileDropdown from "../../../pages/Profile/Dropdown"; // 로그인 상태에서만 렌더
+import { Link } from 'react-router-dom';
+import { useRef, useEffect, useState } from 'react';
+import { useAuth } from '../../../auth/AuthContext';
+import York_Construction_72_logo from '../../../assets/York_Construction_72_logo.svg';
+import ProfileDropdown from '../../../pages/Profile/Dropdown'; // 로그인 상태에서만 렌더
 
 const Header = () => {
   const { user } = useAuth();
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const toggleDropdown = () => setOpenDropdown((p) => !p);
+  const toggleDropdown = () => setOpenDropdown(p => !p);
 
   // 드롭다운 바깥 클릭 닫기
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpenDropdown(false);
       }
     };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
   }, []);
 
   return (
@@ -53,10 +50,7 @@ const Header = () => {
       </nav>
 
       {/* 오른쪽 영역 */}
-      <div
-        className="relative flex items-center gap-3 ml-auto"
-        ref={dropdownRef}
-      >
+      <div className="relative flex items-center gap-3 ml-auto" ref={dropdownRef}>
         {!user ? (
           // 비로그인 상태
           <>
