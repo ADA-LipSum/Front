@@ -1,13 +1,12 @@
-// src/pages/Community/CommunityList.tsx
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ⭐ 추가
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
 
 type Post = {
     postUuid: string;
     title: string;
     writer: string | null;
-    writerProfileImage: string | null; // ⭐ 추가
+    writerProfileImage: string | null;
     writedAt: string;
     likes: number;
     views: number;
@@ -30,7 +29,7 @@ export default function CommunityList() {
     const [loading, setLoading] = useState(false);
     const size = 10;
 
-    const navigate = useNavigate(); // ⭐ 추가
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -104,23 +103,48 @@ export default function CommunityList() {
 
             {/* 게시글 리스트 */}
             <div className="mt-2 space-y-4">
-                {loading && (
-                    <div className="bg-white rounded-xl px-6 py-6 text-center text-gray-500 text-sm shadow-[0_4px_4px_0_#E1E1E1]">
-                        로딩 중...
-                    </div>
-                )}
+                {/* 초기 렌더 & 페이지 이동 시: 스켈레톤 카드들 */}
+                {loading &&
+                    Array.from({ length: size }).map((_, idx) => (
+                        <div
+                            key={idx}
+                            className="flex items-start gap-4 px-6 py-4 bg-white rounded-xl shadow-[0_4px_4px_0_#E1E1E1] animate-pulse"
+                        >
+                            {/* 왼쪽 프로필 스켈레톤 */}
+                            <div className="w-12 h-12 bg-gray-200 rounded-xl" />
 
+                            {/* 본문 스켈레톤 */}
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                <div className="h-3 bg-gray-100 rounded w-1/2" />
+                                <div className="flex gap-2 mt-2">
+                                    <div className="h-4 w-16 bg-gray-100 rounded-full" />
+                                    <div className="h-4 w-16 bg-gray-100 rounded-full" />
+                                </div>
+                            </div>
+
+                            {/* 우측 수치 스켈레톤 */}
+                            <div className="flex flex-col items-end gap-2 text-[10px]">
+                                <div className="h-3 w-10 bg-gray-100 rounded" />
+                                <div className="h-3 w-10 bg-gray-100 rounded" />
+                                <div className="h-3 w-10 bg-gray-100 rounded" />
+                            </div>
+                        </div>
+                    ))}
+
+                {/* 데이터 로딩 끝났는데 게시글이 없는 경우 */}
                 {!loading && posts.length === 0 && (
                     <div className="bg-white rounded-xl px-6 py-6 text-center text-gray-500 text-sm shadow-[0_4px_4px_0_#E1E1E1]">
                         게시글이 없습니다.
                     </div>
                 )}
 
+                {/* 실제 게시글 리스트 */}
                 {!loading &&
                     posts.map((post) => (
                         <div
                             key={post.postUuid}
-                            onClick={() => navigate(`/community/${post.postUuid}`)} // ⭐ 클릭 시 상세로 이동
+                            onClick={() => navigate(`/community/${post.postUuid}`)}
                             className="flex items-start gap-4 px-6 py-4 bg-white rounded-xl hover:bg-gray-50 transition shadow-[0_4px_4px_0_#E1E1E1] cursor-pointer"
                         >
                             {/* 왼쪽 프로필 이미지 */}
