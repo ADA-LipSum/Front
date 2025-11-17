@@ -13,6 +13,9 @@ import Blog from "./pages/Blog/Blog";
 import Form from "./pages/Contact/Form";
 import CommunityDetail from "./pages/Community/CommunityDetail";
 import CommunityWrite from "./pages/Community/CommunityWrite";
+import SnackShop from "./pages/Exchange/SnackShop";
+import DeviceShop from "./pages/Exchange/DeviceShop";
+import ProfileDecor from "./pages/Exchange/ProfileDecor";
 
 function App() {
   return (
@@ -28,6 +31,10 @@ function App() {
         <Route path="/community/write" element={<CommunityWrite />} />
 
         <Route path="/exchange" element={<Exchange />} />
+        <Route path="/exchange/snacks" element={<SnackShop />} />
+        <Route path="/exchange/devices" element={<DeviceShop />} />
+        <Route path="/exchange/profile-decor" element={<ProfileDecor />} />
+
         <Route path="/events" element={<Events />} />
         <Route path="/blog" element={<Blog />} />
 
