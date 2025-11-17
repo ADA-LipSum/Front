@@ -137,6 +137,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       localStorage.setItem("token_type", tokenType);
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
+      localStorage.setItem("userNickname", userNickname);
+      localStorage.setItem("user_uuid", uuid);
       localStorage.setItem("expires_at", String(expiresAt));
       localStorage.setItem("auth_user", JSON.stringify(nextUser));
 
