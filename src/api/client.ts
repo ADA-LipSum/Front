@@ -1,8 +1,15 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.PROD
-    ? "http://3.38.107.119:8080" // 배포용 (EC2)
-    : "/api", // 개발용 (Vite proxy 사용)
+  baseURL: "http://3.38.107.119:8080",
   headers: { "Content-Type": "application/json" },
+  withCredentials: false,
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token"); // 저장된 토큰
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
