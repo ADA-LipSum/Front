@@ -12,6 +12,7 @@ type User = {
   id: string;
   role?: string;
   name: string;
+  uuid?: string;
   profileImage?: string;
 } | null;
 
@@ -130,6 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         id: uuid || id,
         role,
         name: displayName,
+        uuid,
         profileImage,
       };
 
