@@ -1,18 +1,16 @@
+import typography from "@tailwindcss/typography";
+
 /** @type {import('tailwindcss').Config} */
-// export default {
-//   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-//   theme: {
-//     extend: {
-//       fontFamily: {
-//         sans: ['Inter', 'Noto Sans KR', 'sans-serif'],
-//       },
-//     },
-//   },
-//   plugins: [],
+
+const colors = require("tailwindcss/colors");
+
 module.exports = {
-    content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-    theme: {
-        extend: {},
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  theme: {
+    colors: {
+      "my-color": "#858E96",
     },
-    plugins: [require('@tailwindcss/typography')],
+    extend: {},
+  },
+  plugins: [typography()],
 };
