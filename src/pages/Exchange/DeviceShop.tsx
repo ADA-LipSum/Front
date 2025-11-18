@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../../api/client"; // baseURL 설정된 axios 인스턴스 사용
 
 type Point = {
