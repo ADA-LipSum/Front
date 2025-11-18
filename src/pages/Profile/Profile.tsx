@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FaGithub, FaLinkedin, FaStackOverflow } from 'react-icons/fa';
 
 import { Avatar } from '../../components/Avatar';
 import { Icon } from '@iconify/react';
@@ -7,11 +8,36 @@ import { labels } from '../../components/githubCalendarLabels';
 import BlogCarousel from '../../components/BlogCarousel';
 import { Div } from '../../components/Div';
 import { useAuth } from '../../auth/AuthContext';
+import { fetchUserProfile } from '../../components/Profile/profileContext';
+
+type ProfileType = {
+  uuid: string;
+  userRealname: string;
+  userNickname?: string;
+  profileImage?: string;
+  profileBanner?: string;
+  role?: string;
+  intro?: string;
+  techStack: string[];
+  links?: {
+    [key: string]: string;
+  };
+};
 
 export default function Profile() {
   const { user } = useAuth();
+  const [profile, setProfile] = useState<ProfileType | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<number>(0);
+
+  useEffect(() => {
+    const uuid = user?.uuid;
+    if (!uuid) return;
+    (async () => {
+      const data = await fetchUserProfile(uuid);
+      setProfile(data);
+    })();
+  }, [user]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);
@@ -52,20 +78,36 @@ export default function Profile() {
           <div className="pt-24 mb-6">
             <Avatar
               size="10rem"
-              src={`${user?.profileImage}`}
+              alt="avatar"
+              src={`${profile?.profileImage || user?.profileImage}`}
               className="absolute bg-cover border-4 border-purple-300 rounded-full left-30 -top-20"
             />
-            <h2 className="w-full ml-3 text-2xl font-black text-left">주석 안쓰는 개발자</h2>
-
+            <h2 className="w-full ml-3 text-2xl font-black text-left">
+              {profile?.userNickname || profile?.userRealname}
+            </h2>
             <p className="p-4 mt-3 font-medium text-gray-700 border border-gray-500 text-md rounded-3xl">
-              프론트엔드 공부 중인 김태호입니다. 그리고 저는 주석을 잘 안답니다. 그리고 코드를
-              깔끔하게 짜지 않습니다. 저에게만 보이는 코드가 좋습니다.
+              {profile?.intro}
             </p>
-
             <div className="flex items-center gap-3 mt-2 text-gray-600">
-              {/* <FaGithub className="cursor-pointer hover:text-black" />
-              <FaLinkedin className="cursor-pointer hover:text-sky-700" />
-              <FaStackOverflow className="cursor-pointer hover:text-orange-500" /> */}
+              <FaGithub
+                className="text-xl cursor-pointer hover:text-black"
+                onClick={() =>
+                  profile?.links?.github && window.open(profile.links.github, '_blank')
+                }
+              />
+              <FaLinkedin
+                className="text-xl cursor-pointer hover:text-sky-700"
+                onClick={() =>
+                  profile?.links?.linkedin && window.open(profile.links.linkedin, '_blank')
+                }
+              />
+              <FaStackOverflow
+                className="text-xl cursor-pointer hover:text-orange-500"
+                onClick={() =>
+                  profile?.links?.stackoverflow &&
+                  window.open(profile.links.stackoverflow, '_blank')
+                }
+              />
             </div>
           </div>
 
@@ -75,22 +117,7 @@ export default function Profile() {
               <h3 className="mb-3 text-lg font-bold">기술 스택</h3>
             </div>
             <div className="flex flex-wrap gap-3">
-              {[
-                'React',
-                'Spring Boot',
-                'Kotlin',
-                'Ruby',
-                'Java',
-                'JS',
-                'Docker',
-                'Go',
-                'Linux',
-                'NextJS',
-                'Kubernetes',
-                'AWS',
-                'NestJS',
-                'VueJS',
-              ].map(tech => (
+              {profile?.techStack?.map(tech => (
                 <span
                   key={tech}
                   className="w-auto h-10 px-3 py-1 text-sm font-medium bg-gray-200 rounded-sm cursor-pointer hover:bg-gray-300"
@@ -111,7 +138,8 @@ export default function Profile() {
             {/* 깃허브 잔디 */}
             <div className="flex justify-center h-auto p-6 border rounded-2xl font-notosans">
               <ActivityCalendar
-                username="rlaxogh76"
+                // username={`${profile?.links?.github?.split('github.com/')[1]}`}
+                username={`Juyoung0809`}
                 blockSize={14}
                 colorScheme="light"
                 labels={labels}
