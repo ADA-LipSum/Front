@@ -26,6 +26,7 @@ type AuthContextType = {
     opts?: LoginOptions
   ) => Promise<boolean>;
   logout: () => void;
+  authLoading: boolean;
 };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   // ⭐ 핵심: 초기값 undefined
   const [user, setUser] = useState<User | undefined>(undefined);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // 로컬스토리지 복원
   useEffect(() => {
@@ -60,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       api.defaults.headers.common["Authorization"] =
         `${tokenType} ${accessToken}`;
     }
+    setAuthLoading(false);
   }, []);
 
   const login = async (id: string, password: string, opts?: LoginOptions) => {
@@ -116,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, authLoading }}>
       {children}
     </AuthContext.Provider>
   );
