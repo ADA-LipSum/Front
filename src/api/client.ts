@@ -6,10 +6,14 @@ export const api = axios.create({
   withCredentials: false,
 });
 
+// 모든 요청에 Authorization 자동 추가
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token"); // 저장된 토큰
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const tokenType = localStorage.getItem("token_type");
+  const accessToken = localStorage.getItem("access_token");
+
+  if (tokenType && accessToken) {
+    config.headers.Authorization = `${tokenType} ${accessToken}`;
   }
+
   return config;
 });
