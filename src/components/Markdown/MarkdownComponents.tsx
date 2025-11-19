@@ -33,7 +33,29 @@ export const markdownComponents: Components = {
   ),
 
   /** ----------------------------------------
-   * 🧩 코드 블록 (SyntaxHighlighter)
+   * 🧩 인용문 (> 블록)
+   ---------------------------------------- */
+  blockquote: ({ node, ...props }) => (
+    <blockquote
+      className="p-4 my-4 text-gray-700 border-l-4 border-green-400 rounded-md bg-green-50"
+      {...props}
+    />
+  ),
+
+  /** ----------------------------------------
+   * 🧩 링크 ([text](url))
+   ---------------------------------------- */
+  a: ({ node, ...props }) => (
+    <a
+      className="font-medium text-blue-600 underline underline-offset-4 hover:text-blue-800"
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+    />
+  ),
+
+  /** ----------------------------------------
+   * 🧩 코드 블록 (```...```)
    ---------------------------------------- */
   code: ({ inline, className, children, ...props }: CodeProps) => {
     const match = /language-(\w+)/.exec(className || "");
@@ -66,10 +88,16 @@ export const markdownComponents: Components = {
     );
   },
 
+  /** ----------------------------------------
+   * 🧩 수평선
+   ---------------------------------------- */
   hr: ({ node, ...props }) => (
     <hr className="my-6 border-t border-gray-200" {...props} />
   ),
 
+  /** ----------------------------------------
+   * 🧩 이미지
+   ---------------------------------------- */
   img: ({ node, ...props }) => (
     <img
       className="object-contain my-4 rounded-lg max-h-96"
