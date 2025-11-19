@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/Snack/SnackShop.tsx
 import { useEffect, useState } from "react";
@@ -29,31 +30,14 @@ export default function DecorShop() {
   // ✔ 수량 상태 (각 itemUuid별로 저장)
   const [quantity, setQuantity] = useState<Record<string, number>>({});
 
-  // ✔ 수량 증가/감소 함수
-  const increase = (uuid: string) => {
-    setQuantity((prev) => ({
-      ...prev,
-      [uuid]: (prev[uuid] || 0) + 1,
-    }));
-  };
-
-  const decrease = (uuid: string) => {
-    setQuantity((prev) => ({
-      ...prev,
-      [uuid]: prev[uuid] > 0 ? prev[uuid] - 1 : 0,
-    }));
-  };
-
   // ✔ 구매 요청 함수
   const handlePurchase = async (item: Item) => {
-    const count = quantity[item.itemUuid] || 0;
+    let count = quantity[item.itemUuid] || 0;
 
-    if (count === 0) {
-      alert("1개 이상 선택해주세요!");
-      return;
+    if (count <= 0) {
+      count = 1; // ⭐ 최소 1 보장
     }
 
-    // 구매 확인 창
     const isOk = confirm(
       `${item.name}을(를) ${count}개 구매하시겠습니까?\n총 가격: ${(item.price * count).toLocaleString()}P`
     );
@@ -64,8 +48,6 @@ export default function DecorShop() {
         itemUuid: item.itemUuid,
         quantity: count,
       });
-
-      console.log("구매 결과:", res.data);
 
       alert("구매 성공!");
       window.location.reload();
@@ -164,11 +146,14 @@ export default function DecorShop() {
             key={item.itemUuid}
             className="p-6 transition bg-white shadow-md rounded-2xl hover:shadow-lg"
           >
-            <img
-              src={item.imageUrl}
-              alt={item.name}
-              className="object-contain w-full h-48 mb-4 bg-white rounded-lg"
-            />
+            {/* 카드 이미지 - 배너 크기에 맞춰 꽉 차게 */}
+            <div className="relative w-full h-48 mb-4 overflow-hidden rounded-lg">
+              <img
+                src={item.imageUrl}
+                alt={item.name}
+                className="absolute top-0 left-0 object-cover w-full h-full"
+              />
+            </div>
 
             <h2 className="mb-2 text-2xl font-bold">{item.name}</h2>
             <p className="mb-3 text-gray-600">
@@ -179,29 +164,7 @@ export default function DecorShop() {
               가격: {item.price.toLocaleString()}P
             </p>
 
-            {/* ✔ 수량 조절 UI */}
-            <div className="flex items-center mt-3 space-x-3">
-              <button
-                onClick={() => decrease(item.itemUuid)}
-                className="px-3 py-1 text-lg bg-gray-200 rounded-lg hover:bg-gray-300"
-              >
-                -
-              </button>
-
-              <span className="w-10 text-lg font-bold text-center">
-                {quantity[item.itemUuid]}
-              </span>
-
-              <button
-                onClick={() => increase(item.itemUuid)}
-                className="px-3 py-1 text-lg bg-gray-200 rounded-lg hover:bg-gray-300"
-              >
-                +
-              </button>
-            </div>
-
             <div className="flex items-center justify-between mt-4">
-              <span className="text-sm text-gray-500">재고: {item.stock}</span>
               <button
                 onClick={() => handlePurchase(item)}
                 className="px-3 py-1 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600"
