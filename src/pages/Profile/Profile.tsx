@@ -34,9 +34,7 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<number>(0);
 
-  /** -----------------------------
-   * 1) 로그인 여부 체크 (user null)
-   * ----------------------------- */
+  // 유저 값이 없을 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (user === null) {
       alert("로그인이 필요합니다.");
@@ -44,9 +42,7 @@ export default function Profile() {
     }
   }, [user, navigate]);
 
-  /** -----------------------------
-   * 2) 프로필 데이터 로드
-   * ----------------------------- */
+  // 프로필 정보 불러오기
   useEffect(() => {
     if (!user?.uuid) return;
 
@@ -60,16 +56,12 @@ export default function Profile() {
     })();
   }, [user]);
 
-  /** -----------------------------
-   * 3) user === undefined 상태면 로딩
-   * ----------------------------- */
+  // 로딩 중일 때
   if (user === undefined) {
     return <div className="mt-10 text-center">로딩중...</div>;
   }
 
-  /** -----------------------------
-   * 4) 편집/배너 관련 핸들러
-   * ----------------------------- */
+  // 상태 변경 핸들러
   const handleEditClick = () => setIsEditing(!isEditing);
   const handleBannerClick = (idx: number) => setSelectedBanner(idx);
   const handleButtonClick = () => {
@@ -80,9 +72,7 @@ export default function Profile() {
   console.log("🔎 Profile user:", user);
   console.log("🔎 localStorage auth_user:", localStorage.getItem("auth_user"));
 
-  /** -----------------------------
-   * 5) 실제 렌더링
-   * ----------------------------- */
+  // 렌더링 부분
   return (
     <div className="flex flex-col items-center h-screen">
       <Div
