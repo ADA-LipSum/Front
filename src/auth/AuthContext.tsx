@@ -47,6 +47,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const savedUser = localStorage.getItem("auth_user");
     const tokenType = localStorage.getItem("token_type");
     const accessToken = localStorage.getItem("access_token");
+    const refreshToken = localStorage.getItem("refresh_token");
+    const tokenExpiry = localStorage.getItem("token_expiry");
 
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -92,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       };
 
       localStorage.setItem("auth_user", JSON.stringify(nextUser));
+      localStorage.setItem("user_uuid", safeUuid);
       localStorage.setItem("token_type", tokenType);
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
