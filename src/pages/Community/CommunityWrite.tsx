@@ -149,7 +149,7 @@ export default function CommunityWrite() {
         <div className="prose max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
-            components={markdownComponents} // ★ 이거 반드시 필요
+            components={markdownComponents}
           >
             {previewMarkdown}
           </ReactMarkdown>

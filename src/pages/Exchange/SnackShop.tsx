@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/Snack/SnackShop.tsx
 import { useEffect, useState } from "react";
 import { api } from "../../api/client";
@@ -25,7 +26,7 @@ export default function SnackShop() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // ✔ 아이템별 수량 저장
+  // 아이템별 수량 저장
   const [quantity, setQuantity] = useState<Record<string, number>>({});
 
   const increase = (uuid: string) => {
@@ -42,7 +43,7 @@ export default function SnackShop() {
     }));
   };
 
-  // ✔ 구매 기능 (수량 포함 + confirm)
+  // 구매 기능 (수량 포함 + confirm)
   const handlePurchase = async (item: Item) => {
     const count = quantity[item.itemUuid] || 0;
 
@@ -176,7 +177,7 @@ export default function SnackShop() {
               가격: {item.price.toLocaleString()}P
             </p>
 
-            {/* ✔ 수량 + / - UI */}
+            {/* 수량 선택 */}
             <div className="flex items-center mt-3 space-x-3">
               <button
                 onClick={() => decrease(item.itemUuid)}

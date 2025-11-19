@@ -27,12 +27,12 @@ export default function CommunityList() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // 🔥 검색어 상태
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
 
   const size = 10;
   const navigate = useNavigate();
 
-  // 🔥 게시글/검색 리스트 호출
+  // 게시글 / 검색 리스트 호출
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -62,18 +62,18 @@ export default function CommunityList() {
     }
   };
 
-  // 🔥 page 또는 searchTerm 이 바뀔 때마다 다시 요청
+  // page 또는 searchTerm 이 바뀔 때마다 다시 요청
   useEffect(() => {
     fetchPosts();
   }, [page, searchTerm]);
 
-  // 🔥 검색 실행 함수
+  // 검색 실행 함수
   const handleSearch = () => {
     setPage(0); // 검색 시 1페이지로 초기화
     fetchPosts();
   };
 
-  // 🔥 엔터키 검색
+  // 엔터키 검색
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -103,10 +103,8 @@ export default function CommunityList() {
               {posts.length} 검색 결과
             </p>
           </div>
-
-          {/* 오른쪽 끝 정렬 */}
           <div className="flex flex-col items-end gap-2 w-80">
-            {/* 🔥 검색창 */}
+            {/* 검색창 */}
             <div className="relative w-full">
               <input
                 type="text"

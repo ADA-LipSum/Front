@@ -49,9 +49,7 @@ export default function CommunityDetail() {
 
   const token = localStorage.getItem("access_token");
 
-  // -----------------------------
-  // 🔥 게시글 상세 불러오기
-  // -----------------------------
+  // 게시글 상세 불러오기
   useEffect(() => {
     if (!uuid) return;
 
@@ -73,9 +71,7 @@ export default function CommunityDetail() {
     fetchDetail();
   }, [uuid]);
 
-  // -----------------------------
-  // 🔥 댓글 목록 불러오기
-  // -----------------------------
+  // 댓글 목록 불러오기
   const fetchComments = async () => {
     if (!uuid) return;
 
@@ -104,9 +100,7 @@ export default function CommunityDetail() {
       minute: "2-digit",
     });
 
-  // -----------------------------
-  // 🔥 댓글 작성
-  // -----------------------------
+  // 댓글 작성
   const submitComment = async () => {
     if (!commentInput.trim()) return;
 
@@ -120,7 +114,7 @@ export default function CommunityDetail() {
       setCommentInput("");
       fetchComments();
 
-      // 🔥 댓글 수 프론트에서 증가
+      // 댓글 수 프론트에서 증가
       setPost((prev) =>
         prev ? { ...prev, comments: prev.comments + 1 } : prev
       );
@@ -130,9 +124,8 @@ export default function CommunityDetail() {
     }
   };
 
-  // -----------------------------
-  // 🔥 대댓글 작성
-  // -----------------------------
+  // 대댓글 작성
+
   const submitReply = async (parentId: number) => {
     if (!replyInput[parentId]?.trim()) return;
 
@@ -156,9 +149,8 @@ export default function CommunityDetail() {
     }
   };
 
-  // -----------------------------
-  // 🔥 댓글 좋아요 토글
-  // -----------------------------
+  // 댓글 좋아요 토글
+
   const toggleLike = async (commentId: number) => {
     try {
       await api.post(
@@ -177,9 +169,8 @@ export default function CommunityDetail() {
     }
   };
 
-  // -----------------------------
-  // 🔥 로딩 / 오류 처리
-  // -----------------------------
+  // 로딩 / 오류 처리
+
   if (loading || !post) {
     return (
       <div className="max-w-3xl px-4 py-6 mx-auto">
@@ -208,9 +199,8 @@ export default function CommunityDetail() {
     );
   }
 
-  // -----------------------------
-  // 🔥 상세 페이지 UI
-  // -----------------------------
+  // 상세 페이지 UI
+
   return (
     <div className="max-w-3xl px-4 py-6 mx-auto">
       {/* 뒤로가기 */}
@@ -221,7 +211,7 @@ export default function CommunityDetail() {
         ← 목록으로
       </button>
 
-      {/* 🔥 게시글 상세 */}
+      {/* 게시글 상세 */}
       <div className="px-6 py-6 bg-white shadow rounded-xl">
         <img
           src={post.writerProfileImage || "/default-profile.png"}
@@ -256,7 +246,7 @@ export default function CommunityDetail() {
         </div>
       </div>
 
-      {/* 🔥 댓글 작성 */}
+      {/* 댓글 작성 */}
       <div className="px-5 py-4 mt-6 bg-white shadow rounded-xl">
         <h2 className="mb-2 text-sm font-semibold">댓글 작성</h2>
 
@@ -278,7 +268,7 @@ export default function CommunityDetail() {
         </div>
       </div>
 
-      {/* 🔥 댓글 목록 */}
+      {/* 댓글 목록 */}
       <div className="mt-6 space-y-4">
         {comments.map((c) => (
           <div
@@ -300,7 +290,7 @@ export default function CommunityDetail() {
 
                 <p className="mt-1 text-sm whitespace-pre-line">{c.content}</p>
 
-                {/* 🔥 좋아요 + 답글 */}
+                {/* 좋아요 + 답글 */}
                 <div className="flex gap-3 mt-2 text-[11px] text-gray-500">
                   <button
                     onClick={() => toggleLike(c.commentId)}
@@ -322,7 +312,7 @@ export default function CommunityDetail() {
                   </button>
                 </div>
 
-                {/* 🔥 대댓글 입력창 */}
+                {/* 대댓글 입력창 */}
                 {openReply[c.commentId] && (
                   <div className="mt-3 ml-6">
                     <textarea
@@ -349,7 +339,7 @@ export default function CommunityDetail() {
                   </div>
                 )}
 
-                {/* 🔥 대댓글 목록 */}
+                {/* 대댓글 목록 */}
                 {c.children && c.children.length > 0 && (
                   <div className="mt-4 ml-8 space-y-3">
                     {c.children.map((child) => (
