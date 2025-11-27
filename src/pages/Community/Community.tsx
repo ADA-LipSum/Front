@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
 
 type Post = {
+  seq: number;
   postUuid: string;
   title: string;
   writer: string | null;
@@ -39,7 +40,7 @@ export default function CommunityList() {
     try {
       setLoading(true);
 
-      const res = await api.get('/posts', {
+      const res = await api.get('/api/posts', {
         params: {
           page,
           size,
@@ -169,7 +170,7 @@ export default function CommunityList() {
           posts.map(post => (
             <div
               key={post.postUuid}
-              onClick={() => navigate(`/community/${post.postUuid}`)}
+              onClick={() => navigate(`/community/${post.seq}`)}
               className="flex items-start gap-4 px-6 py-4 transition bg-white shadow cursor-pointer rounded-xl hover:bg-gray-50"
             >
               {post.writerProfileImage ? (

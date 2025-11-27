@@ -1,10 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../../api/client';
 import ReactMarkdown from 'react-markdown';
-
-import { api } from '@/api/client';
-import { markdownComponents } from '@/components/Markdown/MarkdownComponents';
+import { markdownComponents } from '../../components/Markdown/MarkdownComponents';
 
 type PostDetail = {
   postUuid: string;
@@ -36,7 +34,7 @@ type Comment = {
 };
 
 export default function CommunityDetail() {
-  const { uuid } = useParams<{ uuid: string }>();
+  const { seq } = useParams<{ seq: string }>();
   const navigate = useNavigate();
 
   const [post, setPost] = useState<PostDetail | null>(null);
@@ -53,44 +51,45 @@ export default function CommunityDetail() {
 
   // 게시글 상세 불러오기
   useEffect(() => {
-    if (!uuid) return;
+    if (!seq) return;
 
     const fetchDetail = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const res = await api.get(`api/posts/${uuid}`);
+        const res = await api.get(`/api/posts/seq/${seq}`);
         setPost(res.data.data);
       } catch (err) {
         console.error(err);
         setError('게시글을 불러오는 중 오류가 발생했습니다.');
       } finally {
         setLoading(false);
+        console.log(seq);
       }
     };
-
     fetchDetail();
-  }, [uuid]);
+  }, [seq]);
 
   // 댓글 목록 불러오기
   const fetchComments = async () => {
-    if (!uuid) return;
+    if (!seq) return;
 
     try {
-      const res = await api.get(`/api/comments/${uuid}`, {
+      const res = await api.get(`/api/posts/seq/${seq}/comments`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      setComments(res.data);
+      setComments(res.data.data ?? []);
     } catch (err) {
       console.error('댓글 조회 실패:', err);
+      setComments([]); // 안전 처리
     }
   };
 
   useEffect(() => {
     fetchComments();
-  }, [uuid]);
+  }, [seq]);
 
   // 날짜 포맷 함수
   const formatDate = (iso: string) =>
@@ -109,7 +108,7 @@ export default function CommunityDetail() {
     try {
       await api.post(
         '/api/comments',
-        { postId: uuid, content: commentInput },
+        { postId: seq, content: commentInput },
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
 
@@ -125,7 +124,6 @@ export default function CommunityDetail() {
   };
 
   // 대댓글 작성
-
   const submitReply = async (parentId: number) => {
     if (!replyInput[parentId]?.trim()) return;
 
@@ -133,7 +131,7 @@ export default function CommunityDetail() {
       await api.post(
         '/api/comments',
         {
-          postId: uuid,
+          postId: seq,
           parentId,
           content: replyInput[parentId],
         },
@@ -150,7 +148,6 @@ export default function CommunityDetail() {
   };
 
   // 댓글 좋아요 토글
-
   const toggleLike = async (commentId: number) => {
     try {
       await api.post(
@@ -170,7 +167,6 @@ export default function CommunityDetail() {
   };
 
   // 로딩 / 오류 처리
-
   if (loading || !post) {
     return (
       <div className="max-w-3xl px-4 py-6 mx-auto">
@@ -200,7 +196,6 @@ export default function CommunityDetail() {
   }
 
   // 상세 페이지 UI
-
   return (
     <div className="max-w-3xl px-4 py-6 mx-auto">
       {/* 뒤로가기 */}
