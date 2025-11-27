@@ -1,17 +1,16 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import { useState, useEffect } from "react";
-import { FaGithub, FaLinkedin, FaStackOverflow } from "react-icons/fa";
+import { useState, useEffect } from 'react';
+import { FaGithub, FaLinkedin, FaStackOverflow } from 'react-icons/fa';
 
-import { Avatar } from "../../components/Avatar";
-import { Icon } from "@iconify/react";
-import ActivityCalendar from "react-github-calendar";
-import { labels } from "../../components/githubCalendarLabels";
-import BlogCarousel from "../../components/BlogCarousel";
-import { Div } from "../../components/Div";
-import { useAuth } from "../../auth/AuthContext";
-import { fetchUserProfile } from "../../components/Profile/profileContext";
+import { Avatar } from '../../components/Avatar';
+import { Icon } from '@iconify/react';
+import ActivityCalendar from 'react-github-calendar';
+import { labels } from '../../components/githubCalendarLabels';
+import BlogCarousel from '../../components/BlogCarousel';
+import { Div } from '../../components/Div';
+import { useAuth } from '../../auth/AuthContext';
+import { fetchUserProfile } from '../../components/Profile/profileContext';
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 type ProfileType = {
   uuid: string;
@@ -37,8 +36,8 @@ export default function Profile() {
   // 유저 값이 없을 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
     if (user === null) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
+      alert('로그인이 필요합니다.');
+      navigate('/login');
     }
   }, [user, navigate]);
 
@@ -69,8 +68,8 @@ export default function Profile() {
     setIsEditing(false);
   };
 
-  console.log("🔎 Profile user:", user);
-  console.log("🔎 localStorage auth_user:", localStorage.getItem("auth_user"));
+  console.log('🔎 Profile user:', user);
+  console.log('🔎 localStorage auth_user:', localStorage.getItem('auth_user'));
 
   // 렌더링 부분
   return (
@@ -82,7 +81,7 @@ export default function Profile() {
         <div className="absolute right-0 w-auto mt-2 mr-2 bg-black rounded-2xl">
           <Icon
             className="p-2 cursor-pointer"
-            style={{ color: isEditing ? "#3B89FF" : "white" }}
+            style={{ color: isEditing ? '#3B89FF' : 'white' }}
             icon="mdi:pencil"
             width="44"
             height="44"
@@ -102,9 +101,7 @@ export default function Profile() {
               className="absolute bg-cover border-4 border-purple-300 rounded-full left-30 -top-20"
             />
 
-            <h2 className="w-full ml-3 text-2xl font-black text-left">
-              {user?.name}
-            </h2>
+            <h2 className="w-full ml-3 text-2xl font-black text-left">{user?.name}</h2>
 
             <p className="p-4 mt-3 font-medium text-gray-700 border border-gray-500 text-md rounded-3xl">
               {profile?.intro}
@@ -114,22 +111,20 @@ export default function Profile() {
               <FaGithub
                 className="text-xl cursor-pointer hover:text-black"
                 onClick={() =>
-                  profile?.links?.github &&
-                  window.open(profile.links.github, "_blank")
+                  profile?.links?.github && window.open(profile.links.github, '_blank')
                 }
               />
               <FaLinkedin
                 className="text-xl cursor-pointer hover:text-sky-700"
                 onClick={() =>
-                  profile?.links?.linkedin &&
-                  window.open(profile.links.linkedin, "_blank")
+                  profile?.links?.linkedin && window.open(profile.links.linkedin, '_blank')
                 }
               />
               <FaStackOverflow
                 className="text-xl cursor-pointer hover:text-orange-500"
                 onClick={() =>
                   profile?.links?.stackoverflow &&
-                  window.open(profile.links.stackoverflow, "_blank")
+                  window.open(profile.links.stackoverflow, '_blank')
                 }
               />
             </div>
@@ -141,7 +136,7 @@ export default function Profile() {
               <h3 className="mb-3 text-lg font-bold">기술 스택</h3>
             </div>
             <div className="flex flex-wrap gap-3">
-              {profile?.techStack?.map((tech) => (
+              {profile?.techStack?.map(tech => (
                 <span
                   key={tech}
                   className="w-auto h-10 px-3 py-1 text-sm font-medium bg-gray-200 rounded-sm cursor-pointer hover:bg-gray-300"
@@ -177,9 +172,7 @@ export default function Profile() {
             <div>
               <div className="flex flex-row justify-between mb-4">
                 <div className="flex flex-row">
-                  <h3 className="items-center text-lg font-bold leading-9.5">
-                    수집한 배너
-                  </h3>
+                  <h3 className="items-center text-lg font-bold leading-9.5">수집한 배너</h3>
                   <Icon
                     className="p-2 cursor-pointer"
                     icon="mdi-light:information"
@@ -203,15 +196,11 @@ export default function Profile() {
                     className="relative w-full h-32 overflow-hidden cursor-pointer rounded-xl"
                     onClick={() => handleBannerClick(idx)}
                   >
-                    <img
-                      src={src}
-                      alt={`banner-${idx}`}
-                      className="object-cover w-full h-full"
-                    />
+                    <img src={src} alt={`banner-${idx}`} className="object-cover w-full h-full" />
                     {selectedBanner === idx && (
                       <div
                         className="absolute inset-0"
-                        style={{ backgroundColor: "rgba(59, 137, 255, 0.6)" }}
+                        style={{ backgroundColor: 'rgba(59, 137, 255, 0.6)' }}
                       >
                         <Icon
                           className="absolute text-white -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
@@ -226,11 +215,8 @@ export default function Profile() {
               </div>
 
               <div className="flex justify-center gap-2 mt-2">
-                {[0, 1, 2, 3, 4].map((dot) => (
-                  <div
-                    key={dot}
-                    className={`w-2 h-2 rounded-full bg-neutral-500`}
-                  />
+                {[0, 1, 2, 3, 4].map(dot => (
+                  <div key={dot} className={`w-2 h-2 rounded-full bg-neutral-500`} />
                 ))}
               </div>
             </div>
@@ -243,55 +229,55 @@ export default function Profile() {
 
 const blogMockData = [
   {
-    title: "제목1",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목1',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목2",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목2',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목3",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목3',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목4",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목4',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목5",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목5',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목6",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목6',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목7",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목7',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
   {
-    title: "제목8",
-    description: "테스트용 더미 설명1",
-    url: "https://example.com/blog1",
+    title: '제목8',
+    description: '테스트용 더미 설명1',
+    url: 'https://example.com/blog1',
   },
 ];
 
 const banners = [
-  "https://static.solved.ac/profile_bg/profile/kit2025b-706ff93c-5758-4136-8c62-7df54b1065ef.png",
-  "https://static.solved.ac/profile_bg/profile/kit2025a-a3bae173-3be5-4451-ba7f-c1995dca9959.jpeg",
-  "https://static.solved.ac/profile_bg/profile/halloween2025-34185f0e-62a4-4499-bea4-9e91d37aa15c.jpeg",
-  "https://static.solved.ac/profile_bg/profile/lemoncup-c805203e-d3f6-4865-a36d-6ea5ba8dce5c.png",
-  "https://static.solved.ac/profile_bg/profile/iam2025half-2523fbbd-ffa5-4445-8588-e34975e98af8.png",
-  "https://static.solved.ac/profile_bg/profile/skh2025-118a72a5-6440-4ca5-aebe-75f854cf1a94.png",
-  "https://static.solved.ac/profile_bg/profile/k512_2025-d13477dc-0ea4-4094-84cb-12353698ebd4.png",
-  "https://static.solved.ac/profile_bg/profile/ucpc2025-2df0cbcc-0aa5-438a-8532-1a7ef2eeab44.png",
-  "https://static.solved.ac/profile_bg/suapc2021w/suapc2021w.png",
+  'https://static.solved.ac/profile_bg/profile/kit2025b-706ff93c-5758-4136-8c62-7df54b1065ef.png',
+  'https://static.solved.ac/profile_bg/profile/kit2025a-a3bae173-3be5-4451-ba7f-c1995dca9959.jpeg',
+  'https://static.solved.ac/profile_bg/profile/halloween2025-34185f0e-62a4-4499-bea4-9e91d37aa15c.jpeg',
+  'https://static.solved.ac/profile_bg/profile/lemoncup-c805203e-d3f6-4865-a36d-6ea5ba8dce5c.png',
+  'https://static.solved.ac/profile_bg/profile/iam2025half-2523fbbd-ffa5-4445-8588-e34975e98af8.png',
+  'https://static.solved.ac/profile_bg/profile/skh2025-118a72a5-6440-4ca5-aebe-75f854cf1a94.png',
+  'https://static.solved.ac/profile_bg/profile/k512_2025-d13477dc-0ea4-4094-84cb-12353698ebd4.png',
+  'https://static.solved.ac/profile_bg/profile/ucpc2025-2df0cbcc-0aa5-438a-8532-1a7ef2eeab44.png',
+  'https://static.solved.ac/profile_bg/suapc2021w/suapc2021w.png',
 ];

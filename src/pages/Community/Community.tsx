@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { api } from "../../api/client";
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../../api/client';
 
 type Post = {
   postUuid: string;
@@ -27,7 +27,7 @@ export default function CommunityList() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
+  const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
 
   const size = 10;
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function CommunityList() {
     try {
       setLoading(true);
 
-      const res = await api.get("/post/list", {
+      const res = await api.get('/api/posts', {
         params: {
           page,
           size,
@@ -46,7 +46,7 @@ export default function CommunityList() {
       });
 
       if (!res.data || !res.data.data) {
-        console.error("Invalid response:", res.data);
+        console.error('Invalid response:', res.data);
         setPosts([]);
         setTotalPages(1);
         return;
@@ -56,7 +56,7 @@ export default function CommunityList() {
       setPosts(data.content ?? []);
       setTotalPages(data.totalPages ?? 1);
     } catch (err) {
-      console.error("API Error:", err);
+      console.error('API Error:', err);
     } finally {
       setLoading(false);
     }
@@ -75,18 +75,18 @@ export default function CommunityList() {
 
   // 엔터키 검색
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       handleSearch();
     }
   };
 
   const formatDate = (iso: string) => {
-    return new Date(iso).toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(iso).toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -99,9 +99,7 @@ export default function CommunityList() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">커뮤니티</h1>
-            <p className="mt-1 text-xl text-gray-500">
-              {posts.length} 검색 결과
-            </p>
+            <p className="mt-1 text-xl text-gray-500">{posts.length} 검색 결과</p>
           </div>
           <div className="flex flex-col items-end gap-2 w-80">
             {/* 검색창 */}
@@ -109,7 +107,7 @@ export default function CommunityList() {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="검색어를 입력해 주세요"
                 className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md focus:outline-none"
@@ -166,17 +164,14 @@ export default function CommunityList() {
         )}
 
         {!loading &&
-          posts.map((post) => (
+          posts.map(post => (
             <div
               key={post.postUuid}
               onClick={() => navigate(`/community/${post.postUuid}`)}
               className="flex items-start gap-4 px-6 py-4 transition bg-white shadow cursor-pointer rounded-xl hover:bg-gray-50"
             >
               {post.writerProfileImage ? (
-                <img
-                  src={post.writerProfileImage}
-                  className="w-12 h-12 border rounded-3xl"
-                />
+                <img src={post.writerProfileImage} className="w-12 h-12 border rounded-3xl" />
               ) : (
                 <div className="w-12 h-12 bg-gray-200 rounded-3xl" />
               )}
@@ -184,7 +179,7 @@ export default function CommunityList() {
               <div className="flex-1">
                 <h2 className="text-sm font-semibold">{post.title}</h2>
                 <p className="mt-1 text-xs text-gray-500">
-                  {post.writer ?? "익명"} · {formatDate(post.writedAt)}
+                  {post.writer ?? '익명'} · {formatDate(post.writedAt)}
                 </p>
 
                 <div className="flex gap-1 mt-2 text-[10px]">
@@ -193,9 +188,7 @@ export default function CommunityList() {
                       {post.devTags.toUpperCase()}
                     </span>
                   )}
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-full">
-                    {post.tag}
-                  </span>
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-full">{post.tag}</span>
                 </div>
               </div>
 
@@ -211,7 +204,7 @@ export default function CommunityList() {
       {/* 페이지네이션 */}
       <div className="flex justify-center gap-3 mt-6">
         <button
-          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+          onClick={() => setPage(p => Math.max(p - 1, 0))}
           disabled={page === 0}
           className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
         >
@@ -219,14 +212,14 @@ export default function CommunityList() {
         </button>
 
         <div className="flex gap-1">
-          {pageNumbers.map((p) => (
+          {pageNumbers.map(p => (
             <button
               key={p}
               onClick={() => setPage(p)}
               className={`w-8 h-8 rounded-full text-xs border flex items-center justify-center ${
                 p === page
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-500 border-gray-200 hover:bg-gray-100"
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100'
               }`}
             >
               {p + 1}
@@ -235,7 +228,7 @@ export default function CommunityList() {
         </div>
 
         <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+          onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
           disabled={page === totalPages - 1}
           className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
         >
