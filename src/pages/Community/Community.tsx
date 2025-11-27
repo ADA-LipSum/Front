@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { api } from "../../api/client";
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../../api/client';
 
 type Post = {
   postUuid: string;
@@ -36,11 +36,11 @@ export default function CommunityList() {
       try {
         setLoading(true);
 
-        const res = await api.get("/post/list", { params: { page, size } });
+        const res = await api.get('/post/list', { params: { page, size } });
 
         // 🔥 응답 구조 검증
         if (!res.data || !res.data.data) {
-          console.error("Invalid response:", res.data);
+          console.error('Invalid response:', res.data);
           setPosts([]);
           setTotalPages(1);
           return;
@@ -51,7 +51,7 @@ export default function CommunityList() {
         setPosts(data.content ?? []);
         setTotalPages(data.totalPages ?? 1);
       } catch (err) {
-        console.error("API Error:", err);
+        console.error('API Error:', err);
       } finally {
         setLoading(false);
       }
@@ -61,12 +61,12 @@ export default function CommunityList() {
   }, [page]);
 
   const formatDate = (iso: string) => {
-    return new Date(iso).toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(iso).toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -153,7 +153,7 @@ export default function CommunityList() {
 
         {/* 실제 게시글 리스트 */}
         {!loading &&
-          posts.map((post) => (
+          posts.map(post => (
             <div
               key={post.postUuid}
               onClick={() => navigate(`/community/${post.postUuid}`)}
@@ -174,7 +174,7 @@ export default function CommunityList() {
               <div className="flex-1">
                 <h2 className="text-sm font-semibold">{post.title}</h2>
                 <p className="mt-1 text-xs text-gray-500">
-                  {post.writer ?? "익명"} · {formatDate(post.writedAt)}
+                  {post.writer ?? '익명'} · {formatDate(post.writedAt)}
                 </p>
 
                 <div className="flex gap-1 mt-2 text-[10px]">
@@ -183,9 +183,7 @@ export default function CommunityList() {
                       {post.devTags.toUpperCase()}
                     </span>
                   )}
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-full">
-                    {post.tag}
-                  </span>
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-full">{post.tag}</span>
                 </div>
               </div>
 
@@ -202,7 +200,7 @@ export default function CommunityList() {
       {/* 페이지네이션 */}
       <div className="flex justify-center gap-3 mt-6">
         <button
-          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+          onClick={() => setPage(p => Math.max(p - 1, 0))}
           disabled={page === 0}
           className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
         >
@@ -210,14 +208,14 @@ export default function CommunityList() {
         </button>
 
         <div className="flex gap-1">
-          {pageNumbers.map((p) => (
+          {pageNumbers.map(p => (
             <button
               key={p}
               onClick={() => setPage(p)}
               className={`w-8 h-8 rounded-full text-xs border flex items-center justify-center ${
                 p === page
-                  ? "bg-black text-white border-black"
-                  : "bg-white text-gray-500 border-gray-200 hover:bg-gray-100"
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100'
               }`}
             >
               {p + 1}
@@ -226,7 +224,7 @@ export default function CommunityList() {
         </div>
 
         <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+          onClick={() => setPage(p => Math.min(p + 1, totalPages - 1))}
           disabled={page === totalPages - 1}
           className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
         >

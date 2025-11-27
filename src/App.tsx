@@ -1,21 +1,21 @@
 // src/App.tsx
-import { Routes, Route } from "react-router-dom";
-import Header from "./components/Header/Header";
-import Home from "./pages/Home/Home";
-import Community from "./pages/Community/Community";
-import Contact from "./pages/Contact/Contact";
-import Exchange from "./pages/Exchange/Exchange";
-import Events from "./pages/Event/Event";
-import Profile from "./pages/Profile/Profile";
-import Login from "./pages/Auth/Login";
-import NotFound from "./pages/NotFound";
-import Blog from "./pages/Blog/Blog";
-import Form from "./pages/Contact/Form";
-import CommunityDetail from "./pages/Community/CommunityDetail";
-import CommunityWrite from "./pages/Community/CommunityWrite";
-import SnackShop from "./pages/Exchange/SnackShop";
-import DeviceShop from "./pages/Exchange/DeviceShop";
-import ProfileDecor from "./pages/Exchange/ProfileDecor";
+import { Routes, Route } from 'react-router-dom';
+import Header from './components/Header/Header';
+import Home from './pages/Home/Home';
+import Community from './pages/Community/Community';
+import Contact from './pages/Contact/Contact';
+import Exchange from './pages/Exchange/Exchange';
+import Events from './pages/Event/Event';
+import Profile from './pages/Profile/Profile';
+import NotFound from './pages/NotFound';
+import Blog from './pages/Blog/Blog';
+import Form from './pages/Contact/Form';
+import CommunityDetail from './pages/Community/CommunityDetail';
+import CommunityWrite from './pages/Community/CommunityWrite';
+import SnackShop from './pages/Exchange/SnackShop';
+import DeviceShop from './pages/Exchange/DeviceShop';
+import DecorShop from './pages/Exchange/DecorShop';
+import Login from './pages/Auth/Login';
 
 function App() {
   return (
