@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { FaGithub, FaLinkedin, FaStackOverflow } from 'react-icons/fa';
+import ActivityCalendar from 'react-github-calendar';
 
 import { Avatar } from '@/components/Avatar';
 import { Icon } from '@iconify/react';
-import ActivityCalendar from 'react-github-calendar';
 import { labels } from '@/components/githubCalendarLabels';
 import BlogCarousel from '@/components/BlogCarousel';
 import { Div } from '@/components/Div';

@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { api } from '@/api/client';
 import ReactMarkdown from 'react-markdown';
+
+import { api } from '@/api/client';
 import { markdownComponents } from '@/components/Markdown/MarkdownComponents';
 
 type PostDetail = {

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/Snack/SnackShop.tsx
 import { useEffect, useState } from 'react';
+
 import { api } from '@/api/client';
 
 type Point = {

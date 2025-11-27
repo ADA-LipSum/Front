@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { Div } from './Div';
+
 import type { AvatarProps } from '@/@types/index';
 
 //prettier-ignore

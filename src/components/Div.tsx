@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+
 import type { DivProps } from '@/@types/index';
 
 //prettier-ignore
