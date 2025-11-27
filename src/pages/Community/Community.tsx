@@ -38,7 +38,7 @@ export default function CommunityList() {
     try {
       setLoading(true);
 
-      const res = await api.get('/api/posts', {
+      const res = await api.get('/posts', {
         params: {
           page,
           size,

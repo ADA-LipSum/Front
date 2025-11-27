@@ -10,11 +10,10 @@ import { Div } from '@/components/Div';
 import { useAuth } from '@/auth/AuthContext';
 import { fetchUserProfile } from '@/components/Profile/profileContext';
 
-import { useNavigate } from 'react-router-dom';
-
 type ProfileType = {
   uuid: string;
   userRealname: string;
+  userNickname?: string;
   profileImage?: string;
   profileBanner?: string;
   role?: string;
@@ -27,51 +26,34 @@ type ProfileType = {
 
 export default function Profile() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState<number>(0);
 
-  // 유저 값이 없을 경우 로그인 페이지로 리다이렉트
   useEffect(() => {
-    if (user === null) {
-      alert('로그인이 필요합니다.');
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  // 프로필 정보 불러오기
-  useEffect(() => {
-    if (!user?.uuid) return;
-
+    const uuid = user?.uuid;
+    if (!uuid) return;
     (async () => {
-      const uuid = user?.uuid;
-      if (!uuid) return;
-
       const data = await fetchUserProfile(uuid);
-
       setProfile(data);
     })();
   }, [user]);
 
-  // 로딩 중일 때
-  if (user === undefined) {
-    return <div className="mt-10 text-center">로딩중...</div>;
-  }
-
-  // 상태 변경 핸들러
-  const handleEditClick = () => setIsEditing(!isEditing);
-  const handleBannerClick = (idx: number) => setSelectedBanner(idx);
+  const handleEditClick = () => {
+    setIsEditing(!isEditing);
+  };
+  const handleBannerClick = (idx: number) => {
+    setSelectedBanner(idx);
+  };
   const handleButtonClick = () => {
-    console.log(`Selected banner index: ${selectedBanner}`);
-    setIsEditing(false);
+    if (selectedBanner !== null) {
+      console.log(`Selected banner index: ${selectedBanner}`);
+      setIsEditing(!isEditing);
+    } else {
+      console.log('No banner selected');
+    }
   };
 
-  console.log('🔎 Profile user:', user);
-  console.log('🔎 localStorage auth_user:', localStorage.getItem('auth_user'));
-
-  // 렌더링 부분
   return (
     <div className="flex flex-col items-center h-screen">
       <Div
@@ -80,7 +62,7 @@ export default function Profile() {
       >
         <div className="absolute right-0 w-auto mt-2 mr-2 bg-black rounded-2xl">
           <Icon
-            className="p-2 cursor-pointer"
+            className="p-2 cursor-pointer "
             style={{ color: isEditing ? '#3B89FF' : 'white' }}
             icon="mdi:pencil"
             width="44"
@@ -89,10 +71,10 @@ export default function Profile() {
           />
         </div>
       </Div>
-
       <div className="flex flex-row w-full">
         {/* 프로필 섹션 */}
         <section className="relative flex flex-col w-1/3 px-16">
+          {/* 이름 & 간단 소개 */}
           <div className="pt-24 mb-6">
             <Avatar
               size="10rem"
@@ -100,13 +82,12 @@ export default function Profile() {
               src={`${profile?.profileImage || user?.profileImage}`}
               className="absolute bg-cover border-4 border-purple-300 rounded-full left-30 -top-20"
             />
-
-            <h2 className="w-full ml-3 text-2xl font-black text-left">{user?.name}</h2>
-
+            <h2 className="w-full ml-3 text-2xl font-black text-left">
+              {profile?.userNickname || profile?.userRealname}
+            </h2>
             <p className="p-4 mt-3 font-medium text-gray-700 border border-gray-500 text-md rounded-3xl">
               {profile?.intro}
             </p>
-
             <div className="flex items-center gap-3 mt-2 text-gray-600">
               <FaGithub
                 className="text-xl cursor-pointer hover:text-black"
@@ -147,15 +128,14 @@ export default function Profile() {
             </div>
           </div>
         </section>
-
-        {/* 오른쪽 영역 */}
         {!isEditing ? (
           <section className="w-2/3 p-4 pr-12">
+            {/* 블로그 */}
             <div className="w-full mb-4 h-3/5">
               <h3 className="text-lg font-bold leading-9.5">블로그</h3>
               <BlogCarousel data={blogMockData} />
             </div>
-
+            {/* 깃허브 잔디 */}
             <div className="flex justify-center h-auto p-6 border rounded-2xl font-notosans">
               <ActivityCalendar
                 // username={`${profile?.links?.github?.split('github.com/')[1]}`}
@@ -170,6 +150,7 @@ export default function Profile() {
           </section>
         ) : (
           <section className="w-2/3 p-4 pr-12">
+            {/* 배너 수정 로직 */}
             <div>
               <div className="flex flex-row justify-between mb-4">
                 <div className="flex flex-row">
@@ -181,7 +162,6 @@ export default function Profile() {
                     height="40"
                   />
                 </div>
-
                 <button
                   className="p-3 text-white bg-blue-600 rounded-lg"
                   onClick={handleButtonClick}
@@ -190,6 +170,7 @@ export default function Profile() {
                 </button>
               </div>
 
+              {/* 배너 이미지 */}
               <div className="grid grid-cols-3 gap-4 mb-4">
                 {banners.map((src, idx) => (
                   <div
@@ -215,6 +196,7 @@ export default function Profile() {
                 ))}
               </div>
 
+              {/* 페이지 인디케이터 */}
               <div className="flex justify-center gap-2 mt-2">
                 {[0, 1, 2, 3, 4].map(dot => (
                   <div key={dot} className={`w-2 h-2 rounded-full bg-neutral-500`} />
@@ -272,6 +254,7 @@ const blogMockData = [
 ];
 
 const banners = [
+  // 넣을 배너 이미지 URL들
   'https://static.solved.ac/profile_bg/profile/kit2025b-706ff93c-5758-4136-8c62-7df54b1065ef.png',
   'https://static.solved.ac/profile_bg/profile/kit2025a-a3bae173-3be5-4451-ba7f-c1995dca9959.jpeg',
   'https://static.solved.ac/profile_bg/profile/halloween2025-34185f0e-62a4-4499-bea4-9e91d37aa15c.jpeg',
