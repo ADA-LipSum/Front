@@ -1,5 +1,4 @@
-// src/App.tsx
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header/Header';
 import Home from './pages/Home/Home';
 import Community from './pages/Community/Community';
@@ -15,12 +14,24 @@ import CommunityWrite from './pages/Community/CommunityWrite';
 import SnackShop from './pages/Exchange/SnackShop';
 import DeviceShop from './pages/Exchange/DeviceShop';
 import DecorShop from './pages/Exchange/DecorShop';
-import Login from './pages/Auth/Login';
+
+import Background from './pages/Auth/Auth2/Background';
+import Login from './pages/Auth/Auth2/Login';
 
 function App() {
+    const location = useLocation();
+
+    const hiddenHeaderRoutes = [
+        // 헤더를 숨길 경로들
+        '/login',
+        '/auth2/background',
+    ];
+
+    const shouldHideHeader = hiddenHeaderRoutes.includes(location.pathname); // 현재 경로가 숨길 경로들에 포함되는지 확인
+
     return (
         <>
-            <Header />
+            {!shouldHideHeader && <Header />}
 
             <Routes>
                 {/* 헤더 페이지 라우트 */}
@@ -44,6 +55,8 @@ function App() {
 
                 {/* 인증 관련 라우트 */}
                 <Route path="/login" element={<Login />} />
+
+                <Route path="/auth2/background" element={<Background />} />
 
                 {/* 맨 마지막에 배치할 것!! */}
                 <Route path="*" element={<NotFound />} />
