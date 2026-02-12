@@ -1,73 +1,160 @@
-# React + TypeScript + Vite
+---
+title: 프론트엔드 공통 컨벤션
+description: ADA 프론트엔드 팀원과 협업하기 위한 공통 컨벤션
+---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> ADA 프론트엔드 팀원과 함께 **협업**하기 위한 **컨벤션**입니다.
 
-Currently, two official plugins are available:
+## 1. 기본 폴더 구조
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### app
 
-## React Compiler
+> 프로젝트 핵심 설정 파일들 관리
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+### components
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> 재사용 가능한 컴포넌트들을 관리
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+components/
+├─ common/      # 공통 컴포넌트 (Button, Input, Modal 등)
+├─ layout/      # 레이아웃 관련 컴포넌트 (Header, Footer, Sidebar)
+└─ features/    # 기능/도메인별 컴포넌트
+   └─ home/
+      ├─ HomeAnnouncement.tsx  # 홈 페이지 공지사항
+      └─ HomeBanner.tsx        # 홈 페이지 배너
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **common/**: 프로젝트 전반에서 공통으로 사용하는 UI 컴포넌트
+- **layout/**: 페이지 레이아웃을 구성하는 컴포넌트
+- **features/**: 기능(도메인) 단위로 컴포넌트를 구조화하여 관리
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### lib
+
+> 프로젝트의 유틸리티 함수, API 호출 함수, 헬퍼 등을 관리
+
 ```
+lib/
+├─ apis/        # API 관련 함수 (파일명: *.api.ts)
+├─ hooks/       # 커스텀 훅
+└─ utils/       # 유틸리티 함수 (파일명: *.util.ts)
+```
+
+---
+
+### pages
+
+> 사용자에게 보여지는 주요 페이지를 라우팅 경로와 함께 관리
+
+```
+pages/
+├─ HomePage.tsx
+└─ dashboard/
+   └─ DashboardPage.tsx
+```
+
+---
+
+### 상태 관리 및 타입
+
+```
+├─ contexts/            # Context API 관련 파일
+│  └─ auth/
+│     ├─ auth.context.ts
+│     ├─ auth.reducer.ts
+│     └─ AuthProvider.ts
+├─ store/               # 전역 상태 관리 (*.slice.ts)
+├─ types/               # 타입 정의
+│  ├─ dto/
+│  │  └─ *.dto.ts
+│  └─ *.type.ts
+└─ data/                # 상수 데이터 (*.constant.ts)
+```
+
+- **contexts/**: Context API 관련 로직 관리
+- **store/**: Redux 등 전역 상태 관리 파일
+- **types/**: TypeScript 타입 및 DTO 정의
+- **data/**: 상수 데이터 관리
+
+---
+
+## 2. 네이밍 및 코드 컨벤션
+
+- 함수 선언: `const` 사용
+- 컴포넌트 / 타입 네이밍: **PascalCase**
+
+---
+
+## 3. Tailwind CSS 스타일 관리 전략
+
+### 3.1 기본 원칙
+
+- Tailwind CSS는 **CSS 파일을 페이지마다 생성하지 않는다**
+- 스타일은 **컴포넌트 단위로 JSX 안에서 관리**한다
+- 재사용 가능한 스타일은 **컴포넌트 또는 스타일 상수로 추상화**한다
+
+---
+
+### 3.2 페이지 전용 스타일 관리
+
+#### 스타일 상수 파일 분리
+
+```
+pages/
+├─ HomePage.tsx
+└─ HomePage.styles.ts
+```
+
+##### HomePage.styles.ts
+
+```ts
+export const homePageStyles = {
+  container: 'mx-auto max-w-7xl px-6 py-10',
+  title: 'text-3xl font-bold text-gray-900',
+  section: 'mt-8 grid gap-6 md:grid-cols-2',
+};
+```
+
+##### HomePage.tsx
+
+```tsx
+import { homePageStyles as s } from './HomePage.styles';
+
+export default function HomePage() {
+  return (
+    <div className={s.container}>
+      <h1 className={s.title}>홈</h1>
+      <section className={s.section}>{/* feature components */}</section>
+    </div>
+  );
+}
+```
+
+---
+
+### 3.3 재사용 가능한 스타일 관리 기준
+
+#### 공통 UI → components/common
+
+- Button, Input, Modal 등은 컴포넌트 자체로 스타일을 캡슐화
+
+#### 반복되는 스타일 패턴 -> styles 상수화
+
+```
+lib/styles/
+└─ card.styles.ts
+```
+
+#### 상태/variant 많은 컴포넌트 → cva 사용
+
+- Button, Badge, Tag 등에 권장
+
+#### 전역 스타일 → 최소한만 사용
+
+- `globals.css`의 `@layer components`는 디자인 시스템 수준에서만 허용
+
+---
