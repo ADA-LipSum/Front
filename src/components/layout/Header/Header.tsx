@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
 import { Bell } from 'lucide-react';
 
 type HeaderProps = {
@@ -12,7 +13,7 @@ const Header = ({ isLoggedIn }: HeaderProps) => {
     <div className="w-full h-20 bg-[#F5F5F5] flex items-center pl-18.25 border-b border-[#9C9C9C]">
       {/* 로고 */}
       <Link to="/">
-        <img src="src/assets/LipSum-logo-white.svg" className="w-40" alt="logo" />
+        <img src={LipSum_Logo_Black} className="w-40" alt="logo" />
       </Link>
 
       {/* 메뉴 영역 */}
