@@ -15,16 +15,14 @@ export const SocialLogin = () => {
       </h1>
 
       {/* 설명 */}
-      <p className="mt-4 text-gray-600 text-base">
-        LipSum은 학생들이 지식을 공유하며 소통하는 플랫폼입니다.
-      </p>
+      <p className="mt-5 font-bold">LipSum은 학생들이 지식을 공유하며 소통하는 플랫폼입니다.</p>
 
       {/* 로그인 구분선 */}
       <div className="w-full max-w-md mt-10">
         <div className="flex items-center gap-4 mb-10">
-          <div className="flex-1 h-px bg-gray-400"></div>
-          <span className="text-gray-600 font-semibold text-sm">로그인</span>
-          <div className="flex-1 h-px bg-gray-400"></div>
+          <div className="flex-1 h-0.75 bg-[#535353]"></div>
+          <span className="text-[#535353] font-bold">로그인</span>
+          <div className="flex-1 h-0.75 bg-[#535353]"></div>
         </div>
 
         {/* 소셜 로그인 영역 */}
@@ -55,7 +53,7 @@ export const SocialLogin = () => {
         </div>
 
         {/* 하단 구분선 */}
-        <div className="h-px bg-gray-400 mb-6"></div>
+        <div className="h-0.75 bg-[#535353] mb-6"></div>
 
         {/* 일반 로그인 이동 */}
         <div className="text-center">
