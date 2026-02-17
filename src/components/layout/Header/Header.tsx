@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 
-const Header = () => {
+import { Bell } from 'lucide-react';
+
+type HeaderProps = {
+  // 로그인 상태를 나타내는 prop (예: isLoggedIn)
+  isLoggedIn: boolean;
+};
+
+const Header = ({ isLoggedIn }: HeaderProps) => {
   return (
     <div className="w-full h-20 bg-[#F5F5F5] flex items-center pl-18.25 border-b border-[#9C9C9C]">
       {/* 로고 */}
-      <Link to="/home">
+      <Link to="/">
         <img src="src/assets/LipSum-logo-white.svg" className="w-40" alt="logo" />
       </Link>
 
@@ -16,10 +23,23 @@ const Header = () => {
         <Link to="/contact">문의</Link>
       </div>
 
-      {/* 로그인 버튼 */}
-      <button className="ml-auto mr-5.75 px-4 py-2 bg-gray-300 text-black font-semibold rounded hover:bg-gray-300 transition hover:cursor-pointer">
-        로그인
-      </button>
+      <div className="ml-auto mr-6 flex items-center gap-5">
+        {isLoggedIn ? (
+          <>
+            <Bell className="w-6 h-6 cursor-pointer hover:text-blue-600" />
+            <img
+              src="https://api.dicebear.com/9.x/identicon/svg?seed=a9739cf1d10211f0bd93862ccfb0399f"
+              className="w-12 h-12 rounded-full ml-2 border border-gray-300 hover:cursor-pointer"
+            />
+          </>
+        ) : (
+          <Link to="/login">
+            <button className="px-4 py-2 bg-gray-300 text-black font-semibold rounded hover:bg-gray-400 transition hover:cursor-pointer">
+              로그인
+            </button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 };
