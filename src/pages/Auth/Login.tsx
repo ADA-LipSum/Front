@@ -1,4 +1,7 @@
-import { login } from '@/api/auth';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '@/store/store';
+import { login } from '@/features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 import LipSumIcon from '@/assets/LipSum_icon.svg';
 import { Link } from 'react-router-dom';
@@ -6,18 +9,19 @@ import { Eye } from 'lucide-react';
 import { useState } from 'react';
 
 export const Login = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
 
-  // 로그인 테스트 함수
   const handleLogin = async () => {
     try {
-      const data = await login(id, password);
-      console.log('✅ 로그인 성공:', data);
-      alert('로그인에 성공했습니다!');
-    } catch (error: any) {
-      console.log('❌ 로그인 실패:', error.response?.data || error.message);
-      alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+      await dispatch(login({ id, password })).unwrap();
+      alert('로그인 성공!');
+      navigate('/');
+    } catch (err) {
+      alert('로그인 실패');
     }
   };
 
