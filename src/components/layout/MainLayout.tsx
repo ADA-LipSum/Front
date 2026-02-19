@@ -4,7 +4,7 @@ import Header from './Header/Header';
 const MainLayout = () => {
   return (
     <>
-      <Header isLoggedIn={false} />
+      <Header />
       <Outlet />
     </>
   );
