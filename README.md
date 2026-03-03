@@ -1,117 +1,160 @@
-# 🧭 개발하기에 앞서
+---
+title: 프론트엔드 공통 컨벤션
+description: ADA 프론트엔드 팀원과 협업하기 위한 공통 컨벤션
+---
 
-원활한 협업을 위해 아래 규칙을 꼭 지켜주시기 바랍니다.
+> ADA 프론트엔드 팀원과 함께 **협업**하기 위한 **컨벤션**입니다.
+
+## 1. 기본 폴더 구조
+
+### app
+
+> 프로젝트 핵심 설정 파일들 관리
 
 ---
 
-## 📘 주요 규칙
+### components
 
-### 1. 주석 남기기
+> 재사용 가능한 컴포넌트들을 관리
 
-- 코드 변경의 **의도**와 **핵심 동작**을 간결히 주석으로 남겨주세요.
-- 예시:
-  ```js
-  // 로그인 성공 시 JWT 토큰을 로컬 스토리지에 저장
-  localStorage.setItem("token", response.data.token);
-  ```
+```
+components/
+├─ common/      # 공통 컴포넌트 (Button, Input, Modal 등)
+├─ layout/      # 레이아웃 관련 컴포넌트 (Header, Footer, Sidebar)
+└─ features/    # 기능/도메인별 컴포넌트
+   └─ home/
+      ├─ HomeAnnouncement.tsx  # 홈 페이지 공지사항
+      └─ HomeBanner.tsx        # 홈 페이지 배너
+```
+
+- **common/**: 프로젝트 전반에서 공통으로 사용하는 UI 컴포넌트
+- **layout/**: 페이지 레이아웃을 구성하는 컴포넌트
+- **features/**: 기능(도메인) 단위로 컴포넌트를 구조화하여 관리
 
 ---
 
-### 2. Git 커밋 규칙
+### lib
 
-#### ✅ 커밋 메시지 구조
-
-```
-# Header, Body, Footer는 빈 행으로 구분합니다.
-타입(스코프): 주제(제목)
-
-본문(필요 시 상세 설명)
-
-바닥글(예: 이슈 번호, BREAKING CHANGE 등)
-```
-
-#### 📄 타입 목록
-
-| 타입     | 설명                           |
-| -------- | ------------------------------ |
-| feat     | 새로운 기능 추가               |
-| fix      | 버그 수정                      |
-| build    | 빌드 관련 변경 / 의존성 변경   |
-| chore    | 기타 자잘한 작업               |
-| ci       | CI 관련 설정 변경              |
-| docs     | 문서 수정                      |
-| style    | 코드 스타일(포맷, 세미콜론 등) |
-| refactor | 코드 리팩토링(동작 변경 없음)  |
-| test     | 테스트 코드 추가/수정          |
-| perf     | 성능 개선                      |
-
-#### 🧩 작성 예시
+> 프로젝트의 유틸리티 함수, API 호출 함수, 헬퍼 등을 관리
 
 ```
-git commit -m "fix: Safari에서 모달을 띄웠을 때 스크롤 이슈 수정
-
-모바일 사파리에서 Carousel 모달을 띄웠을 때,
-모달 밖의 상하 스크롤이 움직이는 이슈 수정.
-
-resolves: #1137
+lib/
+├─ apis/        # API 관련 함수 (파일명: *.api.ts)
+├─ hooks/       # 커스텀 훅
+└─ utils/       # 유틸리티 함수 (파일명: *.util.ts)
 ```
 
 ---
 
-### 3. 브랜치 생성 및 병합 규칙
+### pages
 
-#### 🌿 브랜치 네이밍 규칙
-
-```
-타입/작업내용
-```
-
-| 타입     | 설명             |
-| -------- | ---------------- |
-| feature  | 새로운 기능 개발 |
-| fix      | 버그 수정        |
-| hotfix   | 긴급 수정        |
-| refactor | 리팩토링         |
-| docs     | 문서 작업        |
-
-**예시**
+> 사용자에게 보여지는 주요 페이지를 라우팅 경로와 함께 관리
 
 ```
-feature/login-page
-fix/modal-scroll
-refactor/user-api
+pages/
+├─ HomePage.tsx
+└─ dashboard/
+   └─ DashboardPage.tsx
 ```
 
-#### 🚀 브랜치 운영 방식
+---
 
-1. **새로운 기능 또는 수정 작업**을 시작할 때는 반드시 `main` 브랜치에서 새 브랜치를 생성합니다.
+### 상태 관리 및 타입
 
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout -b feature/login-page
-   ```
+```
+├─ contexts/            # Context API 관련 파일
+│  └─ auth/
+│     ├─ auth.context.ts
+│     ├─ auth.reducer.ts
+│     └─ AuthProvider.ts
+├─ store/               # 전역 상태 관리 (*.slice.ts)
+├─ types/               # 타입 정의
+│  ├─ dto/
+│  │  └─ *.dto.ts
+│  └─ *.type.ts
+└─ data/                # 상수 데이터 (*.constant.ts)
+```
 
-2. 브랜치에서 개발을 완료하고, 테스트 및 코드 리뷰를 거친 후 `main` 브랜치로 병합합니다.
+- **contexts/**: Context API 관련 로직 관리
+- **store/**: Redux 등 전역 상태 관리 파일
+- **types/**: TypeScript 타입 및 DTO 정의
+- **data/**: 상수 데이터 관리
 
-   ```bash
-   git add .
-   git commit -m "feat(login): 로그인 페이지 UI 구현"
-   git push origin feature/login-page
-   ```
+---
 
-3. GitHub에서 **Pull Request(PR)** 를 생성하고 검증이 완료되면 `main` 브랜치로 병합합니다.
-   - PR 제목은 다음 형식을 따릅니다:
-     ```
-     [feat] 로그인 페이지 UI 구현
-     ```
-   - 리뷰 후 승인되면:
-     ```bash
-     git checkout main
-     git merge feature/login-page
-     git push origin main
-     ```
+## 2. 네이밍 및 코드 컨벤션
 
-## 🚀 실행
+- 함수 선언: `const` 사용
+- 컴포넌트 / 타입 네이밍: **PascalCase**
 
-StoryBook = `npm run storybook`
+---
+
+## 3. Tailwind CSS 스타일 관리 전략
+
+### 3.1 기본 원칙
+
+- Tailwind CSS는 **CSS 파일을 페이지마다 생성하지 않는다**
+- 스타일은 **컴포넌트 단위로 JSX 안에서 관리**한다
+- 재사용 가능한 스타일은 **컴포넌트 또는 스타일 상수로 추상화**한다
+
+---
+
+### 3.2 페이지 전용 스타일 관리
+
+#### 스타일 상수 파일 분리
+
+```
+pages/
+├─ HomePage.tsx
+└─ HomePage.styles.ts
+```
+
+##### HomePage.styles.ts
+
+```ts
+export const homePageStyles = {
+  container: 'mx-auto max-w-7xl px-6 py-10',
+  title: 'text-3xl font-bold text-gray-900',
+  section: 'mt-8 grid gap-6 md:grid-cols-2',
+};
+```
+
+##### HomePage.tsx
+
+```tsx
+import { homePageStyles as s } from './HomePage.styles';
+
+export default function HomePage() {
+  return (
+    <div className={s.container}>
+      <h1 className={s.title}>홈</h1>
+      <section className={s.section}>{/* feature components */}</section>
+    </div>
+  );
+}
+```
+
+---
+
+### 3.3 재사용 가능한 스타일 관리 기준
+
+#### 공통 UI → components/common
+
+- Button, Input, Modal 등은 컴포넌트 자체로 스타일을 캡슐화
+
+#### 반복되는 스타일 패턴 -> styles 상수화
+
+```
+lib/styles/
+└─ card.styles.ts
+```
+
+#### 상태/variant 많은 컴포넌트 → cva 사용
+
+- Button, Badge, Tag 등에 권장
+
+#### 전역 스타일 → 최소한만 사용
+
+- `globals.css`의 `@layer components`는 디자인 시스템 수준에서만 허용
+
+---

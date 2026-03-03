@@ -1,62 +1,45 @@
 import { Link } from 'react-router-dom';
-import York_Construction_72_logo from '../../../assets/York_Construction_72_logo.svg';
+import { useSelector } from 'react-redux';
+import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
+import { Bell } from 'lucide-react';
+import type { RootState } from '@/store/store';
 
 const Header = () => {
-    return (
-        <header className="flex items-center px-5 py-3 bg-white border-b border-gray-300">
-            {/* 로고 영역 */}
-            <Link to="/">
-                <div className="flex items-center gap-3">
-                    <img src={York_Construction_72_logo} alt="Logo" className="w-10" />
-                    <span className="text-xl font-bold text-black">LipSum</span>
-                </div>
-            </Link>
+  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
 
-            {/* 메뉴 링크 */}
-            <nav className="flex gap-14 ml-10 text-black">
-                <Link className="hover:text-blue-600 transition-colors" to="/community">
-                    커뮤니티
-                </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/exchange">
-                    거래소
-                </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/events">
-                    이벤트
-                </Link>
-                <Link className="hover:text-blue-600 transition-colors" to="/contact">
-                    문의
-                </Link>
-            </nav>
+  return (
+    <div className="w-full h-20 bg-[#F5F5F5] flex items-center pl-18.25 border-b border-[#9C9C9C]">
+      <Link to="/">
+        <img src={LipSum_Logo_Black} className="w-40" alt="logo" />
+      </Link>
 
-            {/* 오른쪽 알림 + 프로필 */}
-            <div className="ml-auto flex items-center gap-3">
-                {/* 알림 아이콘 */}
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-6 text-gray-700 hover:text-black cursor-pointer transition-colors"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                    />
-                </svg>
+      <div className="flex items-center ml-20 gap-10 text-black font-semibold">
+        <Link to="/community">커뮤니티</Link>
+        <Link to="/exchange">거래소</Link>
+        <Link to="/event">이벤트</Link>
+        <Link to="/contact">문의</Link>
+      </div>
 
-                {/* 프로필 이미지 */}
-                <button type="button" onClick={() => alert('프로필 클릭!')} className="cursor-pointer">
-                    <img
-                        src="https://avatars.githubusercontent.com/u/108007761?v=4"
-                        alt="avatar"
-                        className="w-10 h-10 rounded-full object-cover"
-                    />
-                </button>
-            </div>
-        </header>
-    );
+      <div className="ml-auto mr-6 flex items-center gap-5">
+        {isLoggedIn ? (
+          <>
+            <Bell className="w-6 h-6 cursor-pointer hover:text-blue-600" />
+            <img
+              src={user?.profileImage}
+              className="w-12 h-12 rounded-full ml-2 border border-gray-300 hover:cursor-pointer"
+              alt="profile"
+            />
+          </>
+        ) : (
+          <Link to="/login">
+            <button className="px-4 py-2 bg-gray-300 text-black font-semibold rounded hover:bg-gray-400 transition hover:cursor-pointer">
+              로그인
+            </button>
+          </Link>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Header;
