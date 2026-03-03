@@ -7,6 +7,9 @@ import type { AppDispatch } from '@/store/store';
 
 import { Main } from '@/pages/Main/Main';
 import { Community } from '@/pages/Community/Community';
+import { CommunityLayout } from '@/pages/Community/CommunityLayout';
+import { CommunityPostDetail } from '@/pages/Community/CommunityPostDetail';
+import { CommunityWrite } from '@/pages/Community/CommunityWrite';
 import { Exchange } from '@/pages/Exchange/Exchange';
 import { Event } from '@/pages/Event/Event';
 import { Contact } from '@/pages/Contact/Contact';
@@ -26,7 +29,11 @@ const Router = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Main />} />
-        <Route path="/community" element={<Community />} />
+        <Route path="/community" element={<CommunityLayout />}>
+          <Route index element={<Community />} />
+          <Route path="write" element={<CommunityWrite />} />
+          <Route path=":postId" element={<CommunityPostDetail />} />
+        </Route>
         <Route path="/exchange" element={<Exchange />} />
         <Route path="/event" element={<Event />} />
         <Route path="/contact" element={<Contact />} />
