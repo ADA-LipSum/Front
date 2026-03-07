@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 import { useState } from 'react';
 
+import { showErrorToast, showSuccessToast } from '@/components/toast/Toast';
+
 export const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -18,10 +20,10 @@ export const Login = () => {
   const handleLogin = async () => {
     try {
       await dispatch(login({ id, password })).unwrap();
-      alert('로그인 성공!');
+      showSuccessToast('로그인 성공');
       navigate('/');
     } catch (err) {
-      alert('로그인 실패');
+      showErrorToast('로그인 실패: ' + (err as Error).message);
     }
   };
 
