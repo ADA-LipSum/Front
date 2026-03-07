@@ -31,7 +31,6 @@ const Header = () => {
       <div className="ml-auto mr-6 flex items-center gap-5">
         {isLoggedIn ? (
           <>
-            <p className="text-bold">{user?.userRealname} 님</p>
             <div className="w-10 h-10 border-[#d1d1d1] bg-gray-100 border rounded-sm flex items-center justify-center relative inset-shadow-xs hover:cursor-pointer group">
               <Bell className="w-5 h-5 transition-colors duration-200 group-hover:text-blue-600" />
             </div>
