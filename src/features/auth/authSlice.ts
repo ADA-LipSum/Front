@@ -25,7 +25,7 @@ const initialState: AuthState = {
 
 // 로그인
 export const login = createAsyncThunk(
-  'auth/login',
+  'api/auth/login',
   async ({ id, password }: { id: string; password: string }) => {
     const res = await loginApi(id, password);
 
@@ -38,30 +38,33 @@ export const login = createAsyncThunk(
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
     // 사용자 정보 조회
-    const me = await axios.get('/auth/me');
+    const me = await axios.get('auth/status');
 
     return me.data.data;
   },
 );
 
 // 새로고침 시 로그인 유지
-export const checkLogin = createAsyncThunk('auth/checkLogin', async (_, { rejectWithValue }) => {
-  const token = localStorage.getItem('accessToken');
+export const checkLogin = createAsyncThunk(
+  'api/auth/checkLogin',
+  async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem('accessToken');
 
-  if (!token) return rejectWithValue(null);
+    if (!token) return rejectWithValue(null);
 
-  try {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    const res = await axios.get('/auth/me');
-    return res.data.data;
-  } catch (err) {
-    localStorage.removeItem('accessToken');
-    return rejectWithValue(null);
-  }
-});
+    try {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const res = await axios.get('auth/status');
+      return res.data.data;
+    } catch (err) {
+      localStorage.removeItem('accessToken');
+      return rejectWithValue(null);
+    }
+  },
+);
 
 // 로그아웃
-export const logoutAsync = createAsyncThunk('auth/logout', async () => {
+export const logoutAsync = createAsyncThunk('api/auth/logout', async () => {
   localStorage.removeItem('accessToken');
 });
 
