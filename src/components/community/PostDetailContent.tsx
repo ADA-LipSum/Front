@@ -6,17 +6,20 @@ interface PostDetailContentProps {
 }
 
 export const PostDetailContent = ({ post, getTimeAgo }: PostDetailContentProps) => {
+  const safeAuthor = post.author || '익명';
+  const initial = safeAuthor.charAt(0).toUpperCase();
+
   return (
     <article className="bg-white rounded border border-[#E0E0E0] overflow-hidden shadow-sm">
       <div className="p-6 border-b border-[#E0E0E0]">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-full bg-[#8B7355] flex items-center justify-center text-white text-lg font-medium shrink-0">
-            {post.author.charAt(0).toUpperCase()}
+            {initial}
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-xl font-bold text-black mb-2">{post.title}</h1>
             <p className="text-sm text-[#757575] mb-3">
-              {post.author} · {getTimeAgo(post.createdAt)}
+              {safeAuthor} · {getTimeAgo(post.createdAt)}
             </p>
             <div className="flex flex-wrap gap-2 mb-4">
               {post.tags.map((tag) => (

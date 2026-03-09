@@ -2,34 +2,50 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ArrowLeft } from 'lucide-react';
-import { useCommunity } from '@/contexts/CommunityContext';
 import type { RecruitStatus } from '@/types/community';
 import type { RootState } from '@/store/store';
+import { createCommunityPost } from '@/api/posts';
 
 export const CommunityWrite = () => {
   const navigate = useNavigate();
-  const { addPost } = useCommunity();
   const { user } = useSelector((state: RootState) => state.auth);
   const author = user?.userNickname ?? '익명';
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagsStr, setTagsStr] = useState('');
   const [status, setStatus] = useState<RecruitStatus>('recruiting');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (!title.trim() || !content.trim()) return;
+
     const tags = tagsStr
       .split(/[\s,]+/)
       .map((t) => t.trim().replace(/^#/, ''))
       .filter(Boolean);
-    const newPost = addPost({
-      title: title.trim(),
-      content: content.trim(),
-      author,
-      tags,
-      status,
-    });
-    navigate(`/community/${newPost.id}`);
+
+    const devTags = tags.join(',');
+
+    const run = async () => {
+      try {
+        setSubmitting(true);
+        const postUuid = await createCommunityPost({
+          title: title.trim(),
+          content: content.trim(),
+          isDev: true,
+          devTags,
+        });
+        navigate(`/community/${postUuid}`);
+      } catch (err) {
+        console.error(err);
+        alert('게시글 등록에 실패했습니다.');
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    void run();
   };
 
   return (
@@ -107,9 +123,10 @@ export const CommunityWrite = () => {
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              className="px-6 py-3 bg-[#4A4A4A] text-white font-medium rounded hover:bg-[#3A3A3A] transition"
+              disabled={submitting}
+              className="px-6 py-3 bg-[#4A4A4A] text-white font-medium rounded hover:bg-[#3A3A3A] transition disabled:opacity-60"
             >
-              등록하기
+              {submitting ? '등록 중...' : '등록하기'}
             </button>
             <button
               type="button"
