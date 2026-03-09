@@ -17,13 +17,13 @@ instance.interceptors.response.use(
       // 로그인 및 재발급 요청은 재시도하지 않도록 조건 추가
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes('/auth/login') &&
-      !originalRequest.url.includes('/auth/reissue')
+      !originalRequest.url.includes('api/auth/login') &&
+      !originalRequest.url.includes('api/auth/reissue')
     ) {
       originalRequest._retry = true;
 
       try {
-        const res = await instance.post('/auth/reissue');
+        const res = await instance.post('api/auth/reissue');
         const newAccessToken = res.data.data.accessToken;
 
         localStorage.setItem('accessToken', newAccessToken);
