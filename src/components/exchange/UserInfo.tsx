@@ -1,12 +1,16 @@
-export const UserCoinBanner = () => {
+interface Props {
+  points: number;
+}
+
+const UserInfo = ({ points }: Props) => {
   return (
-    <div className="w-full h-20">
-      <div className="ml-48 mt-6 font-bold">
-        <div className="flex gap-27">
-          <p className="">코인</p>
-          <p className="">포인트</p>
-        </div>
+    <div className="flex gap-10 px-10 text-lg">
+      <div>
+        보유 포인트
+        <span className="font-bold text-yellow-500 ml-2">{points.toLocaleString()}</span>
       </div>
     </div>
   );
 };
+
+export default UserInfo;

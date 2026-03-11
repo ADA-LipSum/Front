@@ -10,7 +10,7 @@ import { Community } from '@/pages/Community/Community';
 import { CommunityLayout } from '@/pages/Community/CommunityLayout';
 import { CommunityPostDetail } from '@/pages/Community/CommunityPostDetail';
 import { CommunityWrite } from '@/pages/Community/CommunityWrite';
-import { Exchange } from '@/pages/Exchange/Exchange';
+import Exchange from '@/pages/Exchange/Exchange';
 import { Event } from '@/pages/Event/Event';
 import { Contact } from '@/pages/Contact/Contact';
 import { Login } from '@/pages/Auth/Login';
