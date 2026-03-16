@@ -17,6 +17,7 @@ import { Login } from '@/pages/Auth/Login';
 import { SocialLogin } from '@/pages/Auth/SocialLogin';
 import MainLayout from '@/components/layout/MainLayout';
 import { checkLogin } from './features/auth/authSlice';
+import Proifle from './pages/Profile/Profile';
 
 const Router = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -37,6 +38,7 @@ const Router = () => {
         <Route path="/exchange" element={<Exchange />} />
         <Route path="/event" element={<Event />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/profile" element={<Proifle />} />
       </Route>
 
       {/* 로그인 페이지 */}

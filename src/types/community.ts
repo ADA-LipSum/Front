@@ -10,6 +10,11 @@ export interface CommunityPost {
   tags: string[];
   status: RecruitStatus;
   avatarSrc?: string;
+  likes?: number;
+  views?: number;
+  commentsCount?: number;
+  isDev?: boolean;
+  seq?: number;
 }
 
 export interface CommunityComment {

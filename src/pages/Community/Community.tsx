@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CommunityBanner,
@@ -9,19 +9,40 @@ import {
   PopularTags,
   RecruitmentGuide,
 } from '@/components/community';
-import { useCommunity } from '@/contexts/CommunityContext';
-import type { TabType } from '@/types/community';
+import { fetchCommunityPosts } from '@/api/posts';
+import { getTimeAgo } from '@/utils/time';
+import type { CommunityPost, TabType } from '@/types/community';
 
 const POSTS_PER_PAGE = 6;
 
 export const Community = () => {
   const navigate = useNavigate();
-  const { posts, getTimeAgo } = useCommunity();
 
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('전체');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tagKeyword, setTagKeyword] = useState('');
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchCommunityPosts(0, 100);
+        setPosts(data);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError('게시글을 불러오지 못했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPosts();
+  }, []);
 
   const popularTagsWithCount = useMemo(() => {
     const countMap = new Map<string, number>();
@@ -100,7 +121,11 @@ export const Community = () => {
             onWriteClick={() => navigate('/community/write')}
           />
           <section className="bg-white rounded border border-[#E0E0E0] p-4 shadow-sm">
-            {paginatedPosts.length === 0 ? (
+            {loading ? (
+              <div className="py-12 text-center text-[#9E9E9E]">불러오는 중...</div>
+            ) : error ? (
+              <div className="py-12 text-center text-red-500 text-sm">{error}</div>
+            ) : paginatedPosts.length === 0 ? (
               <div className="py-12 text-center text-[#9E9E9E]">
                 조건에 맞는 게시글이 없습니다.
               </div>
