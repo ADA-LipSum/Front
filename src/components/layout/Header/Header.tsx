@@ -1,11 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
-import { Bell } from 'lucide-react';
 import type { RootState } from '@/store/store';
+
+import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
+import gray from '@/assets/gray.jpg';
+import { Bell } from 'lucide-react';
 
 const Header = () => {
   const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
+  console.log('Header - isLoggedIn:', isLoggedIn);
+  console.log('Header - user:', user);
 
   return (
     <>
@@ -32,12 +36,12 @@ const Header = () => {
         <div className="ml-auto mr-6 flex items-center gap-5">
           {isLoggedIn ? (
             <>
-              <div className="w-10 h-10 border-[#d1d1d1] bg-gray-100 border rounded-sm flex items-center justify-center relative inset-shadow-xs hover:cursor-pointer group">
+              <div className="w-10 h-10 border-[#ffffff] bg-gray-100 border rounded-sm flex items-center justify-center relative inset-shadow-xs hover:cursor-pointer group">
                 <Bell className="w-5 h-5 transition-colors duration-200 group-hover:text-blue-600" />
               </div>
               <Link to="/profile">
                 <img
-                  src={user?.profileImage}
+                  src={user?.profileImage || gray}
                   className="w-12 h-12 rounded-full ml-2 border border-gray-300 hover:cursor-pointer"
                   alt="profile"
                 />
