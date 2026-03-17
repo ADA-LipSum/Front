@@ -1,29 +1,23 @@
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
 import type { RootState } from '@/store/store';
-import { getProfile } from '@/api/profile';
 
 const ProfileBanner = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const [banner, setBanner] = useState<string | null>(null);
+  const { profile, loading } = useSelector((state: RootState) => state.profile);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user?.uuid) return;
+  if (loading) {
+    return <div className="w-full h-87.5 bg-gray-200 mb-4 border-b border-[#d1d0d0]" />;
+  }
 
-      const res = await getProfile(user.uuid);
-
-      // 핵심 부분
-      setBanner(res.data.profileBanner);
-    };
-
-    fetchProfile();
-  }, [user]);
+  const banner =
+    profile?.profileBanner && profile.profileBanner !== ''
+      ? profile.profileBanner
+      : '../../../public/gray.jpg'; // TODO: public 폴더에 저장하기
 
   return (
     <img
-      className="w-full h-87.5 bg-gray-200 mb-4 object-cover border-b border-[#d1d0d0]"
-      src={banner && banner !== '' ? banner : '../../assets/default banner.jpg'}
+      className="w-full h-87.5 object-cover mb-4 border-b border-[#d1d0d0]"
+      src={banner}
+      alt="profile banner"
     />
   );
 };
