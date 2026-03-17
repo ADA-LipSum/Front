@@ -5,9 +5,10 @@ import { login as loginApi } from '@/api/auth';
 interface User {
   uuid: string;
   role: string;
-  userRealname: string;
-  userNickname: string;
+  realname: string;
+  nickname: string;
   profileImage: string;
+  profileBanner: string;
   isFirstLogin: boolean;
 }
 
@@ -25,43 +26,57 @@ const initialState: AuthState = {
 
 // 로그인
 export const login = createAsyncThunk(
-  'auth/login',
+  'api/auth/login',
   async ({ id, password }: { id: string; password: string }) => {
     const res = await loginApi(id, password);
 
     const token = res.data.accessToken;
 
-    // localStorage 저장
-    localStorage.setItem('accessToken', token);
+    localStorage.setItem('accessToken', token); // 로컬 스토리지에 토큰 저장
 
-    // axios 기본 헤더 세팅
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 설정
 
-    // 사용자 정보 조회
-    const me = await axios.get('/auth/me');
+    const me = await axios.get('auth/status'); // 로그인 후 사용자 정보 가져오기
 
-    return me.data.data;
+    const { uuid, user } = me.data.data; // 응답에서 uuid와 user 정보 추출
+
+    return {
+      uuid,
+      ...user,
+    };
   },
 );
 
 // 새로고침 시 로그인 유지
-export const checkLogin = createAsyncThunk('auth/checkLogin', async (_, { rejectWithValue }) => {
-  const token = localStorage.getItem('accessToken');
+export const checkLogin = createAsyncThunk(
+  'api/auth/checkLogin',
 
-  if (!token) return rejectWithValue(null);
+  // 로컬 스토리지에서 토큰 가져오기
+  async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem('accessToken');
 
-  try {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    const res = await axios.get('/auth/me');
-    return res.data.data;
-  } catch (err) {
-    localStorage.removeItem('accessToken');
-    return rejectWithValue(null);
-  }
-});
+    if (!token) return rejectWithValue(null); // 토큰이 없으면 로그인 상태가 아님
+
+    try {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      const res = await axios.get('auth/status');
+
+      const { uuid, user } = res.data.data;
+
+      return {
+        uuid,
+        ...user,
+      };
+    } catch (err) {
+      localStorage.removeItem('accessToken');
+      return rejectWithValue(null);
+    }
+  },
+);
 
 // 로그아웃
-export const logoutAsync = createAsyncThunk('auth/logout', async () => {
+export const logoutAsync = createAsyncThunk('api/auth/logout', async () => {
   localStorage.removeItem('accessToken');
 });
 
@@ -72,21 +87,25 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
+        // 로그인 성공 시 상태 업데이트
         state.isLoggedIn = true;
         state.loading = false;
         state.user = action.payload;
       })
       .addCase(checkLogin.fulfilled, (state, action) => {
+        // 로그인 상태 유지 성공 시 상태 업데이트
         state.isLoggedIn = true;
         state.loading = false;
         state.user = action.payload;
       })
       .addCase(checkLogin.rejected, (state) => {
+        // 로그인 상태 유지 실패 시 상태 업데이트
         state.isLoggedIn = false;
         state.loading = false;
         state.user = null;
       })
       .addCase(logoutAsync.fulfilled, (state) => {
+        // 로그아웃 성공 시 상태 업데이트
         state.isLoggedIn = false;
         state.user = null;
       });
