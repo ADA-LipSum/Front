@@ -36,7 +36,7 @@ export const login = createAsyncThunk(
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 설정
 
-    const me = await axios.get('auth/status'); // 로그인 후 사용자 정보 가져오기
+    const me = await axios.get('/api/auth/status'); // 로그인 후 사용자 정보 가져오기
 
     const { uuid, user } = me.data.data; // 응답에서 uuid와 user 정보 추출
 
@@ -58,7 +58,7 @@ export const checkLogin = createAsyncThunk(
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      const res = await axios.get('/auth/status');
+      const res = await axios.get('api/auth/status');
 
       const { authenticated, uuid, user } = res.data.data;
 
