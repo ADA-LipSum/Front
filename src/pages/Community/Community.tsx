@@ -64,19 +64,14 @@ export const Community = () => {
     if (searchKeyword.trim()) {
       const q = searchKeyword.trim().toLowerCase();
       list = list.filter(
-        (p) =>
-          p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q),
+        (p) => p.title.toLowerCase().includes(q) || p.content.toLowerCase().includes(q),
       );
     }
     if (tagKeyword.trim()) {
       const tag = tagKeyword.trim().toLowerCase().replace(/^#/, '');
-      list = list.filter((p) =>
-        p.tags.some((t) => t.toLowerCase().includes(tag)),
-      );
+      list = list.filter((p) => p.tags.some((t) => t.toLowerCase().includes(tag)));
     }
-    return list.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+    return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [posts, activeTab, searchKeyword, tagKeyword]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPosts.length / POSTS_PER_PAGE));
@@ -126,9 +121,7 @@ export const Community = () => {
             ) : error ? (
               <div className="py-12 text-center text-red-500 text-sm">{error}</div>
             ) : paginatedPosts.length === 0 ? (
-              <div className="py-12 text-center text-[#9E9E9E]">
-                조건에 맞는 게시글이 없습니다.
-              </div>
+              <div className="py-12 text-center text-[#9E9E9E]">조건에 맞는 게시글이 없습니다.</div>
             ) : (
               paginatedPosts.map((post) => (
                 <StudyCard
@@ -150,10 +143,7 @@ export const Community = () => {
           />
         </main>
         <aside className="w-64 shrink-0 flex flex-col gap-4">
-          <PopularTags
-            tagsWithCount={popularTagsWithCount}
-            onTagClick={handleTagClick}
-          />
+          <PopularTags tagsWithCount={popularTagsWithCount} onTagClick={handleTagClick} />
           <RecruitmentGuide />
         </aside>
       </div>

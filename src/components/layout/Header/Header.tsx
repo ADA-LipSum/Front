@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
-import gray from '@/assets/gray.jpg';
 import { Bell } from 'lucide-react';
 
 const Header = () => {
@@ -41,7 +40,7 @@ const Header = () => {
               </div>
               <Link to="/profile">
                 <img
-                  src={user?.profileImage || gray}
+                  src={user?.profileImage}
                   className="w-12 h-12 rounded-full ml-2 border border-gray-300 hover:cursor-pointer"
                   alt="profile"
                 />

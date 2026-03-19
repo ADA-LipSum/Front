@@ -8,7 +8,7 @@ interface User {
   realname: string;
   nickname: string;
   profileImage: string;
-  profileBanner: string;
+  // profileBanner: string; // 지금 필요 없어서 제거, 나중에 필요하면 다시 추가
   isFirstLogin: boolean;
 }
 
@@ -32,11 +32,11 @@ export const login = createAsyncThunk(
 
     const token = res.data.accessToken;
 
-    localStorage.setItem('accessToken', token); // 로컬 스토리지에 토큰 저장
+    localStorage.setItem('accessToken', token); // TODO : 로컬 스토리지에 저장하는 방법 말고 다른 방법 찾기
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 설정
 
-    const me = await axios.get('auth/status'); // 로그인 후 사용자 정보 가져오기
+    const me = await axios.get('/api/auth/status'); // 로그인 후 사용자 정보 가져오기
 
     const { uuid, user } = me.data.data; // 응답에서 uuid와 user 정보 추출
 
@@ -50,26 +50,28 @@ export const login = createAsyncThunk(
 // 새로고침 시 로그인 유지
 export const checkLogin = createAsyncThunk(
   'api/auth/checkLogin',
-
-  // 로컬 스토리지에서 토큰 가져오기
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem('accessToken');
 
-    if (!token) return rejectWithValue(null); // 토큰이 없으면 로그인 상태가 아님
+    if (!token) return rejectWithValue(null);
 
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      const res = await axios.get('auth/status');
+      const res = await axios.get('api/auth/status');
 
-      const { uuid, user } = res.data.data;
+      const { authenticated, uuid, user } = res.data.data;
+
+      if (!authenticated) {
+        alert('토큰은 있지만 인증 실패 로그아웃');
+        return rejectWithValue(null);
+      }
 
       return {
         uuid,
         ...user,
       };
     } catch (err) {
-      localStorage.removeItem('accessToken');
       return rejectWithValue(null);
     }
   },
