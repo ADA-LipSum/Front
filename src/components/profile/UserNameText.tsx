@@ -14,14 +14,14 @@ const UserNameText = () => {
       const res = await getProfile(user.uuid);
 
       // 핵심 부분
-      setUsername(res.data.username);
+      setUsername(res.username);
     };
 
     fetchProfile();
   }, [user]);
   return (
     <>
-      <div className="text-lg font-bold text-center mt-2">
+      <div className="text-lg font-bold text-center mt-5">
         <H2>{username || user?.nickname}</H2>
       </div>
     </>

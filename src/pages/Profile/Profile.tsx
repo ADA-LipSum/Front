@@ -2,6 +2,7 @@ import Intro from '@/components/profile/Intro';
 import ProfileBanner from '@/components/profile/ProfileBanner';
 import ProfileImage from '@/components/profile/ProfileImage';
 import UserNameText from '@/components/profile/UserNameText';
+import TechStack from '@/components/profile/TechStack';
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,14 +22,11 @@ const Profile = () => {
   return (
     <>
       <ProfileBanner />
-      <div className="-mt-25 px-30 flex flex-col">
-        <div className="flex">
-          <div>
-            <ProfileImage />
-            <UserNameText />
-            <Intro />
-          </div>
-        </div>
+      <div className="-mt-25 px-30 flex flex-col items-center">
+        <ProfileImage />
+        <UserNameText />
+        <Intro />
+        <TechStack />
       </div>
     </>
   );
