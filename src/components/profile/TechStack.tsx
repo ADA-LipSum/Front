@@ -44,13 +44,16 @@ const TechStack = () => {
   if (!profile?.techStack || profile.techStack.length === 0) return null;
 
   return (
-    <div className="mt-5 bg-gray-200 w-100 h-auto rounded-lg flex flex-col items-center p-4">
+    <div className="mt-5 w-100 h-auto rounded-lg flex flex-col items-center p-4">
       <div className="flex flex-wrap gap-3 items-center">
         {profile.techStack.map((tech) => {
           const iconName = TECH_ICON_MAP[tech];
           if (!iconName) return null;
           return (
-            <div key={tech} className="relative group flex flex-col items-center">
+            <div
+              key={tech}
+              className="relative group flex flex-col items-center hover:scale-110 transition-transform"
+            >
               <div className="w-10 h-10">
                 <StackIcon name={iconName} className="w-full h-full" />
               </div>
