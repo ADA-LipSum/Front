@@ -38,7 +38,7 @@ const Router = () => {
         <Route path="/exchange" element={<Exchange />} />
         <Route path="/event" element={<Event />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<Proifle />} />
+        <Route path="/profile/:customId" element={<Proifle />} />
       </Route>
 
       {/* 로그인 페이지 */}
