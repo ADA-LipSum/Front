@@ -3,30 +3,39 @@ import ProfileBanner from '@/components/profile/ProfileBanner';
 import ProfileImage from '@/components/profile/ProfileImage';
 import UserNameText from '@/components/profile/UserNameText';
 import TechStack from '@/components/profile/TechStack';
+import ContriGraph from '@/components/profile/ContriGraph';
+import ProjectList from '@/components/profile/ProjectList';
+import Guestbook from '@/components/profile/Guestbook';
 
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store/store';
-import { fetchProfile } from '@/features/auth/profileSlice';
+import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '@/store/store';
+import { fetchProfileByUsername } from '@/features/auth/profileSlice';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { customId } = useParams<{ customId: string }>();
 
   useEffect(() => {
-    if (user?.uuid) {
-      dispatch(fetchProfile(user.uuid));
+    if (customId) {
+      dispatch(fetchProfileByUsername(customId));
     }
-  }, [user, dispatch]);
+  }, [customId, dispatch]);
 
   return (
     <>
-      <ProfileBanner />
-      <div className="-mt-25 px-30 flex flex-col items-center">
-        <ProfileImage />
-        <UserNameText />
-        <Intro />
-        <TechStack />
+      <div className="max-h-300">
+        <ProfileBanner />
+        <div className="-mt-25 px-30 flex flex-col items-center">
+          <ProfileImage />
+          <UserNameText />
+          <Intro />
+          <TechStack />
+          <ContriGraph />
+          <ProjectList />
+          <Guestbook />
+        </div>
       </div>
     </>
   );
