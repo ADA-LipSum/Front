@@ -22,7 +22,7 @@ const UserNameText = () => {
   return (
     <>
       <div className="text-lg font-bold text-center mt-5">
-        <H2>{username || user?.nickname}</H2>
+        <H2>{username || user?.userNickname}</H2>
       </div>
     </>
   );
