@@ -4,11 +4,12 @@ import { login as loginApi } from '@/api/auth';
 
 interface User {
   uuid: string;
+  adminId: string;
+  customId: string;
   role: string;
-  realname: string;
-  nickname: string;
+  userRealname: string;
+  userNickname: string;
   profileImage: string;
-  // profileBanner: string; // 지금 필요 없어서 제거, 나중에 필요하면 다시 추가
   isFirstLogin: boolean;
 }
 
@@ -38,12 +39,7 @@ export const login = createAsyncThunk(
 
     const me = await axios.get('/api/auth/status'); // 로그인 후 사용자 정보 가져오기
 
-    const { uuid, user } = me.data.data; // 응답에서 uuid와 user 정보 추출
-
-    return {
-      uuid,
-      ...user,
-    };
+    return me.data.data as User;
   },
 );
 
@@ -58,19 +54,9 @@ export const checkLogin = createAsyncThunk(
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      const res = await axios.get('api/auth/status');
+      const res = await axios.get('/api/auth/status');
 
-      const { authenticated, uuid, user } = res.data.data;
-
-      if (!authenticated) {
-        alert('토큰은 있지만 인증 실패 로그아웃');
-        return rejectWithValue(null);
-      }
-
-      return {
-        uuid,
-        ...user,
-      };
+      return res.data.data as User;
     } catch (err) {
       return rejectWithValue(null);
     }
