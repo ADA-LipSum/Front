@@ -10,7 +10,7 @@ const ProfileImage = () => {
   }
 
   return (
-    <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-3 outline-blue-500">
+    <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-11 outline-[#F5F5F5]">
       <img className="w-full h-full object-cover" src={profile?.profileImage} alt="Profile" />
     </div>
   );
