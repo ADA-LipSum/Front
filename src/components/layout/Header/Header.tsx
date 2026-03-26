@@ -39,11 +39,16 @@ const Header = () => {
                 <Bell className="w-5 h-5 transition-colors duration-200 group-hover:text-blue-600" />
               </div>
               <Link to={`/profile/${user?.customId}`}>
-                <img
-                  src={user?.profileImage}
-                  className="w-12 h-12 rounded-full ml-2 border border-gray-300 hover:cursor-pointer"
-                  alt="profile"
-                />
+                <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white">
+                  <img
+                    src={user?.profileImage}
+                    className="w-full h-full object-cover"
+                    alt="profile"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
               </Link>
             </>
           ) : (
