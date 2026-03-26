@@ -58,6 +58,8 @@ export const checkLogin = createAsyncThunk(
 
       return res.data.data as User;
     } catch (err) {
+      localStorage.removeItem('accessToken');
+      delete axios.defaults.headers.common['Authorization'];
       return rejectWithValue(null);
     }
   },
