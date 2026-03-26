@@ -18,7 +18,8 @@ const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
-  const { error, loading } = useSelector((state: RootState) => state.profile);
+  const { profile, error, loading } = useSelector((state: RootState) => state.profile);
+  const isStudentRole = !profile || (profile.role !== 'ADMIN' && profile.role !== 'TEACHER');
 
   useEffect(() => {
     if (customId) {
@@ -45,9 +46,9 @@ const Profile = () => {
           <Intro />
           <SocialLinks />
           <TechStack />
-          <ContriGraph />
+          {isStudentRole && <ContriGraph />}
           <ProjectList />
-          <Guestbook />
+          {isStudentRole && <Guestbook />}
         </div>
       </div>
     </>
