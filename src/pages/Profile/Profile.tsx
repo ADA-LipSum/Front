@@ -9,20 +9,31 @@ import Guestbook from '@/components/profile/Guestbook';
 import SocialLinks from '@/components/profile/SocialLinks';
 
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/store/store';
-import { fetchProfileByUsername } from '@/features/auth/profileSlice';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '@/store/store';
+import { fetchProfileByUsername, clearProfile } from '@/features/auth/profileSlice';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
+  const { error, loading } = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     if (customId) {
       dispatch(fetchProfileByUsername(customId));
     }
+    return () => {
+      dispatch(clearProfile());
+    };
   }, [customId, dispatch]);
+
+  useEffect(() => {
+    if (!loading && error) {
+      navigate('/not-found/user', { replace: true });
+    }
+  }, [loading, error, navigate]);
 
   return (
     <>
