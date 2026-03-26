@@ -6,6 +6,7 @@ import TechStack from '@/components/profile/TechStack';
 import ContriGraph from '@/components/profile/ContriGraph';
 import ProjectList from '@/components/profile/ProjectList';
 import Guestbook from '@/components/profile/Guestbook';
+import SocialLinks from '@/components/profile/SocialLinks';
 
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -31,6 +32,7 @@ const Profile = () => {
           <ProfileImage />
           <UserNameText />
           <Intro />
+          <SocialLinks />
           <TechStack />
           <ContriGraph />
           <ProjectList />
