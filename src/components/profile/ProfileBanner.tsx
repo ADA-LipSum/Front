@@ -8,10 +8,7 @@ const ProfileBanner = () => {
     return <div className="w-full h-87.5 bg-gray-200 mb-4 border-b border-[#d1d0d0]" />;
   }
 
-  const banner =
-    profile?.profileBanner && profile.profileBanner !== ''
-      ? profile.profileBanner
-      : '../../../public/gray.jpg'; // TODO: public 폴더에 저장하기
+  const banner = profile?.profileBanner;
 
   return (
     <div className="w-full h-87.5 mb-4 border-b border-[#d1d0d0] bg-gray-200 overflow-hidden">
