@@ -6,6 +6,7 @@ import { getProfile } from '@/api/profile';
 const Intro = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [intro, setIntro] = useState<string | null>(null);
+  const { profile } = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -22,7 +23,11 @@ const Intro = () => {
 
   return (
     <div className="text-center mt-5">
-      <p className="text-gray-600">{intro}</p>
+      {profile?.intro ? (
+        <p className="text-gray-600">{profile.intro}</p>
+      ) : (
+        <p className="text-gray-600">소개가 없습니다.</p>
+      )}
     </div>
   );
 };
