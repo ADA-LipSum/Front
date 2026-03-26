@@ -1,28 +1,16 @@
 import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
 import type { RootState } from '@/store/store';
-import { getProfile } from '@/api/profile';
 import H2 from '../tags/H2';
 const UserNameText = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const [username, setUsername] = useState<string | null>(null);
+  const { profile } = useSelector((state: RootState) => state.profile);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user?.uuid) return;
-
-      const res = await getProfile(user.uuid);
-
-      // 핵심 부분
-      setUsername(res.username);
-    };
-
-    fetchProfile();
-  }, [user]);
   return (
     <>
-      <div className="text-lg font-bold text-center mt-5">
-        <H2>{username || user?.userNickname}</H2>
+      <div className="text-center mt-5">
+        <H2>{profile?.userNickname || profile?.userRealname}</H2>
+        {profile?.customId && (
+          <p className="text-sm text-gray-500 mt-1">@{profile.customId}</p>
+        )}
       </div>
     </>
   );
