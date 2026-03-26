@@ -14,11 +14,15 @@ const ProfileBanner = () => {
       : '../../../public/gray.jpg'; // TODO: public 폴더에 저장하기
 
   return (
-    <img
-      className="w-full h-87.5 object-cover mb-4 border-b border-[#d1d0d0]"
-      src={banner}
-      alt="profile banner"
-    />
+    <div className="w-full h-87.5 mb-4 border-b border-[#d1d0d0] bg-gray-200 overflow-hidden">
+      <img
+        className="w-full h-full object-cover"
+        src={banner}
+        onError={(e) => {
+          (e.target as HTMLImageElement).style.display = 'none';
+        }}
+      />
+    </div>
   );
 };
 

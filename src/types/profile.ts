@@ -1,4 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+export interface SocialLinks {
+  githubUrl?: string;
+  notionUrl?: string;
+  linkedinUrl?: string;
+  personalWebsiteUrl?: string;
+}
+
 export interface Profile {
   uuid: string;
   adminId: string;
@@ -14,4 +21,5 @@ export interface Profile {
   badge: string | null;
   activityScore: number;
   contributionData: any;
+  socialLinks?: SocialLinks;
 }

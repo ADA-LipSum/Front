@@ -2,7 +2,7 @@
 // store/slices/profileSlice.ts
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getProfile } from '@/api/profile';
+import { getProfile, getUserByUsername } from '@/api/profile';
 import type { Profile } from '@/types/profile';
 
 interface ProfileState {
@@ -17,12 +17,25 @@ const initialState: ProfileState = {
   error: null,
 };
 
-// 프로필 조회
+// 프로필 조회 (uuid)
 export const fetchProfile = createAsyncThunk(
   'profile/fetchProfile',
   async (uuid: string, { rejectWithValue }) => {
     try {
       const data = await getProfile(uuid);
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || '프로필 조회 실패');
+    }
+  },
+);
+
+// 프로필 조회 (customId/username)
+export const fetchProfileByUsername = createAsyncThunk(
+  'profile/fetchProfileByUsername',
+  async (username: string, { rejectWithValue }) => {
+    try {
+      const data = await getUserByUsername(username);
       return data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || '프로필 조회 실패');
@@ -51,6 +64,18 @@ const profileSlice = createSlice({
         state.profile = action.payload;
       })
       .addCase(fetchProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchProfileByUsername.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchProfileByUsername.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(fetchProfileByUsername.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

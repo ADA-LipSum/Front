@@ -18,10 +18,10 @@ export const Login = () => {
   const handleLogin = async () => {
     try {
       await dispatch(login({ id, password })).unwrap();
-      alert('로그인 성공!');
+      console.log('로그인 성공!');
       navigate('/');
     } catch (err) {
-      alert('로그인 실패');
+      console.error('로그인 실패:', err);
     }
   };
 

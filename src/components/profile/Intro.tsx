@@ -14,15 +14,15 @@ const Intro = () => {
       const res = await getProfile(user.uuid);
 
       // 핵심 부분
-      setIntro(res.data.intro);
+      setIntro(res.intro);
     };
 
     fetchProfile();
   }, [user]);
 
   return (
-    <div className="">
-      <p className="text-gray-600">{user?.intro}</p>
+    <div className="text-center mt-5">
+      <p className="text-gray-600">{intro}</p>
     </div>
   );
 };

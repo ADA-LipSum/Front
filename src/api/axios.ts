@@ -35,8 +35,7 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch (err) {
         localStorage.removeItem('accessToken');
-        window.location.href = '/login';
-        console.error('토큰 재발급 실패:', err);
+        delete instance.defaults.headers.common['Authorization'];
       }
     }
 
