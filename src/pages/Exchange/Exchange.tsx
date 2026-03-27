@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
+import { fetchMyCoinBalance } from '@/api/coins';
 import { fetchMyPointBalance } from '@/api/points';
 import {
   purchaseTradeItem,
@@ -30,9 +31,17 @@ interface CartItem {
 
 const COIN_ITEMS_PER_PAGE = 20; // 5 x 4
 const POINT_ITEMS_PER_PAGE = 12;
+const getAuthUserUuid = (user: RootState['auth']['user']): string | undefined => {
+  if (!user) return undefined;
+  const u = user as { uuid?: string; userUuid?: string };
+  const raw = u.uuid ?? u.userUuid;
+  const s = raw != null ? String(raw).trim() : '';
+  return s.length > 0 ? s : undefined;
+};
 
 export const Exchange = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const authUserUuid = useMemo(() => getAuthUserUuid(user), [user]);
 
   const [mode, setMode] = useState<ExchangeMode>('COIN');
   const [loading, setLoading] = useState(false);
@@ -63,7 +72,9 @@ export const Exchange = () => {
   );
 
   const [myCoinBalance, setMyCoinBalance] = useState<number | null>(null);
+  const [myPointBalance, setMyPointBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
 
   const mapCategory = (item: TradeItem): CoinCategory => {
     const text = `${item.name} ${item.description}`.toLowerCase();
@@ -85,21 +96,51 @@ export const Exchange = () => {
   });
 
   const loadBalance = async () => {
-    if (!user?.uuid) {
+    if (!authUserUuid) {
       setMyCoinBalance(null);
+      setMyPointBalance(null);
+      setBalanceError(null);
       return;
     }
     try {
       setBalanceLoading(true);
-      const balance = await fetchMyPointBalance(user.uuid);
-      setMyCoinBalance(balance);
+      setBalanceError(null);
+      const [coins, points] = await Promise.all([
+        fetchMyCoinBalance(authUserUuid),
+        fetchMyPointBalance(authUserUuid),
+      ]);
+      setMyCoinBalance(coins);
+      setMyPointBalance(points);
     } catch (err) {
       console.error(err);
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data
+              ?.message ?? '잔액을 불러오지 못했습니다.')
+          : '잔액을 불러오지 못했습니다.';
+      setBalanceError(message);
       setMyCoinBalance(null);
+      setMyPointBalance(null);
     } finally {
       setBalanceLoading(false);
     }
   };
+
+  const coinBalanceLine = useMemo(() => {
+    if (!authUserUuid) return '로그인 후 확인';
+    if (balanceLoading) return '불러오는 중…';
+    if (balanceError) return balanceError;
+    if (myCoinBalance !== null) return `${myCoinBalance.toLocaleString('ko-KR')} 코인`;
+    return '불러오는 중…';
+  }, [authUserUuid, balanceLoading, balanceError, myCoinBalance]);
+
+  const pointBalanceLine = useMemo(() => {
+    if (!authUserUuid) return '로그인 후 확인';
+    if (balanceLoading) return '불러오는 중…';
+    if (balanceError) return balanceError;
+    if (myPointBalance !== null) return `${myPointBalance.toLocaleString('ko-KR')} 포인트`;
+    return '불러오는 중…';
+  }, [authUserUuid, balanceLoading, balanceError, myPointBalance]);
 
   const loadItems = async () => {
     try {
@@ -136,7 +177,7 @@ export const Exchange = () => {
   useEffect(() => {
     void loadBalance();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uuid]);
+  }, [authUserUuid]);
 
   const filteredItems = useMemo(() => {
     if (mode !== 'COIN') return items;
@@ -316,6 +357,15 @@ export const Exchange = () => {
 
           {mode === 'COIN' ? (
             <div className="flex items-center gap-2 relative">
+              <button
+                type="button"
+                className="px-3 py-2 text-left bg-[#F5F5F5] text-black rounded border border-[#E0E0E0] min-w-30"
+              >
+                <span className="block text-[10px] font-semibold text-[#616161]">보유 코인</span>
+                <span className="block text-xs font-semibold tabular-nums leading-snug wrap-break-word">
+                  {coinBalanceLine}
+                </span>
+              </button>
               <span className="text-sm font-semibold text-black">{filteredItems.length}개</span>
               <button
                 type="button"
@@ -424,9 +474,12 @@ export const Exchange = () => {
           ) : (
             <button
               type="button"
-              className="px-4 py-2 text-sm font-semibold bg-[#F5F5F5] text-black rounded border border-[#E0E0E0]"
+              className="px-4 py-2 text-left bg-[#F5F5F5] text-black rounded border border-[#E0E0E0] min-w-30"
             >
-              보유 코인 {balanceLoading ? '...' : myCoinBalance ?? '-'}C
+              <span className="block text-[10px] font-semibold text-[#616161]">보유 포인트</span>
+              <span className="block text-xs font-semibold tabular-nums leading-snug wrap-break-word">
+                {pointBalanceLine}
+              </span>
             </button>
           )}
         </div>
