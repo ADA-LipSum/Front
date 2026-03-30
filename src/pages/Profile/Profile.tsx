@@ -2,7 +2,6 @@ import Intro from '@/components/profile/Intro';
 import ProfileBanner from '@/components/profile/ProfileBanner';
 import ProfileImage from '@/components/profile/ProfileImage';
 import UserNameText from '@/components/profile/UserNameText';
-import TechStack from '@/components/profile/TechStack';
 import ContriGraph from '@/components/profile/ContriGraph';
 import ProjectList from '@/components/profile/ProjectList';
 import Guestbook from '@/components/profile/Guestbook';
@@ -13,13 +12,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
 import { fetchProfileByUsername, clearProfile } from '@/features/auth/profileSlice';
+import { ButtonSection } from '@/components/profile/ButtonSection';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
   const { profile, error, loading } = useSelector((state: RootState) => state.profile);
-  const isStudentRole = !profile || (profile.role !== 'ADMIN' && profile.role !== 'TEACHER');
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const isStudent = profile?.role === 'STUDENT';
+  const isOwnProfile = authUser?.customId === customId;
 
   useEffect(() => {
     if (customId) {
@@ -38,17 +40,18 @@ const Profile = () => {
 
   return (
     <>
-      <div className="max-h-300">
+      <div className="min-h-220">
         <ProfileBanner />
+        {isOwnProfile && <ButtonSection />}
         <div className="-mt-25 px-30 flex flex-col items-center">
           <ProfileImage />
           <UserNameText />
           <Intro />
           <SocialLinks />
-          <TechStack />
-          {isStudentRole && <ContriGraph />}
-          <ProjectList />
-          {isStudentRole && <Guestbook />}
+          {/* <TechStack /> */}
+          {isStudent && <ContriGraph />}
+          {isStudent && <ProjectList />}
+          {isStudent && <Guestbook />}
         </div>
       </div>
     </>
