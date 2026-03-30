@@ -36,6 +36,7 @@ instance.interceptors.response.use(
       } catch (err) {
         localStorage.removeItem('accessToken');
         delete instance.defaults.headers.common['Authorization'];
+        return Promise.reject(err);
       }
     }
 
