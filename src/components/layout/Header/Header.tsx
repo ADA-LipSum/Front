@@ -39,7 +39,7 @@ const Header = () => {
                 <Bell className="w-5 h-5 transition-colors duration-200 group-hover:text-blue-600" />
               </div>
               <Link to={`/profile/${user?.customId}`}>
-                <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white">
+                <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-gray-400">
                   <img
                     src={user?.profileImage}
                     className="w-full h-full object-cover"
