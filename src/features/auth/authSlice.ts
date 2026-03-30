@@ -48,17 +48,21 @@ export const checkLogin = createAsyncThunk(
   'api/auth/checkLogin',
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem('accessToken');
+    console.log('저장된 토큰:', token); // 디버깅용 토큰 출력
 
-    if (!token) return rejectWithValue(null);
+    // 토큰이 있으면 헤더에 설정, 없어도 요청 시도
+    // (인터셉터가 401 발생 시 refresh token 쿠키로 재발급 처리)
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
 
     try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
       const res = await axios.get('/api/auth/status');
 
       return res.data.data as User;
     } catch (err) {
       localStorage.removeItem('accessToken');
+      console.log('로그인 상태 유지 실패:', err);
       delete axios.defaults.headers.common['Authorization'];
       return rejectWithValue(null);
     }
