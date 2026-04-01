@@ -2,7 +2,6 @@ import Intro from '@/components/profile/Intro';
 import ProfileBanner from '@/components/profile/ProfileBanner';
 import ProfileImage from '@/components/profile/ProfileImage';
 import UserNameText from '@/components/profile/UserNameText';
-import ContriGraph from '@/components/profile/ContriGraph';
 import ProjectList from '@/components/profile/ProjectList';
 import Guestbook from '@/components/profile/Guestbook';
 import SocialLinks from '@/components/profile/SocialLinks';
@@ -13,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
 import { fetchProfileByUsername, clearProfile } from '@/features/auth/profileSlice';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
+import TechStack from '@/components/profile/TechStack';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -48,7 +48,7 @@ const Profile = () => {
           <UserNameText />
           <Intro />
           <SocialLinks />
-          {/* <TechStack /> */}
+          <TechStack />
           {/* {isStudent && <ContriGraph />} */}
           {isStudent && <ProjectList />}
           {isStudent && <Guestbook />}
