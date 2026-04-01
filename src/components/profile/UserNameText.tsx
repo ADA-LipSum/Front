@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import H2 from '../tags/H2';
+
 const UserNameText = () => {
   const { profile } = useSelector((state: RootState) => state.profile);
 
