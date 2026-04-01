@@ -12,7 +12,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
 import { fetchProfileByUsername, clearProfile } from '@/features/auth/profileSlice';
-import { ButtonSection } from '@/components/profile/ButtonSection';
+import { ButtonGroup } from '@/components/profile/ButtonGroup';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -42,14 +42,14 @@ const Profile = () => {
     <>
       <div className="min-h-220">
         <ProfileBanner />
-        {isOwnProfile && <ButtonSection />}
+        {isOwnProfile && <ButtonGroup />}
         <div className="-mt-25 px-30 flex flex-col items-center">
           <ProfileImage />
           <UserNameText />
           <Intro />
           <SocialLinks />
           {/* <TechStack /> */}
-          {isStudent && <ContriGraph />}
+          {/* {isStudent && <ContriGraph />} */}
           {isStudent && <ProjectList />}
           {isStudent && <Guestbook />}
         </div>
