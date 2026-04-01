@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import { getGuestbook, postGuestbook, patchGuestbook, deleteGuestbook } from '@/api/profile';
+import { ShowErrorToast } from '../Library/Toast/Toast';
 
 interface GuestbookEntry {
   id: number;
@@ -41,9 +42,9 @@ const Guestbook = () => {
       setNewContent('');
     } catch (err: any) {
       if (err?.response?.status === 409) {
-        alert('이미 방명록을 작성했습니다.');
+        ShowErrorToast('이미 방명록을 작성했습니다.');
       } else {
-        alert('방명록 등록에 실패했습니다.');
+        ShowErrorToast('방명록 등록에 실패했습니다.');
       }
     } finally {
       setSubmitting(false);
