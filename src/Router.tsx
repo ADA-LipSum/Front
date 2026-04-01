@@ -19,6 +19,8 @@ import MainLayout from '@/components/layout/MainLayout';
 import { checkLogin } from './features/auth/authSlice';
 import Proifle from './pages/Profile/Profile';
 import UserNotFound from './pages/NotFound/UserNotFound';
+import { StudyGroup } from './pages/StudyGroup/StudyGroup';
+import { Announcement } from './pages/Announcement/Contact';
 
 const Router = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +40,8 @@ const Router = () => {
         </Route>
         <Route path="/exchange" element={<Exchange />} />
         <Route path="/event" element={<Event />} />
+        <Route path="/study-group" element={<StudyGroup />} />
+        <Route path="/announcement" element={<Announcement />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Proifle />} />
         <Route path="/not-found/user" element={<UserNotFound />} />
