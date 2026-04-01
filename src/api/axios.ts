@@ -8,6 +8,14 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 instance.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -17,8 +25,8 @@ instance.interceptors.response.use(
       // 로그인 및 재발급 요청은 재시도하지 않도록 조건 추가
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes('api/auth/login') &&
-      !originalRequest.url.includes('api/auth/reissue')
+      !originalRequest.url.includes('/auth/login') &&
+      !originalRequest.url.includes('/auth/reissue')
     ) {
       originalRequest._retry = true;
 
@@ -38,7 +46,7 @@ instance.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
         return instance(originalRequest);
-      } catch (err) {
+      } catch {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         delete instance.defaults.headers.common['Authorization'];
