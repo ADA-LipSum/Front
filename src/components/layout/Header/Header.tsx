@@ -21,13 +21,19 @@ const Header = () => {
           <Link to="/community" className="hover:text-[#54C46B]">
             커뮤니티
           </Link>
-          <Link to="/exchange" className="hover:text-[#54C46B]">
+          <Link to="/study-group" className="hover:text-[#54C46B]">
+            그룹 찾기
+          </Link>
+          <Link to="/announcement" className="hover:text-[#ec4848]">
+            공지사항
+          </Link>
+          <Link to="/exchange" className="hover:text-[#5492c4]">
             거래소
           </Link>
-          <Link to="/event" className="hover:text-[#54C46B]">
+          <Link to="/event" className="hover:text-[#ae54c4]">
             이벤트
           </Link>
-          <Link to="/contact" className="hover:text-[#54C46B]">
+          <Link to="/contact" className="hover:text-[#5c2733]">
             문의
           </Link>
         </div>
