@@ -32,8 +32,12 @@ export const login = createAsyncThunk(
     const res = await loginApi(id, password);
 
     const token = res.data.accessToken;
+    const refreshToken = res.data.refreshToken;
 
     localStorage.setItem('accessToken', token); // TODO : 로컬 스토리지에 저장하는 방법 말고 다른 방법 찾기
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
 
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 설정
 
@@ -72,6 +76,7 @@ export const checkLogin = createAsyncThunk(
 // 로그아웃
 export const logoutAsync = createAsyncThunk('api/auth/logout', async () => {
   localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
 });
 
 const authSlice = createSlice({
