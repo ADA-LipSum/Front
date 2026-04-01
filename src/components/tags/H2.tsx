@@ -1,5 +1,5 @@
-const H2 = ({ children }: { children: React.ReactNode }) => {
-  return <h2 className="text-2xl font-bold">{children}</h2>;
+const H2 = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  return <h2 className={`text-2xl font-bold ${className || ''}`}>{children}</h2>;
 };
 
 export default H2;
