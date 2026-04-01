@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import { getGuestbook, postGuestbook, patchGuestbook, deleteGuestbook } from '@/api/profile';
+import { ShowErrorToast } from '../Library/Toast/Toast';
 
 interface GuestbookEntry {
   id: number;
   writerUuid: string;
+  writerId: string;
   writerName: string;
   writerProfileImage: string;
   content: string;
@@ -23,6 +25,7 @@ const Guestbook = () => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!customId) return;
@@ -32,10 +35,17 @@ const Guestbook = () => {
   const handleSubmit = async () => {
     if (!customId || !newContent.trim()) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const entry = await postGuestbook(customId, newContent.trim());
       setEntries((prev) => [entry, ...prev]);
       setNewContent('');
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        ShowErrorToast('이미 방명록을 작성했습니다.');
+      } else {
+        ShowErrorToast('방명록 등록에 실패했습니다.');
+      }
     } finally {
       setSubmitting(false);
     }
@@ -81,11 +91,12 @@ const Guestbook = () => {
             <button
               onClick={handleSubmit}
               disabled={submitting || !newContent.trim()}
-              className="text-sm px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-40 transition"
+              className="text-sm px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-40 transition"
             >
               등록
             </button>
           </div>
+          {submitError && <p className="text-xs text-red-500 mt-1">{submitError}</p>}
         </div>
       )}
 
@@ -100,11 +111,13 @@ const Guestbook = () => {
 
             return (
               <div key={entry.id} className="flex gap-3">
-                <img
-                  src={entry.writerProfileImage}
-                  alt={entry.writerName}
-                  className="w-9 h-9 rounded-full border border-gray-200 shrink-0"
-                />
+                <a href={`/profile/${entry.writerId}`}>
+                  <img
+                    src={entry.writerProfileImage}
+                    alt={entry.writerName}
+                    className="w-9 h-9 rounded-full border border-gray-200 shrink-0"
+                  />
+                </a>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-sm font-semibold">{entry.writerName}</span>

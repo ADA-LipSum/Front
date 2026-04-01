@@ -7,6 +7,7 @@ import LipSumIcon from '@/assets/LipSum_icon.svg';
 import { Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 import { useState } from 'react';
+import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 export const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,9 +20,11 @@ export const Login = () => {
     try {
       await dispatch(login({ id, password })).unwrap();
       console.log('로그인 성공!');
+      ShowSuccessToast('로그인 성공!');
       navigate('/');
     } catch (err) {
       console.error('로그인 실패:', err);
+      ShowErrorToast('로그인 실패');
     }
   };
 

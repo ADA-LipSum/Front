@@ -8,6 +8,7 @@ const TECH_ICON_MAP: Record<string, IconName> = {
   'Spring Boot': 'spring',
   Java: 'java',
   Python: 'python',
+  JavaScript: 'js',
   TypeScript: 'typescript',
   React: 'react',
   Vue: 'vuejs',

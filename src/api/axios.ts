@@ -31,10 +31,15 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const res = await instance.post('api/auth/reissue');
+        const refreshToken = localStorage.getItem('refreshToken');
+        const res = await instance.post('api/auth/reissue', refreshToken ? { refreshToken } : undefined);
         const newAccessToken = res.data.data.accessToken;
+        const newRefreshToken = res.data.data.refreshToken;
 
         localStorage.setItem('accessToken', newAccessToken);
+        if (newRefreshToken) {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
 
         instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
 
@@ -43,7 +48,9 @@ instance.interceptors.response.use(
         return instance(originalRequest);
       } catch {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         delete instance.defaults.headers.common['Authorization'];
+        return Promise.reject(err);
       }
     }
 
