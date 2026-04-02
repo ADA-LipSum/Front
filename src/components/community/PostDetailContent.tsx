@@ -40,7 +40,7 @@ export const PostDetailContent = ({ post, getTimeAgo }: PostDetailContentProps) 
                 {post.status === 'recruiting' ? '모집중' : '모집완료'}
               </span>
             </div>
-            <div className="text-[#424242] whitespace-pre-wrap break-words leading-relaxed">
+            <div className="text-[#424242] whitespace-pre-wrap wrap-break-word leading-relaxed">
               {post.content}
             </div>
           </div>

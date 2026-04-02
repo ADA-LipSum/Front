@@ -40,6 +40,7 @@ const Guestbook = () => {
       const entry = await postGuestbook(customId, newContent.trim());
       setEntries((prev) => [entry, ...prev]);
       setNewContent('');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err?.response?.status === 409) {
         ShowErrorToast('이미 방명록을 작성했습니다.');

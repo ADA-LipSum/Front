@@ -22,7 +22,7 @@ export const SearchFilterSection = ({
   return (
     <div className="mb-6">
       <div className="flex flex-wrap items-center gap-3 mb-3">
-        <div className="flex-1 min-w-[200px] flex items-center gap-2 border border-[#E0E0E0] rounded bg-white px-3 py-2">
+        <div className="flex-1 min-w-50 flex items-center gap-2 border border-[#E0E0E0] rounded bg-white px-3 py-2">
           <Search className="w-4 h-4 text-[#757575] shrink-0" />
           <input
             type="text"
@@ -33,7 +33,7 @@ export const SearchFilterSection = ({
             className="flex-1 outline-none text-sm placeholder:text-[#9E9E9E]"
           />
         </div>
-        <div className="flex-1 min-w-[200px] flex items-center gap-2 border border-[#E0E0E0] rounded bg-white px-3 py-2">
+        <div className="flex-1 min-w-50 flex items-center gap-2 border border-[#E0E0E0] rounded bg-white px-3 py-2">
           <Hash className="w-4 h-4 text-[#757575] shrink-0" />
           <input
             type="text"

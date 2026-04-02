@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
-import { Pen } from 'lucide-react';
+// import { Pen } from 'lucide-react';
 
 const ProfileBanner = () => {
   const { profile, loading } = useSelector((state: RootState) => state.profile);

@@ -30,7 +30,7 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
             key={page}
             type="button"
             onClick={() => onPageChange(page)}
-            className={`min-w-[32px] h-8 rounded text-sm font-medium transition ${
+            className={`min-w-8 h-8 rounded text-sm font-medium transition ${
               currentPage === page
                 ? 'bg-[#4A4A4A] text-white underline'
                 : 'hover:bg-[#EEEEEE] text-black'

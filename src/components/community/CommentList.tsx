@@ -26,7 +26,7 @@ export const CommentList = ({ comments, getTimeAgo }: CommentListProps) => {
               <span className="font-semibold text-black text-sm">{comment.author}</span>
               <span className="text-xs text-[#9E9E9E]">{getTimeAgo(comment.createdAt)}</span>
             </div>
-            <p className="text-sm text-[#424242] whitespace-pre-wrap break-words">
+            <p className="text-sm text-[#424242] whitespace-pre-wrap wrap-break-word">
               {comment.content}
             </p>
           </div>
