@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { useDispatch } from 'react-redux';
 import type { AppDispatch } from '@/store/store';
 import { login } from '@/features/auth/authSlice';
@@ -7,6 +8,7 @@ import LipSumIcon from '@/assets/LipSum_icon.svg';
 import { Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
 import { useState } from 'react';
+import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 export const Login = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,10 +20,12 @@ export const Login = () => {
   const handleLogin = async () => {
     try {
       await dispatch(login({ id, password })).unwrap();
-      alert('로그인 성공!');
+      console.log('로그인 성공!');
+      ShowSuccessToast('로그인 성공!');
       navigate('/');
     } catch (err) {
-      alert('로그인 실패');
+      console.error('로그인 실패:', err);
+      ShowErrorToast('로그인 실패');
     }
   };
 
