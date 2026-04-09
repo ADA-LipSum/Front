@@ -1,25 +1,7 @@
-import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
-import type { RootState } from '@/store/store';
-import { getProfile } from '@/api/profile';
+import { useProfileStore } from '@/store/useProfileStore';
 
 const Intro = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const [intro, setIntro] = useState<string | null>(null);
-  const { profile } = useSelector((state: RootState) => state.profile);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user?.uuid) return;
-
-      const res = await getProfile(user.uuid);
-
-      // 핵심 부분
-      setIntro(res.intro);
-    };
-
-    fetchProfile();
-  }, [user]);
+  const { profile } = useProfileStore();
 
   return (
     <div className="text-center mt-5">

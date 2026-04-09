@@ -1,5 +1,4 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/useProfileStore';
 import { Globe } from 'lucide-react';
 
 import GitHub from '@/assets/GitHub.png';
@@ -7,7 +6,7 @@ import Linkedin from '@/assets/Linkedin.png';
 import Notion from '@/assets/Notion.png';
 
 const SocialLinks = () => {
-  const profile = useSelector((state: RootState) => state.profile.profile);
+  const { profile } = useProfileStore();
   const socialLinks = profile?.socialLinks;
 
   if (!socialLinks) return null;

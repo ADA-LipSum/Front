@@ -1,7 +1,6 @@
-import { useSelector } from 'react-redux';
+import { useProfileStore } from '@/store/useProfileStore';
 import StackIcon from 'tech-stack-icons';
 import type { IconName } from 'tech-stack-icons';
-import type { RootState } from '@/store/store';
 
 const TECH_ICON_MAP: Record<string, IconName> = {
   Spring: 'spring',
@@ -40,7 +39,7 @@ const TECH_ICON_MAP: Record<string, IconName> = {
 };
 
 const TechStack = () => {
-  const { profile } = useSelector((state: RootState) => state.profile);
+  const { profile } = useProfileStore();
 
   if (!profile?.techStack || profile.techStack.length === 0) return null;
 

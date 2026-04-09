@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/useProfileStore';
 import { getProjects } from '@/api/profile';
 
 interface Project {
@@ -14,7 +13,7 @@ interface Project {
 }
 
 const ProjectList = () => {
-  const { profile } = useSelector((state: RootState) => state.profile);
+  const { profile } = useProfileStore();
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {

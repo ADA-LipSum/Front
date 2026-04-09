@@ -1,9 +1,8 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/useProfileStore';
 // import { Pen } from 'lucide-react';
 
 const ProfileBanner = () => {
-  const { profile, loading } = useSelector((state: RootState) => state.profile);
+  const { profile, loading } = useProfileStore();
 
   if (loading) {
     return <div className="w-full h-87.5 bg-gray-200 mb-4" />;

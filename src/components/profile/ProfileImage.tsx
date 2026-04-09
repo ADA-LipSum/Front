@@ -1,8 +1,7 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/useProfileStore';
 
 const ProfileImage = () => {
-  const { profile, loading } = useSelector((state: RootState) => state.profile);
+  const { profile, loading } = useProfileStore();
 
   if (loading) {
     return <div className="w-40 h-40 rounded-full bg-gray-200 animate-pulse" />;

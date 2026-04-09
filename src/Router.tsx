@@ -1,35 +1,34 @@
 import { Route, Routes } from 'react-router-dom';
 
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/store/store';
-
-import { Main } from '@/pages/Main/Main';
-import { Community } from '@/pages/Community/Community';
-import { CommunityLayout } from '@/pages/Community/CommunityLayout';
-import { CommunityPostDetail } from '@/pages/Community/CommunityPostDetail';
-import { CommunityWrite } from '@/pages/Community/CommunityWrite';
-import { Exchange } from '@/pages/Exchange/Exchange';
-import { Event } from '@/pages/Event/Event';
-import { Contact } from '@/pages/Contact/Contact';
-import { Login } from '@/pages/Auth/Login';
-import { SocialLogin } from '@/pages/Auth/SocialLogin';
+import { useAuthStore } from '@/store/useAuthStore';
 import MainLayout from '@/components/layout/MainLayout';
-import { checkLogin } from './features/auth/authSlice';
-import Proifle from './pages/Profile/Profile';
-import UserNotFound from './pages/NotFound/UserNotFound';
-import { StudyGroup } from './pages/StudyGroup/StudyGroup';
-import { Announcement } from './pages/Announcement/Contact';
+
+const Main = lazy(() => import('@/pages/Main/Main').then((m) => ({ default: m.Main })));
+const Community = lazy(() => import('@/pages/Community/Community').then((m) => ({ default: m.Community })));
+const CommunityLayout = lazy(() => import('@/pages/Community/CommunityLayout').then((m) => ({ default: m.CommunityLayout })));
+const CommunityPostDetail = lazy(() => import('@/pages/Community/CommunityPostDetail').then((m) => ({ default: m.CommunityPostDetail })));
+const CommunityWrite = lazy(() => import('@/pages/Community/CommunityWrite').then((m) => ({ default: m.CommunityWrite })));
+const Exchange = lazy(() => import('@/pages/Exchange/Exchange').then((m) => ({ default: m.Exchange })));
+const Event = lazy(() => import('@/pages/Event/Event').then((m) => ({ default: m.Event })));
+const Contact = lazy(() => import('@/pages/Contact/Contact').then((m) => ({ default: m.Contact })));
+const Login = lazy(() => import('@/pages/Auth/Login').then((m) => ({ default: m.Login })));
+const SocialLogin = lazy(() => import('@/pages/Auth/SocialLogin').then((m) => ({ default: m.SocialLogin })));
+const Profile = lazy(() => import('./pages/Profile/Profile'));
+const UserNotFound = lazy(() => import('./pages/NotFound/UserNotFound'));
+const StudyGroup = lazy(() => import('@/pages/StudyGroup/StudyGroup').then((m) => ({ default: m.StudyGroup })));
+const Announcement = lazy(() => import('@/pages/Announcement/Contact').then((m) => ({ default: m.Announcement })));
 
 const Router = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const checkLogin = useAuthStore((state) => state.checkLogin);
 
   useEffect(() => {
-    dispatch(checkLogin()); // 새로고침 시 로그인 상태 확인
-  }, [dispatch]);
+    checkLogin(); // 새로고침 시 로그인 상태 확인
+  }, [checkLogin]);
 
   return (
+    <Suspense fallback={null}>
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Main />} />
@@ -43,7 +42,7 @@ const Router = () => {
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profile/:customId" element={<Proifle />} />
+        <Route path="/profile/:customId" element={<Profile />} />
         <Route path="/not-found/user" element={<UserNotFound />} />
       </Route>
 
@@ -51,6 +50,7 @@ const Router = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/social-login" element={<SocialLogin />} />
     </Routes>
+    </Suspense>
   );
 };
 

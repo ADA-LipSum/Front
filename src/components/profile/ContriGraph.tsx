@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/useAuthStore';
 import axios from '@/api/axios';
 
 interface ContributionDay {
@@ -21,7 +20,7 @@ interface ContributionData {
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const ContriGraph = () => {
-  const { loading: authLoading, isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { loading: authLoading, isLoggedIn } = useAuthStore();
   const [data, setData] = useState<ContributionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [noGithub, setNoGithub] = useState(false);

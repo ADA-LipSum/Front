@@ -1,13 +1,12 @@
 /* eslint-disable no-console */
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/useAuthStore';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
 import { Bell } from 'lucide-react';
 
 const Header = () => {
-  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
+  const { isLoggedIn, user } = useAuthStore();
   console.log('Header - isLoggedIn:', isLoggedIn);
   console.log('Header - user:', user);
 
@@ -15,7 +14,7 @@ const Header = () => {
     <>
       <div className="w-full h-18 bg-[#ffffff] flex items-center pl-18.25 border-b border-[#d1d0d0]">
         <Link to="/">
-          <img src={LipSum_Logo_Black} className="w-40" alt="logo" />
+          <img src={LipSum_Logo_Black} width={160} height={32} className="w-40" alt="logo" loading="eager" />
         </Link>
 
         <div className="flex items-center ml-20 gap-10 text-black font-semibold">
@@ -49,8 +48,11 @@ const Header = () => {
                 <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-gray-400">
                   <img
                     src={user?.profileImage}
+                    width={48}
+                    height={48}
                     className="w-full h-full object-cover"
                     alt="profile"
+                    loading="eager"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}

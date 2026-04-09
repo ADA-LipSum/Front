@@ -1,6 +1,8 @@
 import { Eye, MessageSquare, Pause, Play, ThumbsUp } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay } from 'swiper/modules';
 
 interface HeroSlide {
   subtitle: string;
@@ -80,23 +82,39 @@ export const Panel = ({ children, className = '' }: PanelProps) => {
 export interface NoticeCardProps {
   title: string;
   footer: string;
+  image?: string;
 }
 
-export const NoticeCard = ({ title, footer }: NoticeCardProps) => {
+export const NoticeCard = ({ title, footer, image }: NoticeCardProps) => {
   return (
-    <article className="flex h-48 flex-col justify-between rounded-xl bg-[#E7E7E7] px-6 py-7">
-      <h3 className="text-base font-semibold text-[#1F1F1F]">{title}</h3>
-      <p className="text-sm font-semibold text-[#2D2D2D]">{footer}</p>
+    <article className="flex flex-col rounded-xl bg-[#E7E7E7] overflow-hidden">
+      <div className="h-36 w-full bg-[#D4D4D4] overflow-hidden">
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            width={600}
+            height={144}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full bg-[#CACACA]" />
+        )}
+      </div>
+      <div className="flex flex-col justify-between px-6 py-4 gap-1">
+        <h3 className="text-base font-semibold text-[#1F1F1F]">{title}</h3>
+        <p className="text-sm font-semibold text-[#2D2D2D]">{footer}</p>
+      </div>
     </article>
   );
 };
 
 export interface MealMenuProps {
-  period: string;
   items: string[];
 }
 
-export const MealMenu = ({ period, items }: MealMenuProps) => {
+export const MealMenu = ({ items }: MealMenuProps) => {
   const mealTabs = ['조식', '중식', '석식'] as const;
   const [activeTab, setActiveTab] = useState<(typeof mealTabs)[number]>('조식');
   const activeIndex = mealTabs.indexOf(activeTab);
@@ -122,7 +140,6 @@ export const MealMenu = ({ period, items }: MealMenuProps) => {
           </button>
         ))}
       </div>
-      <p className="mb-4 text-sm font-semibold text-[#6E6E6E]">{period}</p>
       <ul className="space-y-3 text-sm text-[#323232]">
         {items.map((item) => (
           <li key={item} className="flex items-center gap-3">
@@ -190,7 +207,7 @@ export const HeroBanner = () => {
 
     const interval = window.setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % HERO_BANNER_SLIDES.length);
-    }, 4000);
+    }, 8000);
 
     return () => window.clearInterval(interval);
   }, [isPaused]);
@@ -198,42 +215,95 @@ export const HeroBanner = () => {
   const currentSlide = HERO_BANNER_SLIDES[activeSlide];
 
   return (
-    <section
-      className="flex h-64 flex-row items-end justify-between px-8 py-8 text-white transition-colors duration-1000 ease-in-out md:px-20"
-      style={{ backgroundColor: currentSlide.gradientFrom }}
-    >
-      <div>
-        <p className="text-base font-semibold text-white/75 md:text-xl">{currentSlide.subtitle}</p>
-        <h1 className="mt-2 text-3xl font-extrabold md:text-4xl">{currentSlide.title}</h1>
-        <p className="mt-3 text-sm text-white/85 md:text-base">{currentSlide.description}</p>
-      </div>
-      <div className="mt-8 flex items-center justify-end gap-2.5">
-        <div className="flex gap-1.5">
-          {HERO_BANNER_SLIDES.map((slide, index) => (
-            <button
-              key={slide.title}
-              type="button"
-              onClick={() => setActiveSlide(index)}
-              className={`rounded-full transition-all duration-300 ${
-                activeSlide === index ? 'h-2.5 w-8 bg-white/80' : 'h-2.5 w-2.5 bg-white/40'
-              }`}
-              aria-label={`${index + 1}번 배너로 이동`}
-            />
-          ))}
+    <section className="relative h-64 overflow-hidden text-white">
+      {/* background-color transition 대신 opacity transition 사용 (GPU 합성 레이어) */}
+      {HERO_BANNER_SLIDES.map((slide, index) => (
+        <div
+          key={slide.title}
+          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          style={{ backgroundColor: slide.gradientFrom, opacity: index === activeSlide ? 1 : 0 }}
+          aria-hidden
+        />
+      ))}
+      <div className="relative z-10 flex h-full flex-row items-end justify-between px-8 py-8 md:px-20">
+        <div>
+          <p className="text-base font-semibold text-white/75 md:text-xl">
+            {currentSlide.subtitle}
+          </p>
+          <h1 className="mt-2 text-3xl font-extrabold md:text-4xl">{currentSlide.title}</h1>
+          <p className="mt-3 text-sm text-white/85 md:text-base">{currentSlide.description}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsPaused((prev) => !prev)}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/35 bg-white/15 text-white shadow-[0_6px_18px_rgba(0,0,0,0.18)] backdrop-blur-md transition hover:bg-white/25"
-          aria-label={isPaused ? '자동 재생' : '일시정지'}
-        >
-          {isPaused ? <Play size={13} /> : <Pause size={13} />}
-        </button>
+        <div className="mt-8 flex items-center justify-end gap-2.5">
+          <div className="flex gap-1.5">
+            {HERO_BANNER_SLIDES.map((slide, index) => (
+              <button
+                key={slide.title}
+                type="button"
+                onClick={() => setActiveSlide(index)}
+                className={`rounded-full h-2.5 transition-opacity duration-300 ${
+                  activeSlide === index ? 'w-8 bg-white/80' : 'w-2.5 bg-white/40'
+                }`}
+                aria-label={`${index + 1}번 배너로 이동`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPaused((prev) => !prev)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/35 bg-white/15 text-white shadow-[0_6px_18px_rgba(0,0,0,0.18)] backdrop-blur-md transition hover:bg-white/25"
+            aria-label={isPaused ? '자동 재생' : '일시정지'}
+          >
+            {isPaused ? <Play size={13} /> : <Pause size={13} />}
+          </button>
+        </div>
       </div>
     </section>
   );
 };
 
-export const PartnerCard = () => {
-  return <article className="h-24 rounded-xl border border-[#D5D5D5] bg-white" />;
+interface PartnerCardProps {
+  logoUrl: string;
+  partnerName: string;
+}
+
+export interface PartnerTickerProps {
+  partners: PartnerCardProps[];
+}
+
+export const PartnerTicker = ({ partners }: PartnerTickerProps) => {
+  return (
+    <div className="rounded-2xl bg-white/50 p-2 overflow-hidden">
+      <Swiper
+        modules={[Autoplay]}
+        slidesPerView="auto"
+        spaceBetween={20}
+        loop={true}
+        allowTouchMove={false}
+        autoplay={{ delay: 0, disableOnInteraction: false }}
+        speed={6000}
+      >
+        {partners.map((partner, index) => (
+          <SwiperSlide key={`${index}`} className="w-42.5!">
+            <PartnerCard logoUrl={partner.logoUrl} partnerName={partner.partnerName} />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+};
+
+export const PartnerCard = ({ logoUrl, partnerName }: PartnerCardProps) => {
+  return (
+    <article className="flex flex-col h-30 py-4 rounded-xl border border-[#D5D5D5] bg-white">
+      <img
+        src={`${logoUrl}`}
+        alt={partnerName}
+        width={160}
+        height={96}
+        className="mx-auto h-4/5 object-contain p-2"
+        loading="lazy"
+      />
+      <p className="text-center text-sm font-medium text-[#333]">{partnerName}</p>
+    </article>
+  );
 };

@@ -8,29 +8,27 @@ import SocialLinks from '@/components/profile/SocialLinks';
 
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store/store';
-import { fetchProfileByUsername, clearProfile } from '@/features/auth/profileSlice';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useProfileStore } from '@/store/useProfileStore';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
 import TechStack from '@/components/profile/TechStack';
 
 const Profile = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
-  const { profile, error, loading } = useSelector((state: RootState) => state.profile);
-  const authUser = useSelector((state: RootState) => state.auth.user);
+  const { profile, error, loading, fetchProfileByUsername, clearProfile } = useProfileStore();
+  const authUser = useAuthStore((state) => state.user);
   const isStudent = profile?.role === 'STUDENT';
   const isOwnProfile = authUser?.customId === customId;
 
   useEffect(() => {
     if (customId) {
-      dispatch(fetchProfileByUsername(customId));
+      fetchProfileByUsername(customId);
     }
     return () => {
-      dispatch(clearProfile());
+      clearProfile();
     };
-  }, [customId, dispatch]);
+  }, [customId, fetchProfileByUsername, clearProfile]);
 
   useEffect(() => {
     if (!loading && error) {
