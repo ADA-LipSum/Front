@@ -9,7 +9,7 @@ import { createCommunityPost } from '@/api/posts';
 export const CommunityWrite = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
-  const author = user?.userNickname ?? '익명';
+  const [_author] = useState(user?.userNickname ?? '익명');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tagsStr, setTagsStr] = useState('');
