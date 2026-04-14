@@ -5,7 +5,7 @@ import { getProfile } from '@/api/profile';
 
 const Intro = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [intro, setIntro] = useState<string | null>(null);
+  const [_intro, setIntro] = useState<string | null>(null); // _intro = TS에서 사용하지 않는 변수로 인식
   const { profile } = useSelector((state: RootState) => state.profile);
 
   useEffect(() => {
