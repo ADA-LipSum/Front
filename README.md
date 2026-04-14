@@ -158,3 +158,8 @@ lib/styles/
 - `globals.css`의 `@layer components`는 디자인 시스템 수준에서만 허용
 
 ---
+
+## 실행
+
+- 개발용 : npm run dev
+- 배포용 : npm run build -> npm serve dist -s
