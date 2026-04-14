@@ -32,7 +32,10 @@ instance.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        const res = await instance.post('api/auth/reissue', refreshToken ? { refreshToken } : undefined);
+        const res = await instance.post(
+          'api/auth/reissue',
+          refreshToken ? { refreshToken } : undefined,
+        );
         const newAccessToken = res.data.data.accessToken;
         const newRefreshToken = res.data.data.refreshToken;
 
@@ -50,7 +53,7 @@ instance.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         delete instance.defaults.headers.common['Authorization'];
-        return Promise.reject(err);
+        // return Promise.reject(err);
       }
     }
 
