@@ -48,7 +48,7 @@ const Profile = () => {
           <UserNameText />
           <Intro />
           <SocialLinks />
-          <TechStack />
+          {isStudent && <TechStack />}
           {/* {isStudent && <ContriGraph />} */}
           {isStudent && <ProjectList />}
           {isStudent && <Guestbook />}
