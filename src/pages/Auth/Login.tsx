@@ -74,11 +74,11 @@ export const Login = () => {
         </div>
 
         {/* 로그인 유지 + 소셜 링크 */}
-        <div className="flex justify-between items-center mb-6">
-          <label className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex justify-center items-center mb-6">
+          {/* <label className="flex items-center gap-2 text-sm text-gray-600">
             <input type="checkbox" />
             로그인 상태유지
-          </label>
+          </label> */}
 
           <Link to="/social-login" className="text-sm text-blue-500 hover:underline">
             소셜 계정이 있으신가요?
