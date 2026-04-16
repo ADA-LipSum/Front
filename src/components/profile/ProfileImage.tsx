@@ -4,7 +4,7 @@ const ProfileImage = () => {
   const { profile, loading } = useProfileStore();
 
   if (loading) {
-    return <div className="w-40 h-40 rounded-full bg-gray-200 animate-pulse" />;
+    return <div className="w-40 h-40 rounded-full bg-gray-300 animate-pulse" />;
   }
 
   return (

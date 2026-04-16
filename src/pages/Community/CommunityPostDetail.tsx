@@ -107,9 +107,7 @@ export const CommunityPostDetail = () => {
     return (
       <div className="min-h-screen bg-white">
         <div className="max-w-3xl mx-auto px-4 py-8">
-          <p className="text-[#757575]">
-            {error ?? '게시글을 찾을 수 없습니다.'}
-          </p>
+          <p className="text-[#757575]">{error ?? '게시글을 찾을 수 없습니다.'}</p>
           <button
             type="button"
             onClick={() => navigate('/community')}
