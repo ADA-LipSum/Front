@@ -4,6 +4,7 @@ const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',
   },
   withCredentials: true,
 });
@@ -32,7 +33,10 @@ instance.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        const res = await instance.post('api/auth/reissue', refreshToken ? { refreshToken } : undefined);
+        const res = await instance.post(
+          'api/auth/reissue',
+          refreshToken ? { refreshToken } : undefined,
+        );
         const newAccessToken = res.data.data.accessToken;
         const newRefreshToken = res.data.data.refreshToken;
 
@@ -50,7 +54,7 @@ instance.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         delete instance.defaults.headers.common['Authorization'];
-        return Promise.reject(error);
+        // return Promise.reject(err);
       }
     }
 
