@@ -16,59 +16,45 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-let isRefreshing = false;
-let pendingQueue: Array<(token: string) => void> = [];
-
 instance.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
 
     if (
-      error.response?.status !== 401 ||
-      originalRequest.url.includes('/auth/login') ||
-      originalRequest.url.includes('/auth/reissue')
+      // 로그인 및 재발급 요청은 재시도하지 않도록 조건 추가
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes('/auth/login') &&
+      !originalRequest.url.includes('/auth/reissue')
     ) {
-      return Promise.reject(error);
-    }
+      originalRequest._retry = true;
 
-    if (isRefreshing) {
-      // 이미 갱신 중이면 큐에 등록하고 대기
-      return new Promise((resolve) => {
-        pendingQueue.push((token) => {
-          originalRequest.headers['Authorization'] = `Bearer ${token}`;
-          resolve(instance(originalRequest));
-        });
-      });
-    }
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const res = await instance.post('api/auth/reissue', refreshToken ? { refreshToken } : undefined);
+        const newAccessToken = res.data.data.accessToken;
+        const newRefreshToken = res.data.data.refreshToken;
 
-    isRefreshing = true;
-    try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      const res = await instance.post('api/auth/reissue', refreshToken ? { refreshToken } : undefined);
-      const newAccessToken = res.data.data.accessToken;
-      const newRefreshToken = res.data.data.refreshToken;
+        localStorage.setItem('accessToken', newAccessToken);
+        if (newRefreshToken) {
+          localStorage.setItem('refreshToken', newRefreshToken);
+        }
 
-      localStorage.setItem('accessToken', newAccessToken);
-      if (newRefreshToken) {
-        localStorage.setItem('refreshToken', newRefreshToken);
+        instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+
+        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+
+        return instance(originalRequest);
+      } catch {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        delete instance.defaults.headers.common['Authorization'];
+        return Promise.reject(error);
       }
-
-      instance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-      pendingQueue.forEach((cb) => cb(newAccessToken));
-      pendingQueue = [];
-
-      originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-      return instance(originalRequest);
-    } catch {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      delete instance.defaults.headers.common['Authorization'];
-      pendingQueue = [];
-      return Promise.reject(error);
-    } finally {
-      isRefreshing = false;
     }
+
+    return Promise.reject(error);
   },
 );
 
