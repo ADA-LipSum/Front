@@ -114,7 +114,12 @@ export const Main = () => {
             <SectionHeader title="공지사항" actionLabel="전체보기 ▶" />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {NOTICE_ITEMS.map((notice) => (
-                <NoticeCard key={notice.title} title={notice.title} footer={notice.footer} image={notice.image} />
+                <NoticeCard
+                  key={notice.title}
+                  title={notice.title}
+                  footer={notice.footer}
+                  image={notice.image}
+                />
               ))}
             </div>
           </Panel>
