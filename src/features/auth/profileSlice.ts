@@ -47,15 +47,31 @@ export const fetchProfileByUsername = createAsyncThunk(
 export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
   async (
-    { uuid, userNickname, intro }: { uuid: string; userNickname?: string; intro?: string },
+    {
+      uuid,
+      userNickname,
+      intro,
+      socialLinks,
+    }: {
+      uuid: string;
+      userNickname?: string;
+      intro?: string;
+      socialLinks?: {
+        githubUrl?: string;
+        notionUrl?: string;
+        linkedinUrl?: string;
+        personalWebsiteUrl?: string;
+      };
+    },
     { rejectWithValue },
   ) => {
     try {
       const result = await editProfile(uuid, {
         ...(userNickname ? { nickname: userNickname } : {}),
         ...(intro !== undefined ? { intro } : {}),
+        ...(socialLinks ?? {}),
       });
-      return { ...result, userNickname, intro };
+      return { ...result, userNickname, intro, socialLinks };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || '프로필 수정 실패');
     }
