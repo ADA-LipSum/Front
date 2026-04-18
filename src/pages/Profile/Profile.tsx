@@ -26,11 +26,23 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editNickname, setEditNickname] = useState('');
   const [editIntro, setEditIntro] = useState('');
+  const [editSocialLinks, setEditSocialLinks] = useState({
+    githubUrl: '',
+    notionUrl: '',
+    linkedinUrl: '',
+    personalWebsiteUrl: '',
+  });
 
   // 편집 버튼 클릭 시 편집 모드로 전환
   const handleStartEdit = () => {
     setEditNickname(profile?.userNickname ?? '');
     setEditIntro(profile?.intro ?? '');
+    setEditSocialLinks({
+      githubUrl: profile?.socialLinks?.githubUrl ?? '',
+      notionUrl: profile?.socialLinks?.notionUrl ?? '',
+      linkedinUrl: profile?.socialLinks?.linkedinUrl ?? '',
+      personalWebsiteUrl: profile?.socialLinks?.personalWebsiteUrl ?? '',
+    });
     setIsEditing(true);
   };
 
@@ -38,9 +50,17 @@ const Profile = () => {
   const handleSave = async () => {
     if (!profile?.uuid) return;
     if (editNickname.length > 10) return;
+    const isValidUrl = (url: string) => { try { if (url) new URL(url); return true; } catch { return false; } };
+    const hasInvalidUrl = Object.values(editSocialLinks).some((url) => !isValidUrl(url));
+    if (hasInvalidUrl) { ShowErrorToast('올바른 URL 형식을 확인해주세요'); return; }
     try {
       await dispatch(
-        updateProfile({ uuid: profile.uuid, userNickname: editNickname, intro: editIntro }),
+        updateProfile({
+          uuid: profile.uuid,
+          userNickname: editNickname,
+          intro: editIntro,
+          socialLinks: editSocialLinks,
+        }),
       ).unwrap();
     } catch (err) {
       ShowErrorToast(err as string);
@@ -86,8 +106,14 @@ const Profile = () => {
           <ProfileImage isEditing={isEditing} isOwnProfile={isOwnProfile} />
           <UserNameText isEditing={isEditing} editValue={editNickname} onChange={setEditNickname} />
           <Intro isEditing={isEditing} editValue={editIntro} onChange={setEditIntro} />
-          {isStudent && <SocialLinks />}
-          {isStudent && <TechStack />}
+          {isStudent && (
+            <SocialLinks
+              isEditing={isEditing}
+              editValues={editSocialLinks}
+              onChange={(key, value) => setEditSocialLinks((prev) => ({ ...prev, [key]: value }))}
+            />
+          )}
+          {/* {isStudent && <TechStack />} */}
           {/* {isStudent && <ContriGraph />} */}
           {isStudent && <ProjectList />}
           {isStudent && <Guestbook />}
