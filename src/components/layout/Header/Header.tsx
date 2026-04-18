@@ -41,11 +41,11 @@ const Header = () => {
         <div className="ml-auto mr-6 flex items-center gap-5">
           {isLoggedIn ? (
             <>
-              <div className="w-10 h-10 border-[#ffffff] bg-gray-100 border rounded-sm flex items-center justify-center relative inset-shadow-xs hover:cursor-pointer group">
-                <Bell className="w-5 h-5 transition-colors duration-200 group-hover:text-blue-600" />
+              <div className="w-10 h-10 rounded-sm flex items-center justify-center relative hover:cursor-pointer group">
+                <Bell className="w-7 h-7 transition-colors duration-200 group-hover:text-blue-600" />
               </div>
               <Link to={`/profile/${user?.customId}`}>
-                <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-gray-400">
+                <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white">
                   <img
                     src={user?.profileImage}
                     className="w-full h-full object-cover"
