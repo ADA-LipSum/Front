@@ -2,7 +2,7 @@
 // store/slices/profileSlice.ts
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getProfile, getUserByUsername } from '@/api/profile';
+import { getProfile, getUserByUsername, editProfile, uploadProfileImage as uploadProfileImageApi } from '@/api/profile';
 import type { Profile } from '@/types/profile';
 
 interface ProfileState {
@@ -43,6 +43,36 @@ export const fetchProfileByUsername = createAsyncThunk(
   },
 );
 
+// 프로필 수정 (uuid)
+export const updateProfile = createAsyncThunk(
+  'profile/updateProfile',
+  async (
+    { uuid, userNickname, intro }: { uuid: string; userNickname?: string; intro?: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const result = await editProfile(uuid, {
+        ...(userNickname ? { nickname: userNickname } : {}),
+        ...(intro !== undefined ? { intro } : {}),
+      });
+      return { ...result, userNickname, intro };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || '프로필 수정 실패');
+    }
+  },
+);
+
+export const uploadProfileImage = createAsyncThunk(
+  'profile/uploadProfileImage',
+  async ({ uuid, file }: { uuid: string; file: File }, { rejectWithValue }) => {
+    try {
+      return await uploadProfileImageApi(uuid, file);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || '프로필 이미지 업로드 실패');
+    }
+  },
+);
+
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
@@ -78,6 +108,18 @@ const profileSlice = createSlice({
       .addCase(fetchProfileByUsername.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        if (state.profile) {
+          state.profile = { ...state.profile, ...action.payload };
+        } else {
+          state.profile = action.payload;
+        }
+      })
+      .addCase(uploadProfileImage.fulfilled, (state, action) => {
+        if (state.profile) {
+          state.profile.profileImage = action.payload;
+        }
       });
   },
 });
