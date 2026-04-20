@@ -1,8 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// store/slices/profileSlice.ts
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getProfile, getUserByUsername, editProfile, uploadProfileImage as uploadProfileImageApi } from '@/api/profile';
+import {
+  getProfile,
+  getUserByUsername,
+  editProfile,
+  uploadProfileImage as uploadProfileImageApi,
+} from '@/api/profile';
 import type { Profile } from '@/types/profile';
 
 interface ProfileState {
