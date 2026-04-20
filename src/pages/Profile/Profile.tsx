@@ -17,7 +17,6 @@ import {
   uploadProfileImage,
 } from '@/features/auth/profileSlice';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
-import TechStack from '@/components/profile/TechStack';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 const Profile = () => {
@@ -155,8 +154,6 @@ const Profile = () => {
               onChange={(key, value) => setEditSocialLinks((prev) => ({ ...prev, [key]: value }))}
             />
           )}
-          {/* {isStudent && <TechStack />} */}
-          {/* {isStudent && <ContriGraph />} */}
           {isStudent && <ProjectList />}
           {isStudent && <Guestbook />}
         </div>
