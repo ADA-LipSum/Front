@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '@/api/axios';
 import { login as loginApi } from '@/api/auth';
+import { uploadProfileImage } from '@/features/auth/profileSlice';
 
 interface User {
   uuid: string;
@@ -107,6 +108,11 @@ const authSlice = createSlice({
         // 로그아웃 성공 시 상태 업데이트
         state.isLoggedIn = false;
         state.user = null;
+      })
+      .addCase(uploadProfileImage.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.profileImage = action.payload;
+        }
       });
   },
 });
