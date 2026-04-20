@@ -21,6 +21,7 @@ import Proifle from './pages/Profile/Profile';
 import UserNotFound from './pages/NotFound/UserNotFound';
 import { StudyGroup } from './pages/StudyGroup/StudyGroup';
 import { Announcement } from './pages/Announcement/Contact';
+import { Settings } from './pages/Setting/Settings';
 
 const Router = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,6 +45,7 @@ const Router = () => {
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Proifle />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/not-found/user" element={<UserNotFound />} />
       </Route>
 
