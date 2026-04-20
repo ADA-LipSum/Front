@@ -51,7 +51,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   // 새로고침 시 로그인 유지
   checkLogin: async () => {
     const token = localStorage.getItem('accessToken');
-    console.log('저장된 토큰:', token);
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    // 토큰이 아예 없으면 API 호출 없이 즉시 비로그인 처리
+    if (!token && !refreshToken) {
+      set({ isLoggedIn: false, loading: false, user: null });
+      return;
+    }
 
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -63,6 +69,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ isLoggedIn: true, loading: false, user });
     } catch (err) {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       console.log('로그인 상태 유지 실패:', err);
       delete axios.defaults.headers.common['Authorization'];
       set({ isLoggedIn: false, loading: false, user: null });

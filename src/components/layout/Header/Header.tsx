@@ -14,7 +14,14 @@ const Header = () => {
     <>
       <div className="w-full h-18 bg-[#ffffff] flex items-center pl-18.25 border-b border-[#d1d0d0]">
         <Link to="/">
-          <img src={LipSum_Logo_Black} width={160} height={32} className="w-40" alt="logo" loading="eager" />
+          <img
+            src={LipSum_Logo_Black}
+            width={160}
+            height={32}
+            className="w-40"
+            alt="logo"
+            loading="eager"
+          />
         </Link>
 
         <div className="flex items-center ml-20 gap-10 text-black font-semibold">

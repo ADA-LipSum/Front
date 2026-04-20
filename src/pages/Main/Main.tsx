@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 import {
-  HeroBanner,
+  HeroBannerVideo,
   LatestPostItem,
   MealMenu,
   NoticeCard,
@@ -107,14 +107,24 @@ export const Main = () => {
 
   return (
     <main className="min-h-screen bg-[#F3F3F5]">
-      <HeroBanner />
+      <HeroBannerVideo
+        title="현업형 개발자 양성"
+        subtitle="소프트웨어마이스터고 실무 프로젝트 트랙"
+        description="기업 연계 캡스톤으로 기획부터 배포까지 직접 경험합니다."
+        videoUrl="https://www.youtube.com/watch?v=cygyGLzY2vg"
+      />
       <div className="mx-auto w-full max-w-330 px-6 py-10 md:px-10 md:py-12">
         <div className="space-y-10">
           <Panel>
             <SectionHeader title="공지사항" actionLabel="전체보기 ▶" />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {NOTICE_ITEMS.map((notice) => (
-                <NoticeCard key={notice.title} title={notice.title} footer={notice.footer} image={notice.image} />
+                <NoticeCard
+                  key={notice.title}
+                  title={notice.title}
+                  footer={notice.footer}
+                  image={notice.image}
+                />
               ))}
             </div>
           </Panel>
