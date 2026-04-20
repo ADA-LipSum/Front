@@ -34,7 +34,7 @@ const SOCIAL_FIELDS: {
   {
     key: 'notionUrl',
     label: 'Notion',
-    placeholder: 'https://notion.so/...',
+    placeholder: 'https://notion.so/username',
     icon: <img src={Notion} width={20} height={20} alt="Notion" className="opacity-70" />,
   },
   {
@@ -46,7 +46,7 @@ const SOCIAL_FIELDS: {
   {
     key: 'personalWebsiteUrl',
     label: '개인 웹사이트',
-    placeholder: 'https://yoursite.com',
+    placeholder: 'https://example.com',
     icon: <Globe size={20} className="text-gray-400" />,
   },
 ];
@@ -83,7 +83,7 @@ const SocialLinks = ({ isEditing = false, editValues, onChange }: SocialLinksPro
                       value={value}
                       onChange={(e) => onChange(key, e.target.value)}
                       placeholder={placeholder}
-                      className={`w-full border-2 rounded px-3 py-2 text-sm pr-8 focus:outline-none transition-colors ${
+                      className={`text-slate-700 text-sm border border-slate-200 rounded-md w-full placeholder:text-slate-400 px-3 py-2 pr-8 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow ${
                         invalid
                           ? 'border-red-400 focus:border-red-400'
                           : 'border-gray-300 focus:border-blue-400'
