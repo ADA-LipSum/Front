@@ -6,7 +6,7 @@ export interface SocialLinks {
   personalWebsiteUrl?: string;
 }
 
-export interface Profile {
+export interface profile {
   uuid: string;
   adminId: string;
   customId: string;
