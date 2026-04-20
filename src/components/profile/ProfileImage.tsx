@@ -1,24 +1,29 @@
 import { useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store/store';
-import { uploadProfileImage } from '@/features/auth/profileSlice';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store/store';
 
 import { Upload } from 'lucide-react';
 
 interface ProfileImageProps {
   isEditing?: boolean;
   isOwnProfile?: boolean;
+  previewUrl?: string | null;
+  onImageSelect?: (file: File) => void;
 }
 
-const ProfileImage = ({ isEditing = false, isOwnProfile = false }: ProfileImageProps) => {
-  const dispatch = useDispatch<AppDispatch>();
+const ProfileImage = ({
+  isEditing = false,
+  isOwnProfile = false,
+  previewUrl,
+  onImageSelect,
+}: ProfileImageProps) => {
   const { profile, loading } = useSelector((state: RootState) => state.profile);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !profile?.uuid) return;
-    dispatch(uploadProfileImage({ uuid: profile.uuid, file }));
+    if (!file) return;
+    onImageSelect?.(file);
     e.target.value = '';
   };
 
@@ -33,7 +38,7 @@ const ProfileImage = ({ isEditing = false, isOwnProfile = false }: ProfileImageP
       <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-11 outline-[#F5F5F5]">
         <img
           className="w-full h-full object-cover"
-          src={profile?.profileImage}
+          src={previewUrl ?? profile?.profileImage}
           alt="Profile"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = 'none';
