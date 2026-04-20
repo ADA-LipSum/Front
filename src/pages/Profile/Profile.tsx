@@ -10,7 +10,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
-import { fetchProfileByUsername, clearProfile, updateProfile } from '@/features/auth/profileSlice';
+import {
+  fetchProfileByUsername,
+  clearProfile,
+  updateProfile,
+  uploadProfileImage,
+} from '@/features/auth/profileSlice';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
 import TechStack from '@/components/profile/TechStack';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
@@ -26,6 +31,8 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editNickname, setEditNickname] = useState('');
   const [editIntro, setEditIntro] = useState('');
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [editSocialLinks, setEditSocialLinks] = useState({
     githubUrl: '',
     notionUrl: '',
@@ -46,13 +53,40 @@ const Profile = () => {
     setIsEditing(true);
   };
 
+  const handleImageSelect = (file: File) => {
+    if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+    setPendingImageFile(file);
+    setPreviewImageUrl(URL.createObjectURL(file));
+  };
+
   // 저장 버튼 클릭 시 프로필 업데이트
   const handleSave = async () => {
     if (!profile?.uuid) return;
     if (editNickname.length > 10) return;
-    const isValidUrl = (url: string) => { try { if (url) new URL(url); return true; } catch { return false; } };
+    const isValidUrl = (url: string) => {
+      try {
+        if (url) new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
     const hasInvalidUrl = Object.values(editSocialLinks).some((url) => !isValidUrl(url));
-    if (hasInvalidUrl) { ShowErrorToast('올바른 URL 형식을 확인해주세요'); return; }
+    if (hasInvalidUrl) {
+      ShowErrorToast('올바른 URL 형식을 확인해주세요');
+      return;
+    }
+    if (pendingImageFile) {
+      try {
+        await dispatch(uploadProfileImage({ uuid: profile.uuid, file: pendingImageFile })).unwrap();
+      } catch (err) {
+        ShowErrorToast(err as string);
+        return;
+      }
+      if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+      setPendingImageFile(null);
+      setPreviewImageUrl(null);
+    }
     try {
       await dispatch(
         updateProfile({
@@ -72,6 +106,9 @@ const Profile = () => {
 
   // 취소 버튼 클릭 시 편집 모드 종료
   const handleCancel = () => {
+    if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
+    setPendingImageFile(null);
+    setPreviewImageUrl(null);
     setIsEditing(false);
   };
 
@@ -103,7 +140,12 @@ const Profile = () => {
           />
         )}
         <div className="-mt-25 px-30 flex flex-col items-center">
-          <ProfileImage isEditing={isEditing} isOwnProfile={isOwnProfile} />
+          <ProfileImage
+            isEditing={isEditing}
+            isOwnProfile={isOwnProfile}
+            previewUrl={previewImageUrl}
+            onImageSelect={handleImageSelect}
+          />
           <UserNameText isEditing={isEditing} editValue={editNickname} onChange={setEditNickname} />
           <Intro isEditing={isEditing} editValue={editIntro} onChange={setEditIntro} />
           {isStudent && (
