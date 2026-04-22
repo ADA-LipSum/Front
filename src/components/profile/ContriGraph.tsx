@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
-import axios from '@/api/axios';
+import { createPortal } from 'react-dom';
+import { getProfileGitHubContributions } from '@/api/github';
 
 interface ContributionDay {
   contributionCount: number;
@@ -18,29 +17,39 @@ interface ContributionData {
   weeks: ContributionWeek[];
 }
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+interface Props {
+  githubLogin: string;
+}
 
-const ContriGraph = () => {
-  const { loading: authLoading, isLoggedIn } = useSelector((state: RootState) => state.auth);
+const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+
+interface Tooltip {
+  date: string;
+  count: number;
+  x: number;
+  y: number;
+}
+
+const ContriGraph = ({ githubLogin }: Props) => {
   const [data, setData] = useState<ContributionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [noGithub, setNoGithub] = useState(false);
+  const [tooltip, setTooltip] = useState<Tooltip | null>(null);
 
   useEffect(() => {
-    if (authLoading || !isLoggedIn) return;
+    if (!githubLogin) return;
 
-    axios
-      .get('/api/auth/github/contributions')
+    getProfileGitHubContributions(githubLogin)
       .then((res) => {
-        setData(res.data.data);
+        setData(res);
       })
       .catch((err) => {
-        if (err.response?.status === 400) {
+        if (err.response?.status === 400 || err.response?.status === 404) {
           setNoGithub(true);
         }
       })
       .finally(() => setLoading(false));
-  }, [authLoading, isLoggedIn]);
+  }, [githubLogin]);
 
   if (loading) return null;
   if (noGithub || !data) return null;
@@ -57,19 +66,13 @@ const ContriGraph = () => {
     }
   });
 
-  const CELL = 13; // cell size px
-  const GAP = 3; // gap px
+  const CELL = 13; // 셀 크기 px
+  const GAP = 3; // 셀 간격 px
   const STEP = CELL + GAP;
 
   return (
-    <div className="mt-10 border border-gray-300 w-full rounded-lg p-4">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-semibold text-gray-700">GitHub Contributions</span>
-        <span className="text-xs text-gray-500">
-          {data.totalContributions} contributions this year
-        </span>
-      </div>
-
+    <>
+    <div className="mt-10 w-full rounded-lg p-4" onMouseLeave={() => setTooltip(null)}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Month labels */}
@@ -131,7 +134,16 @@ const ContriGraph = () => {
                     return (
                       <div
                         key={di}
-                        title={`${day.date}: ${day.contributionCount} contribution${day.contributionCount !== 1 ? 's' : ''}`}
+                        onMouseEnter={(e) => {
+                          const rect = (e.target as HTMLElement).getBoundingClientRect();
+                          setTooltip({
+                            date: day.date,
+                            count: day.contributionCount,
+                            x: rect.left + rect.width / 2,
+                            y: rect.top,
+                          });
+                        }}
+                        onMouseLeave={() => setTooltip(null)}
                         style={{
                           width: CELL,
                           height: CELL,
@@ -160,6 +172,29 @@ const ContriGraph = () => {
         </div>
       </div>
     </div>
+    {tooltip &&
+      createPortal(
+        <div
+          style={{
+            position: 'fixed',
+            left: tooltip.x,
+            top: tooltip.y - 6,
+            transform: 'translate(-50%, -100%)',
+            background: '#1f2937',
+            color: '#f9fafb',
+            padding: '4px 8px',
+            borderRadius: 4,
+            fontSize: 11,
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            zIndex: 9999,
+          }}
+        >
+          {tooltip.date} — {tooltip.count}회
+        </div>,
+        document.body,
+      )}
+    </>
   );
 };
 
