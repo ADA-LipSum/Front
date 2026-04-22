@@ -2,7 +2,6 @@ import Intro from '@/components/profile/Intro';
 import ProfileBanner from '@/components/profile/ProfileBanner';
 import ProfileImage from '@/components/profile/ProfileImage';
 import UserNameText from '@/components/profile/UserNameText';
-import ProjectList from '@/components/profile/ProjectList';
 import Guestbook from '@/components/profile/Guestbook';
 import SocialLinks from '@/components/profile/SocialLinks';
 
@@ -18,6 +17,7 @@ import {
 } from '@/features/auth/profileSlice';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
+import ContriGraph from '@/components/profile/ContriGraph';
 
 const Profile = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -154,7 +154,9 @@ const Profile = () => {
               onChange={(key, value) => setEditSocialLinks((prev) => ({ ...prev, [key]: value }))}
             />
           )}
-          {isStudent && <ProjectList />}
+          {isStudent && profile?.githubAccount && (
+            <ContriGraph githubLogin={profile.githubAccount} />
+          )}
           {isStudent && <Guestbook />}
         </div>
       </div>
