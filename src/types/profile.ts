@@ -16,6 +16,7 @@ export interface Profile {
   profileImage: string;
   profileBanner: string;
   role: string;
+  githubAccount: string | null;
   intro: string;
   techStack: string[];
   badge: string | null;
