@@ -77,7 +77,7 @@ const Guestbook = () => {
           <img
             src={user?.profileImage}
             alt="me"
-            className="w-9 h-9 rounded-full border border-gray-200 shrink-0"
+            className="w-9 h-9 rounded-full border border-gray-200 shrink-0 object-cover"
           />
           <div className="flex-1 flex gap-2">
             <input
