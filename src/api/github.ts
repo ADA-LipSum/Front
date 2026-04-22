@@ -23,8 +23,14 @@ export const getGitHubLogin = async () => {
   return response.data.data;
 };
 
-// 깃허브 잔디 조회
+// 깃허브 잔디 조회 (로그인 유저)
 export const getUserGitHubContributions = async (year: number) => {
   const response = await axios.get(`api/auth/github/contributions?year=${year}`);
+  return response.data.data;
+};
+
+// 특정 유저 깃허브 잔디 조회
+export const getProfileGitHubContributions = async (githubLogin: string) => {
+  const response = await axios.get(`api/auth/github/contributions/${githubLogin}`);
   return response.data.data;
 };
