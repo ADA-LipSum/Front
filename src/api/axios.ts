@@ -8,7 +8,9 @@ const instance = axios.create({
   withCredentials: true,
 });
 
+// 요청 인터셉터에서 토큰을 자동으로 첨부하도록 설정
 instance.interceptors.request.use((config) => {
+  if (config.url?.includes('/auth/reissue')) return config; // 추가
   const token = localStorage.getItem('accessToken');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -49,11 +51,11 @@ instance.interceptors.response.use(
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
 
         return instance(originalRequest);
-      } catch {
+      } catch (err) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         delete instance.defaults.headers.common['Authorization'];
-        // return Promise.reject(err);
+        return Promise.reject(err);
       }
     }
 
