@@ -66,7 +66,6 @@ export const checkLogin = createAsyncThunk(
 
       return res.data.data as User;
     } catch (err) {
-      localStorage.removeItem('accessToken');
       console.log('로그인 상태 유지 실패:', err);
       delete axios.defaults.headers.common['Authorization'];
       return rejectWithValue(null);
