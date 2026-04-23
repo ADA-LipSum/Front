@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import axios from '@/api/axios';
 import { login as loginApi } from '@/api/auth';
 import { uploadProfileImage } from '@/features/auth/profileSlice';
@@ -15,98 +15,118 @@ interface User {
 }
 
 interface AuthState {
+  refreshToken: any;
   isLoggedIn: boolean;
   loading: boolean;
   user: User | null;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
   isLoggedIn: false,
   loading: true,
   user: null,
+  accessToken: null,
+  refreshToken: null,
 };
 
-// 로그인
+// 로그인 - localStorage 제거, 메모리에만 저장
 export const login = createAsyncThunk(
   'api/auth/login',
-  async ({ id, password }: { id: string; password: string }) => {
-    const res = await loginApi(id, password);
+  async ({ id, password }: { id: string; password: string }, { rejectWithValue }) => {
+    try {
+      const res = await loginApi(id, password);
+      const { accessToken } = res.data;
 
-    const token = res.data.accessToken;
-    const refreshToken = res.data.refreshToken;
+      // Refresh Token은 서버가 httpOnly 쿠키로 내려줘야 함 (프론트에서 건드리지 않음)
+      // axios 헤더에 Access Token 설정
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
-    localStorage.setItem('accessToken', token); // TODO : 로컬 스토리지에 저장하는 방법 말고 다른 방법 찾기
-    if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
+      const me = await axios.get('/api/auth/status');
+
+      return { user: me.data.data as User, accessToken };
+    } catch (err) {
+      return rejectWithValue(err);
     }
-
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // axios 기본 헤더에 토큰 설정
-
-    const me = await axios.get('/api/auth/status'); // 로그인 후 사용자 정보 가져오기
-
-    return me.data.data as User;
   },
 );
 
-// 새로고침 시 로그인 유지
+// 새로고침 시 Silent Refresh - localStorage 대신 Refresh Token 쿠키로 재발급
 export const checkLogin = createAsyncThunk(
   'api/auth/checkLogin',
   async (_, { rejectWithValue }) => {
-    const token = localStorage.getItem('accessToken');
-    console.log('저장된 토큰:', token); // 디버깅용 토큰 출력
-
-    // 토큰이 있으면 헤더에 설정, 없어도 요청 시도
-    // (인터셉터가 401 발생 시 refresh token 쿠키로 재발급 처리)
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-
     try {
-      const res = await axios.get('/api/auth/status');
+      // httpOnly 쿠키의 Refresh Token이 자동 전송됨 (withCredentials)
+      const refreshRes = await axios.post('/api/auth/reissue', {}, { withCredentials: true });
+      const { accessToken } = refreshRes.data.data ?? refreshRes.data;
 
-      return res.data.data as User;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+      const me = await axios.get('/api/auth/status');
+
+      return { user: me.data.data as User, accessToken };
     } catch (err) {
-      console.log('로그인 상태 유지 실패:', err);
       delete axios.defaults.headers.common['Authorization'];
       return rejectWithValue(null);
     }
   },
 );
 
-// 로그아웃
+// 로그아웃 - 서버에 Refresh Token 무효화 요청
 export const logoutAsync = createAsyncThunk('api/auth/logout', async () => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+  try {
+    // 서버에서 httpOnly 쿠키 삭제 처리
+    await axios.post('/api/auth/logout', {}, { withCredentials: true });
+  } finally {
+    delete axios.defaults.headers.common['Authorization'];
+  }
 });
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    setAccessToken: (
+      state,
+      action: PayloadAction<{ accessToken: string; refreshToken?: string }>,
+    ) => {
+      state.accessToken = action.payload.accessToken;
+      if (action.payload.refreshToken) {
+        state.refreshToken = action.payload.refreshToken;
+      }
+      axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.accessToken}`;
+    },
+    clearCredentials: (state) => {
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isLoggedIn = false;
+      state.user = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
-        // 로그인 성공 시 상태 업데이트
         state.isLoggedIn = true;
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken; // 메모리에만 저장
       })
       .addCase(checkLogin.fulfilled, (state, action) => {
-        // 로그인 상태 유지 성공 시 상태 업데이트
         state.isLoggedIn = true;
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken; // 메모리에만 저장
       })
       .addCase(checkLogin.rejected, (state) => {
-        // 로그인 상태 유지 실패 시 상태 업데이트
         state.isLoggedIn = false;
         state.loading = false;
         state.user = null;
+        state.accessToken = null;
       })
       .addCase(logoutAsync.fulfilled, (state) => {
-        // 로그아웃 성공 시 상태 업데이트
         state.isLoggedIn = false;
         state.user = null;
+        state.accessToken = null;
       })
       .addCase(uploadProfileImage.fulfilled, (state, action) => {
         if (state.user) {
@@ -116,4 +136,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { setAccessToken, clearCredentials } = authSlice.actions;
 export default authSlice.reducer;
