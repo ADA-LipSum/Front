@@ -1,14 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
 import { Bell } from 'lucide-react';
 
-const Header = () => {
-  const { isLoggedIn, user } = useSelector((state: RootState) => state.auth);
-  console.log('Header - isLoggedIn:', isLoggedIn);
-  console.log('Header - user:', user);
+export const Header = () => {
+  const { isLoggedIn, user } = useAuthStore();
 
   return (
     <>
@@ -29,9 +26,6 @@ const Header = () => {
           </Link>
           <Link to="/exchange" className="hover:text-[#5492c4]">
             거래소
-          </Link>
-          <Link to="/event" className="hover:text-[#ae54c4]">
-            이벤트
           </Link>
           <Link to="/contact" className="hover:text-[#5c2733]">
             문의
@@ -69,5 +63,3 @@ const Header = () => {
     </>
   );
 };
-
-export default Header;
