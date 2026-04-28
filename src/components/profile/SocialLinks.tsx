@@ -1,5 +1,4 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/profileStore';
 import { Globe, X } from 'lucide-react';
 
 import GitHub from '@/assets/GitHub.png';
@@ -62,7 +61,7 @@ const isValidUrl = (value: string) => {
 };
 
 const SocialLinks = ({ isEditing = false, editValues, onChange }: SocialLinksProps) => {
-  const profile = useSelector((state: RootState) => state.profile.profile);
+  const profile = useProfileStore((state) => state.profile);
   const socialLinks = profile?.socialLinks;
 
   if (isEditing && editValues && onChange) {
