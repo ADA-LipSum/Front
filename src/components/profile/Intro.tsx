@@ -1,5 +1,4 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/profileStore';
 
 interface IntroProps {
   isEditing: boolean;
@@ -8,7 +7,7 @@ interface IntroProps {
 }
 
 const Intro = ({ isEditing, editValue, onChange }: IntroProps) => {
-  const { profile } = useSelector((state: RootState) => state.profile);
+  const { profile } = useProfileStore();
 
   if (isEditing) {
     return (
