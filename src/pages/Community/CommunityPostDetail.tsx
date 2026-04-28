@@ -4,8 +4,7 @@ import { PostDetailContent } from '@/components/community/PostDetailContent';
 import { CommentList } from '@/components/community/CommentList';
 import { CommentForm } from '@/components/community/CommentForm';
 import { ArrowLeft } from 'lucide-react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 import { fetchCommunityPostDetail, togglePostLike } from '@/api/posts';
 import { createComment, fetchPostComments } from '@/api/comments';
 import type { CommunityComment, CommunityPost } from '@/types/community';
@@ -14,7 +13,7 @@ import { getTimeAgo } from '@/utils/time';
 export const CommunityPostDetail = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
 
   const [post, setPost] = useState<CommunityPost | null>(null);
   const [comments, setComments] = useState<CommunityComment[]>([]);
