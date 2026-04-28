@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useAuthStore } from '@/store/authStore';
 import { ArrowLeft } from 'lucide-react';
 import type { RecruitStatus } from '@/types/community';
-import type { RootState } from '@/store/store';
 import { createCommunityPost } from '@/api/posts';
 
 export const CommunityWrite = () => {
   const navigate = useNavigate();
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
   const [_author] = useState(user?.userNickname ?? '익명');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
