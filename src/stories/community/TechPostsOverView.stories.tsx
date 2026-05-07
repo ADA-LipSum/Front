@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { MOCK_POSTS, TechPostsOverView } from './TechPostsOverView';
 
 const meta: Meta<typeof TechPostsOverView> = {
-  title: 'Community/TechPostsOverView',
+  title: 'Community/블로그',
   component: TechPostsOverView,
   tags: ['autodocs'],
   parameters: {
