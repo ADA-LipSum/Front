@@ -19,6 +19,7 @@ const Profile = lazy(() => import('./pages/Profile/Profile'));
 const UserNotFound = lazy(() => import('./pages/NotFound/UserNotFound'));
 const StudyGroup = lazy(() => import('@/pages/StudyGroup/StudyGroup').then((m) => ({ default: m.StudyGroup })));
 const Announcement = lazy(() => import('@/pages/Announcement/Contact').then((m) => ({ default: m.Announcement })));
+import { Settings } from './pages/Setting/Settings';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -43,6 +44,7 @@ const Router = () => {
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/not-found/user" element={<UserNotFound />} />
       </Route>
 

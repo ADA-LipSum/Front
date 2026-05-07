@@ -1,5 +1,5 @@
 import { Eye, MessageSquare, ThumbsUp } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
@@ -157,39 +157,7 @@ const Metric = ({ icon, value }: MetricProps) => {
   );
 };
 
-interface HeroBannerTextProps {
-  subtitle: string;
-  title: string;
-  description: string;
-}
-
-const HeroBannerText = ({ subtitle, title, description }: HeroBannerTextProps) => (
-  <div className="relative z-10 flex h-full flex-col items-start justify-end px-8 py-8 md:px-20">
-    <p className="text-base font-semibold text-white/75 md:text-xl">{subtitle}</p>
-    <h1 className="mt-2 text-3xl font-extrabold md:text-4xl">{title}</h1>
-    <p className="mt-3 text-sm text-white/85 md:text-base">{description}</p>
-  </div>
-);
-
-export interface HeroBannerProps extends HeroBannerTextProps {
-  imageUrl: string;
-}
-
-export const HeroBanner = ({ subtitle, title, description, imageUrl }: HeroBannerProps) => {
-  return (
-    <section className="relative h-64 overflow-hidden text-white">
-      <img
-        src={imageUrl}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover blur-xs brightness-60"
-        loading="eager"
-      />
-      <HeroBannerText subtitle={subtitle} title={title} description={description} />
-    </section>
-  );
-};
-
-export interface HeroBannerVideoProps extends HeroBannerTextProps {
+export interface HeroBannerVideoProps {
   videoUrl: string;
 }
 
@@ -198,31 +166,77 @@ const extractYouTubeId = (url: string): string | null => {
   return match ? match[1] : null;
 };
 
-export const HeroBannerVideo = ({
-  subtitle,
-  title,
-  description,
-  videoUrl,
-}: HeroBannerVideoProps) => {
+export const HeroBannerVideo = ({ videoUrl }: HeroBannerVideoProps) => {
   const videoId = extractYouTubeId(videoUrl);
-  const embedUrl = videoId
-    ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&playsinline=1`
-    : null;
+  const playerRef = useRef<any>(null);
+  const playerDivId = 'hero-youtube-player';
+
+  useEffect(() => {
+    if (!videoId) return;
+
+    const initPlayer = () => {
+      playerRef.current = new (window as any).YT.Player(playerDivId, {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: videoId,
+          controls: 0,
+          disablekb: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          fs: 0,
+          iv_load_policy: 3,
+        },
+        events: {
+          onReady: (e: any) => e.target.playVideo(),
+          onStateChange: (e: any) => {
+            // 일시정지(2) 상태가 되면 즉시 재개 — 창 전환 시 오버레이 컨트롤 방지
+            if (e.data === 2) {
+              setTimeout(() => e.target.playVideo(), 50);
+            }
+          },
+        },
+      });
+    };
+
+    if ((window as any).YT?.Player) {
+      initPlayer();
+    } else {
+      (window as any).onYouTubeIframeAPIReady = initPlayer;
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(tag);
+      }
+    }
+
+    const resumePlay = () => {
+      if (playerRef.current?.playVideo) playerRef.current.playVideo();
+    };
+
+    document.addEventListener('visibilitychange', resumePlay);
+    window.addEventListener('focus', resumePlay);
+    return () => {
+      document.removeEventListener('visibilitychange', resumePlay);
+      window.removeEventListener('focus', resumePlay);
+    };
+  }, [videoId]);
 
   return (
     <section className="relative h-80 overflow-hidden text-white">
-      {embedUrl && (
-        <div className="absolute inset-0 pointer-events-none">
-          <iframe
-            src={embedUrl}
+      {videoId && (
+        // 컨트롤 바 완전히 가리기: 상하 10% 여백을 overflow:hidden으로 클리핑
+        <div className="absolute pointer-events-none" style={{ inset: '-10% 0' }}>
+          <div
+            id={playerDivId}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 brightness-60"
-            style={{ width: '177.78vh', height: '56.25vw', minWidth: '100%', minHeight: '100%' }}
-            allow="autoplay; encrypted-media"
-            title="hero background video"
+            style={{ width: '177.78vh', height: '56.25vw', minWidth: '100%', minHeight: '120%' }}
           />
         </div>
       )}
-      {/* <HeroBannerText subtitle={subtitle} title={title} description={description} /> */}
     </section>
   );
 };

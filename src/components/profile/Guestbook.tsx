@@ -70,7 +70,7 @@ const Guestbook = () => {
   };
 
   return (
-    <div className="w-full mt-16 border-t border-gray-200 pt-10 pb-16">
+    <div className="w-full max-w-3xl mt-16 border-t border-gray-300 pt-10 pb-16">
       {/* 작성 폼 */}
       {isLoggedIn && (
         <div className="flex gap-3 mb-8">

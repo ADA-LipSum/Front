@@ -21,6 +21,7 @@ interface AuthState {
   login: (id: string, password: string) => Promise<void>;
   checkLogin: () => Promise<void>;
   logout: () => Promise<void>;
+  setUserProfileImage: (url: string) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -81,5 +82,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     set({ isLoggedIn: false, user: null });
+  },
+
+  setUserProfileImage: (url: string) => {
+    set((state) => ({
+      user: state.user ? { ...state.user, profileImage: url } : null,
+    }));
   },
 }));
