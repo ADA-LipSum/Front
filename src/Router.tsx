@@ -28,8 +28,8 @@ const Router = () => {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Main />} />
-        <Route path="/community" element={<Community />} />
+        {/* <Route path="/" element={<Main />} /> */}
+        <Route path="/" element={<Community />} />
         <Route path="/community/:uuid" element={<CommunityPostDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
