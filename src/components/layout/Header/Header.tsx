@@ -15,7 +15,7 @@ export const Header = () => {
         </Link>
 
         <div className="flex items-center ml-20 gap-10 text-black font-semibold">
-          <Link to="/community">커뮤니티</Link>
+          <Link to="/">커뮤니티</Link>
           <Link to="/study-group">그룹 찾기</Link>
           <Link to="/announcement">공지사항</Link>
           <Link to="/exchange">거래소</Link>
