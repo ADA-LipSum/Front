@@ -1,12 +1,5 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-import type { CommunityComment, CommunityPost } from '@/types/community';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import type { StudyGroupComment, StudyGroupPost } from '@/types/studyGroup';
 
 const getTimeAgo = (iso: string) => {
   const d = new Date(iso);
@@ -22,7 +15,7 @@ const getTimeAgo = (iso: string) => {
   return d.toLocaleDateString('ko-KR');
 };
 
-const initialPosts: CommunityPost[] = [
+const initialPosts: StudyGroupPost[] = [
   {
     id: '1',
     title: '프론트엔드 스터디 모집합니다',
@@ -36,7 +29,8 @@ const initialPosts: CommunityPost[] = [
   {
     id: '2',
     title: '백엔드 스터디 모집합니다',
-    content: 'Java와 Spring Boot로 REST API 설계 및 구현 스터디입니다. 기초부터 차근차근 진행합니다.',
+    content:
+      'Java와 Spring Boot로 REST API 설계 및 구현 스터디입니다. 기초부터 차근차근 진행합니다.',
     author: 'user2',
     createdAt: new Date(Date.now() - 60 * 60000).toISOString(),
     tags: ['Java', 'Spring Boot'],
@@ -78,19 +72,22 @@ const initialPosts: CommunityPost[] = [
     tags: ['React', 'Node.js'],
     status: 'recruiting',
   },
-  ...Array.from({ length: 20 }, (_, i): CommunityPost => ({
-    id: String(i + 7),
-    title: `스터디 모집 글 ${i + 7}`,
-    content: `스터디 모집 내용입니다. ${i + 7}번 글입니다.`,
-    author: `user${(i % 5) + 1}`,
-    createdAt: new Date(Date.now() - (i + 7) * 3600000).toISOString(),
-    tags: ['React', 'TypeScript'].slice(0, (i % 2) + 1),
-    status: i % 3 === 0 ? 'closed' : 'recruiting',
-    avatarSrc: undefined,
-  })),
+  ...Array.from(
+    { length: 20 },
+    (_, i): StudyGroupPost => ({
+      id: String(i + 7),
+      title: `스터디 모집 글 ${i + 7}`,
+      content: `스터디 모집 내용입니다. ${i + 7}번 글입니다.`,
+      author: `user${(i % 5) + 1}`,
+      createdAt: new Date(Date.now() - (i + 7) * 3600000).toISOString(),
+      tags: ['React', 'TypeScript'].slice(0, (i % 2) + 1),
+      status: i % 3 === 0 ? 'closed' : 'recruiting',
+      avatarSrc: undefined,
+    }),
+  ),
 ];
 
-const initialComments: CommunityComment[] = [
+const initialComments: StudyGroupComment[] = [
   {
     id: 'c1',
     postId: '1',
@@ -107,30 +104,30 @@ const initialComments: CommunityComment[] = [
   },
 ];
 
-interface CommunityContextValue {
-  posts: CommunityPost[];
-  comments: CommunityComment[];
+interface StudyGroupContextValue {
+  posts: StudyGroupPost[];
+  comments: StudyGroupComment[];
   getTimeAgo: (iso: string) => string;
-  addPost: (post: Omit<CommunityPost, 'id' | 'createdAt'>) => CommunityPost;
-  addComment: (comment: Omit<CommunityComment, 'id' | 'createdAt'>) => CommunityComment;
-  getCommentsByPostId: (postId: string) => CommunityComment[];
-  getPostById: (id: string) => CommunityPost | undefined;
+  addPost: (post: Omit<StudyGroupPost, 'id' | 'createdAt'>) => StudyGroupPost;
+  addComment: (comment: Omit<StudyGroupComment, 'id' | 'createdAt'>) => StudyGroupComment;
+  getCommentsByPostId: (postId: string) => StudyGroupComment[];
+  getPostById: (id: string) => StudyGroupPost | undefined;
 }
 
-const CommunityContext = createContext<CommunityContextValue | null>(null);
+const StudyGroupContext = createContext<StudyGroupContextValue | null>(null);
 
-export const useCommunity = () => {
-  const ctx = useContext(CommunityContext);
-  if (!ctx) throw new Error('useCommunity must be used within CommunityProvider');
+export const useStudyGroup = () => {
+  const ctx = useContext(StudyGroupContext);
+  if (!ctx) throw new Error('useStudyGroup must be used within StudyGroupProvider');
   return ctx;
 };
 
-export const CommunityProvider = ({ children }: { children: ReactNode }) => {
-  const [posts, setPosts] = useState<CommunityPost[]>(initialPosts);
-  const [comments, setComments] = useState<CommunityComment[]>(initialComments);
+export const StudyGroupProvider = ({ children }: { children: ReactNode }) => {
+  const [posts, setPosts] = useState<StudyGroupPost[]>(initialPosts);
+  const [comments, setComments] = useState<StudyGroupComment[]>(initialComments);
 
-  const addPost = useCallback((post: Omit<CommunityPost, 'id' | 'createdAt'>) => {
-    const newPost: CommunityPost = {
+  const addPost = useCallback((post: Omit<StudyGroupPost, 'id' | 'createdAt'>) => {
+    const newPost: StudyGroupPost = {
       ...post,
       id: `p-${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -139,8 +136,8 @@ export const CommunityProvider = ({ children }: { children: ReactNode }) => {
     return newPost;
   }, []);
 
-  const addComment = useCallback((comment: Omit<CommunityComment, 'id' | 'createdAt'>) => {
-    const newComment: CommunityComment = {
+  const addComment = useCallback((comment: Omit<StudyGroupComment, 'id' | 'createdAt'>) => {
+    const newComment: StudyGroupComment = {
       ...comment,
       id: `c-${Date.now()}`,
       createdAt: new Date().toISOString(),
@@ -151,13 +148,15 @@ export const CommunityProvider = ({ children }: { children: ReactNode }) => {
 
   const getCommentsByPostId = useCallback(
     (postId: string) =>
-      [...comments].filter((c) => c.postId === postId).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
+      [...comments]
+        .filter((c) => c.postId === postId)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()),
     [comments],
   );
 
   const getPostById = useCallback((id: string) => posts.find((p) => p.id === id), [posts]);
 
-  const value = useMemo<CommunityContextValue>(
+  const value = useMemo<StudyGroupContextValue>(
     () => ({
       posts,
       comments,
@@ -170,9 +169,5 @@ export const CommunityProvider = ({ children }: { children: ReactNode }) => {
     [posts, comments, addPost, addComment, getCommentsByPostId, getPostById],
   );
 
-  return (
-    <CommunityContext.Provider value={value}>
-      {children}
-    </CommunityContext.Provider>
-  );
+  return <StudyGroupContext.Provider value={value}>{children}</StudyGroupContext.Provider>;
 };

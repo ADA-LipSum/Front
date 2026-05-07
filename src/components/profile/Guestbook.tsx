@@ -114,7 +114,7 @@ const Guestbook = () => {
                   <img
                     src={entry.writerProfileImage}
                     alt={entry.writerName}
-                    className="w-9 h-9 rounded-full border border-gray-200 shrink-0"
+                    className="w-9 h-9 rounded-full border border-gray-200 shrink-0 object-cover"
                   />
                 </a>
                 <div className="flex-1">

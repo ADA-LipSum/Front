@@ -1,6 +1,6 @@
 export type RecruitStatus = 'recruiting' | 'closed';
 
-export interface CommunityPost {
+export interface StudyGroupPost {
   id: string;
   title: string;
   content: string;
@@ -17,7 +17,7 @@ export interface CommunityPost {
   seq?: number;
 }
 
-export interface CommunityComment {
+export interface StudyGroupComment {
   id: string;
   postId: string;
   author: string;
