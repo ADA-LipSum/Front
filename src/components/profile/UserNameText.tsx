@@ -1,5 +1,4 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/profileStore';
 import H2 from '../tags/H2';
 
 interface UserNameTextProps {
@@ -9,7 +8,7 @@ interface UserNameTextProps {
 }
 
 const UserNameText = ({ isEditing, editValue, onChange }: UserNameTextProps) => {
-  const { profile } = useSelector((state: RootState) => state.profile);
+  const { profile } = useProfileStore();
 
   if (isEditing) {
     const isOver = editValue.length > 10;

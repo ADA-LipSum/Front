@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 import { getGuestbook, postGuestbook, patchGuestbook, deleteGuestbook } from '@/api/profile';
 import { ShowErrorToast } from '../Library/Toast/Toast';
 
@@ -18,7 +17,7 @@ interface GuestbookEntry {
 
 const Guestbook = () => {
   const { customId } = useParams<{ customId: string }>();
-  const { user, isLoggedIn } = useSelector((state: RootState) => state.auth);
+  const { user, isLoggedIn } = useAuthStore();
 
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [newContent, setNewContent] = useState('');
@@ -115,7 +114,7 @@ const Guestbook = () => {
                   <img
                     src={entry.writerProfileImage}
                     alt={entry.writerName}
-                    className="w-9 h-9 rounded-full border border-gray-200 shrink-0"
+                    className="w-9 h-9 rounded-full border border-gray-200 shrink-0 object-cover"
                   />
                 </a>
                 <div className="flex-1">

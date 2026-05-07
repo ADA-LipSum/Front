@@ -1,6 +1,4 @@
-import { useDispatch } from 'react-redux';
-import type { AppDispatch } from '@/store/store';
-import { login } from '@/features/auth/authSlice';
+import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 import LipSumIcon from '@/assets/LipSum_icon.svg';
@@ -10,7 +8,7 @@ import { useState } from 'react';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 export const Login = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
   const [id, setId] = useState('');
@@ -18,8 +16,7 @@ export const Login = () => {
 
   const handleLogin = async () => {
     try {
-      await dispatch(login({ id, password })).unwrap();
-      console.log('로그인 성공!');
+      await login(id, password);
       ShowSuccessToast('로그인 성공!');
       navigate('/');
     } catch (err) {

@@ -7,24 +7,17 @@ import SocialLinks from '@/components/profile/SocialLinks';
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store/store';
-import {
-  fetchProfileByUsername,
-  clearProfile,
-  updateProfile,
-  uploadProfileImage,
-} from '@/features/auth/profileSlice';
+import { useAuthStore } from '@/store/authStore';
+import { useProfileStore } from '@/store/profileStore';
 import { ButtonGroup } from '@/components/profile/ButtonGroup';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 import ContriGraph from '@/components/profile/ContriGraph';
 
 const Profile = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
-  const { profile, error, loading } = useSelector((state: RootState) => state.profile);
-  const authUser = useSelector((state: RootState) => state.auth.user);
+  const { profile, error, loading, fetchProfileByUsername, clearProfile, updateProfile, uploadProfileImage } = useProfileStore();
+  const authUser = useAuthStore((state) => state.user);
   const isStudent = profile?.role === 'STUDENT';
   const isOwnProfile = authUser?.customId === customId;
   const [isEditing, setIsEditing] = useState(false);
@@ -77,7 +70,7 @@ const Profile = () => {
     }
     if (pendingImageFile) {
       try {
-        await dispatch(uploadProfileImage({ uuid: profile.uuid, file: pendingImageFile })).unwrap();
+        await uploadProfileImage(profile.uuid, pendingImageFile);
       } catch (err) {
         ShowErrorToast(err as string);
         return;
@@ -87,14 +80,12 @@ const Profile = () => {
       setPreviewImageUrl(null);
     }
     try {
-      await dispatch(
-        updateProfile({
-          uuid: profile.uuid,
-          userNickname: editNickname,
-          intro: editIntro,
-          socialLinks: editSocialLinks,
-        }),
-      ).unwrap();
+      await updateProfile({
+        uuid: profile.uuid,
+        userNickname: editNickname,
+        intro: editIntro,
+        socialLinks: editSocialLinks,
+      });
     } catch (err) {
       ShowErrorToast(err as string);
       return;
@@ -113,12 +104,12 @@ const Profile = () => {
 
   useEffect(() => {
     if (customId) {
-      dispatch(fetchProfileByUsername(customId));
+      fetchProfileByUsername(customId);
     }
     return () => {
-      dispatch(clearProfile());
+      clearProfile();
     };
-  }, [customId, dispatch]);
+  }, [customId]);
 
   useEffect(() => {
     if (!loading && error) {

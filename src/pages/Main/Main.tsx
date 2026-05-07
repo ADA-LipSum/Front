@@ -1,15 +1,13 @@
-import type { AppDispatch, RootState } from '@/store/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { logoutAsync } from '@/features/auth/authSlice';
+import { useAuthStore } from '@/store/authStore';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 export const Main = () => {
-  const { isLoggedIn } = useSelector((state: RootState) => state.auth);
-  const dispatch = useDispatch<AppDispatch>();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = async () => {
     try {
-      await dispatch(logoutAsync()).unwrap();
+      await logout();
       ShowSuccessToast('로그아웃 성공!');
     } catch (err) {
       ShowErrorToast('로그아웃 실패');

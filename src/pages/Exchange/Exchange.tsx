@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useAuthStore } from '@/store/authStore';
 import { fetchMyCoinBalance } from '@/api/coins';
 import { fetchMyPointBalance } from '@/api/points';
 import {
@@ -31,16 +30,15 @@ interface CartItem {
 
 const COIN_ITEMS_PER_PAGE = 20; // 5 x 4
 const POINT_ITEMS_PER_PAGE = 12;
-const getAuthUserUuid = (user: RootState['auth']['user']): string | undefined => {
+const getAuthUserUuid = (user: { uuid?: string; userUuid?: string } | null): string | undefined => {
   if (!user) return undefined;
-  const u = user as { uuid?: string; userUuid?: string };
-  const raw = u.uuid ?? u.userUuid;
+  const raw = user.uuid ?? user.userUuid;
   const s = raw != null ? String(raw).trim() : '';
   return s.length > 0 ? s : undefined;
 };
 
 export const Exchange = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
   const authUserUuid = useMemo(() => getAuthUserUuid(user), [user]);
 
   const [mode, setMode] = useState<ExchangeMode>('COIN');

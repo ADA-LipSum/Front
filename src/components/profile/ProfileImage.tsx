@@ -1,6 +1,5 @@
 import { useRef } from 'react';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
+import { useProfileStore } from '@/store/profileStore';
 
 import { Upload } from 'lucide-react';
 
@@ -17,7 +16,7 @@ const ProfileImage = ({
   previewUrl,
   onImageSelect,
 }: ProfileImageProps) => {
-  const { profile, loading } = useSelector((state: RootState) => state.profile);
+  const { profile, loading } = useProfileStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
