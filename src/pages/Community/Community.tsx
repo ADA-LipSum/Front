@@ -1,20 +1,48 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchPosts } from '@/api/posts';
+import { useAuthStore } from '@/store/authStore';
 import {
   TechPostsOverView,
   MOCK_POSTS as TECH_MOCK_POSTS,
 } from '@/stories/community/TechPostsOverView';
 import { HeadSection } from '@/stories/community/HeadSection';
-import {
-  QnAPostsOverView,
-  MOCK_POSTS as QNA_MOCK_POSTS,
-} from '@/stories/community/QnAPostsOverView';
+import { QnAPostsOverView } from '@/stories/community/QnAPostsOverView';
+import type { QnAPostOverViewItem } from '@/stories/community/QnAPostsOverView';
 import { FilterBar } from '@/stories/community/FilterBar';
+import { fetchCommunityPosts } from '@/api/community';
+import type { FetchCommunityPostsParams } from '@/api/community';
 
-const PAGE_SIZE = 10;
 const QNA_PAGE_SIZE = 5;
-const TECH_PAGE_SIZE = 4;
+
+const CATEGORY_MAP: Record<string, FetchCommunityPostsParams['category']> = {
+  전체: undefined,
+  기술: 'TECH',
+  밈: 'MEME',
+  '프로젝트 자랑': 'PROJECT_SHOWCASE',
+  기타: 'CHAT',
+};
+
+const CATEGORY_LABEL: Record<string, string> = {
+  CHAT: '잡담',
+  MEME: '밈',
+  PROJECT_SHOWCASE: '프로젝트 자랑',
+  TECH: '기술',
+};
+
+const TECH_SUB_TAG_LABEL: Record<string, string> = {
+  QUESTION: '질문',
+  CHAT: '잡담',
+  TIP: '팁',
+  POLL: '투표',
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getDisplayTag(item: any): string {
+  if (item.communityCategory === 'TECH' && item.techSubTag) {
+    return TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag;
+  }
+  return CATEGORY_LABEL[item.communityCategory] ?? '';
+}
 
 const getPageWindow = (current: number, total: number): (number | 'ellipsis')[] => {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i);
@@ -87,97 +115,76 @@ const Pagination = ({
   );
 };
 
-interface Post {
-  postUuid: string;
-  title: string;
-  writer: string;
-  writerProfileImage?: string;
-  writedAt: string;
-  likes: number;
-  views: number;
-  comments: number;
-  isDev: boolean;
-  devTags?: string | string[];
-  tag?: string;
-}
-
 export const Community = () => {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
+  const { isLoggedIn, loading: authLoading } = useAuthStore();
+  const [qnaPosts, setQnaPosts] = useState<QnAPostOverViewItem[]>([]);
+  const [activeFilter, setActiveFilter] = useState('전체');
+  const [searchQuery, setSearchQuery] = useState('');
   const [qnaPage, setQnaPage] = useState(0);
-  const [techPage, setTechPage] = useState(0);
-
-  const qnaTotalPages = Math.ceil(QNA_MOCK_POSTS.length / QNA_PAGE_SIZE);
-  const techTotalPages = Math.ceil(TECH_MOCK_POSTS.length / TECH_PAGE_SIZE);
-
-  const pagedQnaPosts = QNA_MOCK_POSTS.slice(
-    qnaPage * QNA_PAGE_SIZE,
-    (qnaPage + 1) * QNA_PAGE_SIZE,
-  );
-  const pagedTechPosts = TECH_MOCK_POSTS.slice(
-    techPage * TECH_PAGE_SIZE,
-    (techPage + 1) * TECH_PAGE_SIZE,
-  );
+  const [qnaTotalPages, setQnaTotalPages] = useState(0);
 
   useEffect(() => {
+    if (authLoading || !isLoggedIn) return;
+
     const load = async () => {
-      setLoading(true);
       try {
-        const data = await fetchPosts(currentPage, PAGE_SIZE);
-        if (data && typeof data === 'object' && 'content' in data) {
-          setPosts(data.content);
-          setTotalPages(data.totalPages ?? 1);
-        } else if (Array.isArray(data)) {
-          setPosts(data);
-          setTotalPages(1);
-        }
+        const params: FetchCommunityPostsParams = { page: qnaPage, size: QNA_PAGE_SIZE };
+        const category = CATEGORY_MAP[activeFilter];
+        if (category) params.category = category;
+        if (searchQuery) params.query = searchQuery;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = await fetchCommunityPosts(params);
+        const res = data as unknown as { content?: any[]; totalPages?: number };
+        const content: any[] = res.content ?? [];
+
+        setQnaPosts(
+          content.map((item) => ({
+            postUuid: item.postUuid,
+            title: item.title,
+            writer: item.writer,
+            writerProfileImage: item.writerProfileImage,
+            writedAt: item.writedAt,
+            views: item.views,
+            comments: item.comments,
+            tag: getDisplayTag(item),
+            techTags: item.techTags?.length ? item.techTags : undefined,
+          })),
+        );
+
+        setQnaTotalPages(res.totalPages ?? 1);
       } catch {
         /* no-op */
-      } finally {
-        setLoading(false);
       }
     };
     load();
-  }, [currentPage]);
+  }, [activeFilter, searchQuery, isLoggedIn, authLoading, qnaPage]);
 
-  void posts;
-  void loading;
-  void totalPages;
-  void setCurrentPage;
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setQnaPage(0);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-6 items-start">
-          {/* ── Sidebar ── */}
-          <aside className="w-60 shrink-0 space-y-4 sticky top-8">
-            {/* 일일 미션 */}
-            <div className="w-full aspect-square min-h-80 max-h-80 bg-gray-100 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center gap-2 overflow-hidden">
-              <p className="text-xs font-semibold text-gray-400 tracking-widest uppercase">
-                Daily Mission
-              </p>
-              <p className="text-[10px] text-gray-300">300 × 300</p>
-            </div>
-          </aside>
-
           {/* ── Main Content ── */}
           <div className="flex-1 min-w-0">
             {/* Search & Write */}
-            <HeadSection className="mb-5" />
+            <HeadSection className="mb-5" onSearch={setSearchQuery} />
 
             {/* Filter */}
-            <FilterBar className="mb-6" />
+            <FilterBar
+              className="mb-6"
+              activeFilter={activeFilter}
+              onFilterChange={handleFilterChange}
+            />
 
             {/* QnA Section */}
             <section className="mb-8">
-              <QnAPostsOverView
-                posts={pagedQnaPosts}
-                onPostClick={(uuid) => navigate(`/community/${uuid}`)}
-              />
+              <QnAPostsOverView posts={qnaPosts} onPostClick={(uuid) => navigate(`/${uuid}`)} />
               <Pagination
                 currentPage={qnaPage}
                 totalPages={qnaTotalPages}
@@ -186,20 +193,14 @@ export const Community = () => {
               />
             </section>
 
-            {/* Tech Posts Section */}
+            {/* Tech Posts Section (mock) */}
             <section>
               <div className="flex items-center gap-2 mb-3">
-                <h2 className="text-2xl font-bold text-gray-900">최신 블로그</h2>
+                <h3 className="text-xl font-bold text-gray-900">최신 블로그</h3>
               </div>
               <TechPostsOverView
-                posts={pagedTechPosts}
-                onPostClick={(uuid) => navigate(`/community/${uuid}`)}
-              />
-              <Pagination
-                currentPage={techPage}
-                totalPages={techTotalPages}
-                onPageChange={setTechPage}
-                color="violet"
+                posts={TECH_MOCK_POSTS.slice(0, 3)}
+                onPostClick={(uuid) => navigate(`/${uuid}`)}
               />
             </section>
           </div>
