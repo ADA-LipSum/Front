@@ -30,7 +30,7 @@ const Router = () => {
       <Route element={<MainLayout />}>
         {/* <Route path="/" element={<Main />} /> */}
         <Route path="/" element={<Community />} />
-        <Route path="/community/:uuid" element={<CommunityPostDetail />} />
+        <Route path="/:uuid" element={<CommunityPostDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/exchange" element={<Exchange />} />
