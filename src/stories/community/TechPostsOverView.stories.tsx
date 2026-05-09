@@ -39,6 +39,12 @@ export const TwoPosts: Story = {
   },
 };
 
+export const OnePost: Story = {
+  args: {
+    posts: MOCK_POSTS.slice(0, 1),
+  },
+};
+
 export const Empty: Story = {
   args: {
     posts: [],
