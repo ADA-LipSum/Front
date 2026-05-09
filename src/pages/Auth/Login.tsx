@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import LipSumIcon from '@/assets/LipSum_icon.svg';
 import { Link } from 'react-router-dom';
-import { Eye } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
@@ -13,6 +13,7 @@ export const Login = () => {
 
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     try {
@@ -63,11 +64,21 @@ export const Login = () => {
         <div className="mb-4 relative">
           <label className="block text-sm font-medium mb-2">비밀번호</label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
-          <Eye className="absolute right-3 top-11 w-5 h-5 text-black cursor-pointer" />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-11"
+          >
+            {showPassword ? (
+              <EyeOff className="w-5 h-5 text-black" />
+            ) : (
+              <Eye className="w-5 h-5 text-black" />
+            )}
+          </button>
         </div>
 
         {/* 로그인 유지 + 소셜 링크 */}
