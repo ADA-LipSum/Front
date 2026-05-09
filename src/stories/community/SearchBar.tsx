@@ -1,6 +1,18 @@
 import { Search } from 'lucide-react';
+import { useState } from 'react';
 
-export const SearchBar = ({ className }: { className?: string }) => {
+interface SearchBarProps {
+  className?: string;
+  onSearch?: (query: string) => void;
+}
+
+export const SearchBar = ({ className, onSearch }: SearchBarProps) => {
+  const [value, setValue] = useState('');
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') onSearch?.(value.trim());
+  };
+
   return (
     <div className={`relative ${className}`}>
       <Search
@@ -9,8 +21,11 @@ export const SearchBar = ({ className }: { className?: string }) => {
       />
       <input
         type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="궁금한 내용을 검색해보세요"
-        className="bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent rounded-xl py-2.5 pl-9 pr-4 w-full text-sm placeholder:text-gray-400 transition-all"
+        className="bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent rounded-sm py-2.5 pl-9 pr-4 w-full text-sm placeholder:text-gray-400 transition-all"
       />
     </div>
   );
