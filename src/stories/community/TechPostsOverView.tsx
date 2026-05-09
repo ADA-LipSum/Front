@@ -32,21 +32,30 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 const PostCard = ({ post, onClick }: { post: TechPostOverViewItem; onClick?: () => void }) => (
-  <div onClick={onClick} className="flex gap-3 p-3.5 cursor-pointer transition-all group">
-    <div className="w-30 h-20 shrink-0 rounded-lg overflow-hidden flex items-center justify-center">
+  <div
+    onClick={onClick}
+    className="flex flex-col cursor-pointer transition-all group bg-white rounded-sm shadow-sm overflow-hidden"
+  >
+    {/* Thumbnail */}
+    <div className="w-full h-36 shrink-0 overflow-hidden flex items-center justify-center">
       {post.thumbnail ? (
-        <img src={post.thumbnail} alt="" className="w-full h-full object-cover" />
+        <img
+          src={post.thumbnail}
+          alt=""
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
       ) : (
         <div
           className="w-full h-full flex items-center justify-center"
           style={{ background: post.thumbnailBg ?? '#f3f4f6' }}
         >
-          <span className="text-3xl">{post.thumbnailEmoji ?? '📝'}</span>
+          <span className="text-4xl">{post.thumbnailEmoji ?? '📝'}</span>
         </div>
       )}
     </div>
 
-    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+    {/* Content */}
+    <div className="flex flex-col justify-between gap-2 p-3">
       <div>
         {post.tag && (
           <span
@@ -57,15 +66,13 @@ const PostCard = ({ post, onClick }: { post: TechPostOverViewItem; onClick?: () 
             {post.tag}
           </span>
         )}
-        <p className="text-sm font-semibold text-gray-800 line-clamp-2 transition-colors leading-snug">
+        <p className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
           {post.title}
         </p>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-gray-400 mt-2">
-        <div className="flex items-center gap-1">
-          <span className="font-medium text-gray-500">{post.writer}</span>
-        </div>
+      <div className="flex items-center gap-2 text-xs text-gray-400">
+        <span className="font-medium text-gray-500">{post.writer}</span>
         <span>{timeAgo(post.writedAt)}</span>
         <span className="flex items-center gap-0.5">
           <Eye size={11} />
@@ -82,7 +89,7 @@ interface TechPostsOverViewProps {
 }
 
 export const TechPostsOverView = ({ posts = MOCK_POSTS, onPostClick }: TechPostsOverViewProps) => (
-  <div className="grid grid-cols-2 gap-2.5">
+  <div className="grid grid-cols-3 gap-2.5">
     {posts.map((post) => (
       <PostCard key={post.postUuid} post={post} onClick={() => onPostClick?.(post.postUuid)} />
     ))}
@@ -154,7 +161,8 @@ export const MOCK_POSTS: TechPostOverViewItem[] = [
   },
   {
     postUuid: '7',
-    title: 'Vite 6.0 정식 출시: 빌드 성능 40% 향상',
+    title:
+      'Vite 6.0 정식 출시: 빌드 성능 40% 향상ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
     writer: 'FrontendNews',
     writedAt: hoursAgo(18),
     views: 203,
@@ -291,5 +299,15 @@ export const MOCK_POSTS: TechPostOverViewItem[] = [
     tag: '기술',
     thumbnailEmoji: '🎨',
     thumbnailBg: 'linear-gradient(135deg, #e0f2fe 0%, #38bdf8 100%)',
+  },
+  {
+    postUuid: '21',
+    title: '개발자 면접에서 자주 나오는 질문들',
+    writer: '면접관',
+    writedAt: hoursAgo(46),
+    views: 321,
+    tag: '팁',
+    thumbnailEmoji: '❓',
+    thumbnailBg: 'linear-gradient(135deg, #fef3c7 0%, #fdba74 100%)',
   },
 ];
