@@ -9,6 +9,7 @@ export interface QnAPostOverViewItem {
   views: number;
   comments?: number;
   tag?: string;
+  techTags?: string[];
 }
 
 function timeAgo(dateStr: string): string {
@@ -39,13 +40,19 @@ const PostCard = ({
 }) => (
   <div
     onClick={onClick}
-    className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-all group"
+    className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-all group bg-white rounded-sm shadow-sm"
   >
-    <img
-      src="https://avatars.githubusercontent.com/u/108007761?v=4"
-      alt=""
-      className="w-10 h-10 rounded-full bg-gray-100 shrink-0"
-    />
+    {post.writerProfileImage ? (
+      <img
+        src={post.writerProfileImage}
+        alt={post.writer}
+        className="w-10 h-10 rounded-full bg-gray-100 shrink-0 object-cover"
+      />
+    ) : (
+      <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+        {post.writer.charAt(0)}
+      </div>
+    )}
 
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
@@ -58,14 +65,20 @@ const PostCard = ({
             {post.tag}
           </span>
         )}
+        {post.techTags?.map((t) => (
+          <span
+            key={t}
+            className="text-[10px] font-medium border px-1.5 py-0.5 rounded-md text-violet-500 bg-violet-50 border-violet-100"
+          >
+            {t}
+          </span>
+        ))}
       </div>
       <p className="text-sm font-medium text-gray-800 truncate group-hover:text-blue-600 transition-colors">
         {post.title}
       </p>
       <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-        <div className="flex items-center gap-1">
-          <span>{post.writer}</span>
-        </div>
+        <span>{post.writer}</span>
         <span>{timeAgo(post.writedAt)}</span>
         <span className="flex items-center gap-0.5">
           <Eye size={11} />
