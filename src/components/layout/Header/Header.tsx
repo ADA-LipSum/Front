@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
-import { Bell } from 'lucide-react';
+import { Bell, Bookmark } from 'lucide-react';
 
 export const Header = () => {
   const { isLoggedIn, user } = useAuthStore();
@@ -25,10 +25,18 @@ export const Header = () => {
         <div className="ml-auto mr-6 flex items-center gap-5">
           {isLoggedIn ? (
             <>
-              <div className="w-10 h-10 rounded-sm flex items-center justify-center relative hover:cursor-pointer group border border-gray-200">
-                <Bell
-                  className="transition-colors duration-200 group-hover:text-blue-600"
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300">
+                <Bookmark
+                  className="transition-colors duration-200 group-hover:text-blue-600 hover:cursor-pointer"
                   size={20}
+                  color="#6b7280"
+                />
+              </div>
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300">
+                <Bell
+                  className="transition-colors duration-200 group-hover:text-blue-600 hover:cursor-pointer"
+                  size={20}
+                  color="#6b7280"
                 />
               </div>
               <Link to={`/profile/${user?.customId}`}>
