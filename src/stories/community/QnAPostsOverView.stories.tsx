@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MOCK_POSTS, QnAPostsOverView } from './QnAPostsOverView';
+import { MOCK_POSTS, QnAPostsOverView } from '../../components/Page/community/QnAPostsOverView';
 
 const meta: Meta<typeof QnAPostsOverView> = {
   title: 'Community/QnAPostsOverView',

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MOCK_POSTS, TechPostsOverView } from './TechPostsOverView';
+import { MOCK_POSTS, TechPostsOverView } from '../../components/Page/community/TechPostsOverView';
 
 const meta: Meta<typeof TechPostsOverView> = {
   title: 'Community/블로그',

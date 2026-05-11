@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { HeadSection } from './HeadSection';
+import { HeadSection } from '../../components/Page/community/HeadSection';
 
 const meta: Meta<typeof HeadSection> = {
   title: 'Community/HeadSection',

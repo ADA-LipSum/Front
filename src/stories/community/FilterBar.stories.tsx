@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FilterBar } from './FilterBar';
+import { FilterBar } from '../../components/Page/community/FilterBar';
 
 const meta: Meta<typeof FilterBar> = {
   title: 'Community/FilterBar',

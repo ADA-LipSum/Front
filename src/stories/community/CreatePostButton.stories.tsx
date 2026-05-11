@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CreatePostButton } from './CreatePostButton';
+import { CreatePostButton } from '../../components/Page/community/CreatePostButton';
 
 const meta: Meta<typeof CreatePostButton> = {
   title: 'Community/CreatePostButton',
