@@ -40,7 +40,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export const CommunityPostDetail = () => {
-  const { uuid } = useParams<{ uuid: string }>();
+  const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuthStore();
   const [post, setPost] = useState<PostDetail | null>(null);
@@ -56,12 +56,12 @@ export const CommunityPostDetail = () => {
       navigate('/');
       return;
     }
-    if (!uuid) return;
+    if (!postId) return;
 
     const load = async () => {
       setLoading(true);
       try {
-        const data = await fetchPostDetail(uuid);
+        const data = await fetchPostDetail(postId);
         const postData = data as PostDetail;
         setPost(postData);
         setLikeCount(postData.likes ?? 0);
@@ -74,11 +74,11 @@ export const CommunityPostDetail = () => {
       }
     };
     load();
-  }, [uuid, isLoggedIn, authLoading, navigate]);
+  }, [postId, isLoggedIn, authLoading, navigate]);
 
   const handleLikeToggle = async () => {
     try {
-      const nowLiked = (await toggleCommunityPostLike(uuid!)) as boolean;
+      const nowLiked = (await toggleCommunityPostLike(postId!)) as boolean;
       setLiked(nowLiked);
       setLikeCount((c) => c + (nowLiked ? 1 : -1));
     } catch {

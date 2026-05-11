@@ -1,22 +1,29 @@
-import Intro from '@/components/profile/Intro';
-import ProfileBanner from '@/components/profile/ProfileBanner';
-import ProfileImage from '@/components/profile/ProfileImage';
-import UserNameText from '@/components/profile/UserNameText';
-import Guestbook from '@/components/profile/Guestbook';
-import SocialLinks from '@/components/profile/SocialLinks';
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useProfileStore } from '@/store/profileStore';
-import { ButtonGroup } from '@/components/profile/ButtonGroup';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
-import ContriGraph from '@/components/profile/ContriGraph';
+import { ButtonGroup } from '@/components/Page/profile/ButtonGroup';
+import ContriGraph from '@/components/Page/profile/ContriGraph';
+import Guestbook from '@/components/Page/profile/Guestbook';
+import Intro from '@/components/Page/profile/Intro';
+import ProfileBanner from '@/components/Page/profile/ProfileBanner';
+import ProfileImage from '@/components/Page/profile/ProfileImage';
+import SocialLinks from '@/components/Page/profile/SocialLinks';
+import UserNameText from '@/components/Page/profile/UserNameText';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
-  const { profile, error, loading, fetchProfileByUsername, clearProfile, updateProfile, uploadProfileImage } = useProfileStore();
+  const {
+    profile,
+    error,
+    loading,
+    fetchProfileByUsername,
+    clearProfile,
+    updateProfile,
+    uploadProfileImage,
+  } = useProfileStore();
   const authUser = useAuthStore((state) => state.user);
   const isStudent = profile?.role === 'STUDENT';
   const isOwnProfile = authUser?.customId === customId;

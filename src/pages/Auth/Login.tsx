@@ -66,6 +66,7 @@ export const Login = () => {
           <input
             type={showPassword ? 'text' : 'password'}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <button

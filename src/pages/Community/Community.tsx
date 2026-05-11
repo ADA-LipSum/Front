@@ -4,15 +4,16 @@ import { useAuthStore } from '@/store/authStore';
 import {
   TechPostsOverView,
   MOCK_POSTS as TECH_MOCK_POSTS,
-} from '@/stories/community/TechPostsOverView';
-import { HeadSection } from '@/stories/community/HeadSection';
-import { QnAPostsOverView } from '@/stories/community/QnAPostsOverView';
-import type { QnAPostOverViewItem } from '@/stories/community/QnAPostsOverView';
-import { FilterBar } from '@/stories/community/FilterBar';
+} from '@/components/Page/community/TechPostsOverView';
+import { HeadSection } from '@/components/Page/community/HeadSection';
+import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
+import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
+import { FilterBar } from '@/components/Page/community/FilterBar';
 import { fetchCommunityPosts } from '@/api/community';
 import type { FetchCommunityPostsParams } from '@/api/community';
+import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
 
-const QNA_PAGE_SIZE = 5;
+const QNA_PAGE_SIZE = 8;
 
 const CATEGORY_MAP: Record<string, FetchCommunityPostsParams['category']> = {
   전체: undefined,
@@ -141,7 +142,7 @@ export const Community = () => {
 
         setQnaPosts(
           content.map((item) => ({
-            postUuid: item.postUuid,
+            seq: item.seq,
             title: item.title,
             writer: item.writer,
             writerProfileImage: item.writerProfileImage,
@@ -172,6 +173,7 @@ export const Community = () => {
         <div className="flex gap-6 items-start">
           {/* ── Main Content ── */}
           <div className="flex-1 min-w-0">
+            <AnnounceBanner />
             {/* Search & Write */}
             <HeadSection className="mb-5" onSearch={setSearchQuery} />
 
@@ -184,7 +186,10 @@ export const Community = () => {
 
             {/* QnA Section */}
             <section className="mb-8">
-              <QnAPostsOverView posts={qnaPosts} onPostClick={(uuid) => navigate(`/${uuid}`)} />
+              <QnAPostsOverView
+                posts={qnaPosts}
+                onPostClick={(seq) => navigate(`/article/${seq}`)}
+              />
               <Pagination
                 currentPage={qnaPage}
                 totalPages={qnaTotalPages}
