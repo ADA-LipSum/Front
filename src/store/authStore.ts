@@ -26,6 +26,8 @@ interface AuthStore {
   updateUserProfileImage: (imageUrl: string) => void;
 }
 
+const REFRESH_TOKEN_KEY = 'refreshToken';
+
 export const useAuthStore = create<AuthStore>((set) => ({
   isLoggedIn: false,
   loading: true,
@@ -34,22 +36,44 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   login: async (id, password) => {
     const res = await loginApi(id, password);
-    const { accessToken } = res.data;
+    const { accessToken, refreshToken } = res.data;
+    if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     const me = await axios.get('/api/auth/status');
     set({ isLoggedIn: true, loading: false, user: me.data.data as AuthUser, accessToken });
   },
 
   checkLogin: async () => {
-    try {
-      const refreshRes = await axios.post('/api/auth/reissue', {}, { withCredentials: true });
-      const { accessToken } = refreshRes.data.data ?? refreshRes.data;
+    const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!storedRefreshToken) {
+      set({ isLoggedIn: false, loading: false, user: null, accessToken: null });
+      return;
+    }
+
+    const attempt = async () => {
+      const refreshRes = await axios.post('/api/auth/reissue', {
+        refreshToken: storedRefreshToken,
+      });
+      const data = refreshRes.data.data ?? refreshRes.data;
+      const { accessToken, refreshToken } = data;
+      if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       const me = await axios.get('/api/auth/status');
       set({ isLoggedIn: true, loading: false, user: me.data.data as AuthUser, accessToken });
+    };
+
+    try {
+      await attempt();
     } catch {
-      delete axios.defaults.headers.common['Authorization'];
-      set({ isLoggedIn: false, loading: false, user: null, accessToken: null });
+      // 빠른 재시도: 직전 페이지가 reissue 요청을 보낸 직후 unload됐을 가능성
+      await new Promise((r) => setTimeout(r, 800));
+      try {
+        await attempt();
+      } catch {
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        delete axios.defaults.headers.common['Authorization'];
+        set({ isLoggedIn: false, loading: false, user: null, accessToken: null });
+      }
     }
   },
 
@@ -57,6 +81,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       await axios.post('/api/auth/logout', {}, { withCredentials: true });
     } finally {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       delete axios.defaults.headers.common['Authorization'];
       set({ isLoggedIn: false, user: null, accessToken: null });
     }
@@ -68,6 +93,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   clearCredentials: () => {
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
     set({ accessToken: null, isLoggedIn: false, user: null });
   },
 
