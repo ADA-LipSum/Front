@@ -31,13 +31,13 @@ export const fetchCommunityPosts = async (params: FetchCommunityPostsParams) => 
 };
 
 // 커뮤니티 게시글 상세 조회
-export const fetchCommunityPostDetail = async (uuid: string) => {
-  const res = await axios.get<ApiResponse<unknown>>(`/api/community/posts/${uuid}`);
+export const fetchCommunityPostDetail = async (postId: string) => {
+  const res = await axios.get<ApiResponse<unknown>>(`/api/community/posts/${postId}`);
   return res.data.data;
 };
 
 // 커뮤니티 게시글 좋아요 토글
-export const toggleCommunityPostLike = async (uuid: string) => {
-  const res = await axios.post<ApiResponse<unknown>>(`/api/posts/${uuid}/like`);
+export const toggleCommunityPostLike = async (postId: string) => {
+  const res = await axios.post<ApiResponse<unknown>>(`/api/posts/${postId}/like`);
   return res.data.data;
 };
