@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SearchBar } from './SearchBar';
+import { SearchBar } from '../../components/Page/community/SearchBar';
 
 const meta: Meta<typeof SearchBar> = {
   title: 'Community/SearchBar',
