@@ -25,16 +25,16 @@ export const Header = () => {
         <div className="ml-auto mr-6 flex items-center gap-5">
           {isLoggedIn ? (
             <>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300 hover:bg-gray-100">
                 <Bookmark
-                  className="transition-colors duration-200 group-hover:text-blue-600 hover:cursor-pointer"
+                  className="transition-colors duration-200 hover:cursor-pointer"
                   size={20}
                   color="#6b7280"
                 />
               </div>
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300 hover:bg-gray-100">
                 <Bell
-                  className="transition-colors duration-200 group-hover:text-blue-600 hover:cursor-pointer"
+                  className="transition-colors duration-200 hover:cursor-pointer"
                   size={20}
                   color="#6b7280"
                 />
@@ -54,7 +54,7 @@ export const Header = () => {
             </>
           ) : (
             <Link to="/login">
-              <button className="px-4 py-2 bg-gray-300 text-black font-semibold rounded hover:bg-gray-400 transition hover:cursor-pointer">
+              <button className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-700 transition hover:cursor-pointer">
                 로그인
               </button>
             </Link>
