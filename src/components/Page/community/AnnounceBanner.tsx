@@ -22,12 +22,12 @@ const BANNERS = [
 
 export default function AnnounceBanner() {
   return (
-    <div className="w-full mb-20">
+    <div className="w-full mb-5">
       <Swiper
         modules={[Autoplay, Pagination]}
-        slidesPerView={3}
+        slidesPerView={1}
         loop
-        autoplay={{ delay: 10000, disableOnInteraction: false }}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
         pagination={{ clickable: true }}
         className="rounded-lg border border-gray-200"
         style={
