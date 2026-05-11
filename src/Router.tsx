@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 
 import { useAuthStore } from '@/store/authStore';
 
-import { Main } from '@/pages/Main/Main';
 import { Exchange } from '@/pages/Exchange/Exchange';
 import { Contact } from '@/pages/Contact/Contact';
 import { Login } from '@/pages/Auth/Login';
