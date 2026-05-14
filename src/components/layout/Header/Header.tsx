@@ -20,6 +20,7 @@ export const Header = () => {
           <Link to="/announcement">공지사항</Link>
           <Link to="/exchange">거래소</Link>
           <Link to="/contact">문의</Link>
+          {user?.role === 'ADMIN' && <Link to="/dashboard">관리자 대시보드</Link>}
         </div>
 
         <div className="ml-auto mr-6 flex items-center gap-5">
