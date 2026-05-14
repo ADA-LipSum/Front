@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  fetchCommunityPostDetail as fetchPostDetail,
+  getCommunityPostDetail as fetchPostDetail,
   toggleCommunityPostLike,
 } from '@/api/community';
 import { useAuthStore } from '@/store/authStore';
@@ -109,10 +109,10 @@ export const CommunityPostDetail = () => {
     <div className="min-h-screen py-5">
       <div className="flex justify-center gap-4 px-4">
         {/* ── Left sticky panel ── */}
-        <div className="sticky top-8 self-start flex flex-col items-center gap-1 bg-white rounded-2xl shadow-sm border border-gray-100 py-4 px-3">
+        <div className="py-50 self-start flex flex-col items-center gap-1 px-3">
           <button
             onClick={handleLikeToggle}
-            className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
+            className={`flex flex-col items-center gap-1 p-5 rounded-xl transition-all ${
               liked
                 ? 'text-rose-500 bg-rose-50'
                 : 'text-gray-400 hover:text-rose-400 hover:bg-rose-50'
@@ -126,26 +126,33 @@ export const CommunityPostDetail = () => {
 
           <button
             onClick={handleShare}
-            className="flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 hover:text-blue-400 hover:bg-blue-50 transition-all"
+            className="flex flex-col items-center gap-1 p-5 rounded-xl text-gray-400 hover:text-blue-400 hover:bg-blue-50 transition-all"
           >
             <Share2 className="w-5 h-5" />
           </button>
         </div>
         {/* ── Main content ── */}
-        <div className="w-full max-w-3xl rounded-lg shadow-sm">
+        <div className="w-full max-w-3xl rounded-lg">
           <div>
             {/* ── Post Header ── */}
             <div className="px-8 pt-8 pb-6">
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="text-xs font-semibold border rounded-md px-2.5 py-1 bg-gray-50 text-gray-500 border-gray-200">
+                <span className="text-xs font-semibold rounded-md px-2.5 py-1 bg-gray-100 text-gray-500">
                   Q&A
                 </span>
 
                 {post.isDev && post.devTags && (
-                  <span className="text-xs font-semibold border rounded-md px-2.5 py-1 bg-indigo-50 text-indigo-600 border-indigo-200">
-                    {post.devTags}
-                  </span>
+                  <>
+                    {post.devTags.split(',').map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs font-semibold rounded-md px-2.5 py-1 bg-blue-400 text-white"
+                      >
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </>
                 )}
               </div>
 
@@ -156,11 +163,13 @@ export const CommunityPostDetail = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {post.writerProfileImage ? (
-                    <img
-                      src={post.writerProfileImage}
-                      alt={post.writer}
-                      className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
-                    />
+                    <a href={`/profile/${post.writerCustomId}`}>
+                      <img
+                        src={post.writerProfileImage}
+                        alt={post.writer}
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-100"
+                      />
+                    </a>
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold">
                       {post.writer.charAt(0)}
@@ -190,7 +199,7 @@ export const CommunityPostDetail = () => {
                     onClick={() => setBookmarked(!bookmarked)}
                   >
                     <Bookmark className="w-5 h-5" fill={bookmarked ? 'currentColor' : 'none'} />
-                    스크랩
+                    북마크
                   </button>
                   <button className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors font-bold text-base tracking-widest">
                     ···
@@ -225,7 +234,7 @@ export const CommunityPostDetail = () => {
             </div>
             {/* ── Comments Section ── */}
           </div>
-          <Comment />
+          <Comment postId={postId} />
         </div>
       </div>
     </div>
