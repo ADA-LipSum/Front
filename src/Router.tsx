@@ -16,6 +16,8 @@ import { Settings } from './pages/Setting/Settings';
 import { StudyGroup } from './pages/StudyGroup/StudyGroup';
 import { Community } from './pages/Community/Community';
 import { CommunityPostDetail } from './pages/Community/CommunityPostDetail';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminRoute from './components/layout/AdminRoute';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -36,6 +38,9 @@ const Router = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Proifle />} />
         <Route path="/settings" element={<Settings />} />
+        <Route element={<AdminRoute />}>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+        </Route>
       </Route>
       <Route path="/not-found/user" element={<UserNotFound />} />
 
