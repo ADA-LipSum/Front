@@ -40,25 +40,25 @@ const PostCard = ({
 }) => (
   <div
     onClick={onClick}
-    className="flex items-center gap-4 px-4 py-3.5 cursor-pointer transition-all group bg-white rounded-sm shadow-sm"
+    className="flex items-start gap-3 px-4 py-4 cursor-pointer group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-100 transition-all duration-200"
   >
     {post.writerProfileImage ? (
       <img
         src={post.writerProfileImage}
         alt={post.writer}
-        className="w-10 h-10 rounded-full bg-gray-100 shrink-0 object-cover"
+        className="w-9 h-9 rounded-full bg-gray-100 shrink-0 object-cover mt-0.5"
       />
     ) : (
-      <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0">
+      <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
         {post.writer.charAt(0)}
       </div>
     )}
 
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+      <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
         {post.tag && (
           <span
-            className={`text-[10px] font-medium border px-1.5 py-0.5 rounded-md ${
+            className={`text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${
               TAG_COLORS[post.tag] ?? 'text-gray-400 bg-gray-50 border-gray-200'
             }`}
           >
@@ -68,19 +68,19 @@ const PostCard = ({
         {post.techTags?.map((t) => (
           <span
             key={t}
-            className="text-[10px] font-medium border px-1.5 py-0.5 rounded-md text-violet-500 bg-violet-50 border-violet-100"
+            className="text-[10px] font-semibold border px-1.5 py-0.5 rounded-full text-violet-500 bg-violet-50 border-violet-100"
           >
             {t}
           </span>
         ))}
       </div>
-      <p className="text-sm font-medium text-gray-800 truncate group-hover:text-blue-600 transition-colors">
+      <p className="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-600 transition-colors">
         {post.title}
       </p>
-      <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-        <span>{post.writer}</span>
+      <div className="flex items-center gap-3 text-xs text-gray-400 mt-2">
+        <span className="font-medium text-gray-500">{post.writer}</span>
         <span>{timeAgo(post.writedAt)}</span>
-        <span className="flex items-center gap-0.5">
+        <span className="flex items-center gap-0.5 ml-auto">
           <Eye size={11} />
           {post.views}
         </span>
@@ -100,14 +100,25 @@ interface QnAPostsOverViewProps {
   onPostClick?: (seq: number) => void;
 }
 
-export const QnAPostsOverView = ({ posts = MOCK_POSTS, onPostClick }: QnAPostsOverViewProps) => (
-  <div className="grid grid-cols-2 gap-2">
-    {posts.map((post, i) => (
-      <PostCard key={post.seq} post={post} rank={i + 1} onClick={() => onPostClick?.(post.seq)} />
-    ))}
-  </div>
-);
+export const QnAPostsOverView = ({ posts = [], onPostClick }: QnAPostsOverViewProps) => {
+  if (posts.length === 0) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-gray-400 text-sm">게시글이 없습니다</p>
+      </div>
+    );
+  }
 
+  return (
+    <div className="grid grid-cols-1 gap-3">
+      {posts.map((post, i) => (
+        <PostCard key={post.seq} post={post} rank={i + 1} onClick={() => onPostClick?.(post.seq)} />
+      ))}
+    </div>
+  );
+};
+
+// kept for Storybook / testing use
 const now = new Date();
 const hoursAgo = (h: number) => new Date(now.getTime() - h * 3600 * 1000).toISOString();
 
