@@ -9,7 +9,7 @@ interface ApiResponse<T> {
   errorCode?: string | null;
 }
 
-export interface FetchCommunityPostsParams {
+export interface getCommunityPostsParams {
   page?: number;
   size?: number;
   category?: 'ALL' | 'CHAT' | 'TECH' | 'MEME' | 'PROJECT_SHOWCASE';
@@ -18,12 +18,18 @@ export interface FetchCommunityPostsParams {
   query?: string;
 }
 
-export interface FetchCommunityPostsDailyResponse {
+export interface getCommunityPostsDailyResponse {
   uuid: string;
 }
 
+// 커뮤니티 활성화 배너 조회
+export const getCommunityBanner = async () => {
+  const res = await axios.get<ApiResponse<unknown>>('/api/community/banners');
+  return res.data.data;
+};
+
 // 커뮤니티 게시글 목록 조회 및 검색
-export const fetchCommunityPosts = async (params: FetchCommunityPostsParams) => {
+export const getCommunityPosts = async (params: getCommunityPostsParams) => {
   const res = await axios.get<ApiResponse<unknown>>('/api/community/posts', {
     params,
   });
@@ -31,7 +37,7 @@ export const fetchCommunityPosts = async (params: FetchCommunityPostsParams) => 
 };
 
 // 커뮤니티 게시글 상세 조회
-export const fetchCommunityPostDetail = async (postId: string) => {
+export const getCommunityPostDetail = async (postId: string) => {
   const res = await axios.get<ApiResponse<unknown>>(`/api/community/posts/${postId}`);
   return res.data.data;
 };
