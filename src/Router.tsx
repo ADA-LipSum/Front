@@ -18,6 +18,8 @@ import { Community } from './pages/Community/Community';
 import { CommunityPostDetail } from './pages/Community/CommunityPostDetail';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminRoute from './components/layout/AdminRoute';
+import TeacherRoute from './pages/Teacher/TeacherDashboard';
+import TeacherDashboard from './pages/Teacher/TeacherDashboard';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -39,7 +41,10 @@ const Router = () => {
         <Route path="/profile/:customId" element={<Proifle />} />
         <Route path="/settings" element={<Settings />} />
         <Route element={<AdminRoute />}>
-          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        </Route>
+        <Route element={<TeacherRoute />}>
+          <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
         </Route>
       </Route>
       <Route path="/not-found/user" element={<UserNotFound />} />
