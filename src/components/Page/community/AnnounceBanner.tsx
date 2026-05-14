@@ -27,12 +27,12 @@ export default function AnnounceBanner() {
   }, []);
 
   return (
-    <div className="w-full mb-5">
+    <div className="w-5xl mb-5 mx-auto">
       <Swiper
         modules={[Autoplay, Pagination]}
         slidesPerView={1}
         loop
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        autoplay={{ delay: 5000, disableOnInteraction: true }}
         pagination={{ clickable: true }}
         className="rounded-lg border border-gray-200"
         style={
@@ -44,7 +44,7 @@ export default function AnnounceBanner() {
       >
         {BANNERS.map((banner: Banner) => (
           <SwiperSlide key={banner.id}>
-            <img src={banner.imageUrl} alt={banner.title} className="w-full h-80 object-cover" />
+            <img src={banner.imageUrl} alt={banner.title} className="w-5xl h-80 object-cover" />
           </SwiperSlide>
         ))}
       </Swiper>
