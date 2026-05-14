@@ -32,6 +32,7 @@ export default function Comment({ postId }: Props) {
   const { user } = useAuthStore();
   const [comments, setComments] = useState<CommentData[]>([]);
   const [newComment, setNewComment] = useState('');
+  const COMMENT_LIMIT = 2500;
 
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState('');
@@ -116,8 +117,8 @@ export default function Comment({ postId }: Props) {
       setNewReply('');
       setReplyingToId(null);
       await fetchComments();
-    } catch {
-      ShowWarningToast('답글 등록에 실패했습니다.');
+    } catch (error) {
+      ShowWarningToast(error instanceof Error ? error.message : '답글 등록에 실패했습니다.');
     }
   };
 
@@ -151,6 +152,8 @@ export default function Comment({ postId }: Props) {
       ShowWarningToast('답글 삭제에 실패했습니다.');
     }
   };
+
+  const newCommentLength = newComment.length;
 
   return (
     <div className="border-t border-gray-100 px-8 py-6">
@@ -339,6 +342,7 @@ export default function Comment({ postId }: Props) {
                       autoFocus
                     />
                     <div className="flex justify-end px-2 pb-1.5">
+                      <p></p>
                       <button
                         onClick={() => handleAddReply(comment.commentId)}
                         disabled={!newReply.trim()}
@@ -364,6 +368,7 @@ export default function Comment({ postId }: Props) {
             rows={2}
             placeholder="댓글을 입력하세요..."
             value={newComment}
+            maxLength={COMMENT_LIMIT}
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -372,7 +377,10 @@ export default function Comment({ postId }: Props) {
               }
             }}
           />
-          <div className="flex justify-end px-3 pb-2">
+          <div className="flex items-center justify-between px-3 pb-2">
+            <span className="text-[11px] text-gray-400">
+              {newCommentLength}/{COMMENT_LIMIT}
+            </span>
             <button
               onClick={handleAddComment}
               disabled={!newComment.trim()}
