@@ -1,3 +1,4 @@
+import Avatar from '@/components/global/Avatar';
 import { Eye, MessageCircle } from 'lucide-react';
 
 export interface QnAPostOverViewItem {
@@ -43,10 +44,11 @@ const PostCard = ({
     className="flex items-start gap-3 px-4 py-4 cursor-pointer group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-100 transition-all duration-200"
   >
     {post.writerProfileImage ? (
-      <img
+      <Avatar
+        name={post.writer}
         src={post.writerProfileImage}
-        alt={post.writer}
-        className="w-9 h-9 rounded-full bg-gray-100 shrink-0 object-cover mt-0.5"
+        size="md"
+        className="rounded-full bg-gray-100 shrink-0 object-cover mt-0.5"
       />
     ) : (
       <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">

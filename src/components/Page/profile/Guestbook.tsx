@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { getGuestbook, postGuestbook, patchGuestbook, deleteGuestbook } from '@/api/profile';
 import { ShowErrorToast } from '@/components/Library/Toast/Toast';
+import Avatar from '@/components/global/Avatar';
 
 interface GuestbookEntry {
   id: number;
@@ -73,10 +74,11 @@ const Guestbook = () => {
       {/* 작성 폼 */}
       {isLoggedIn && (
         <div className="flex gap-3 mb-8">
-          <img
-            src={user?.profileImage}
-            alt="me"
-            className="w-9 h-9 rounded-full border border-gray-200 shrink-0 object-cover"
+          <Avatar
+            name={'내 방명록'}
+            src={user?.profileImage ?? ''}
+            size="md"
+            className="rounded-full border border-gray-200 shrink-0 object-cover"
           />
           <div className="flex-1 flex gap-2">
             <input

@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useProfileStore } from '@/store/profileStore';
 
 import { Upload } from 'lucide-react';
+import Avatar from '@/components/global/Avatar';
 
 interface ProfileImageProps {
   isEditing?: boolean;
@@ -35,13 +36,11 @@ const ProfileImage = ({
   return (
     <div className="relative w-40 h-40">
       <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-11 outline-[#F5F5F5]">
-        <img
-          className="w-full h-full object-cover"
-          src={previewUrl ?? profile?.profileImage}
-          alt="Profile"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
+        <Avatar
+          size="full"
+          className="object-cover"
+          src={previewUrl ?? profile?.profileImage ?? ''}
+          name={'Profile'}
         />
       </div>
       {canUpload && (

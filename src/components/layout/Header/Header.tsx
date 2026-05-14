@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
 import { Bell, Bookmark } from 'lucide-react';
+import Avatar from '@/components/global/Avatar';
 
 export const Header = () => {
   const { isLoggedIn, user } = useAuthStore();
@@ -42,13 +43,11 @@ export const Header = () => {
               </div>
               <Link to={`/profile/${user?.customId}`}>
                 <div className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white">
-                  <img
-                    src={user?.profileImage}
-                    className="w-full h-full object-cover"
-                    alt="profile"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                  <Avatar
+                    name={'프로필 이미지'}
+                    src={user?.profileImage ?? ''}
+                    size="full"
+                    className="object-cover"
                   />
                 </div>
               </Link>

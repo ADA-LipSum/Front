@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import { markdownComponents } from '@/components/Library/React-Markdown-Syntax/MarkdownComponents';
 import { ShowWarningToast } from '@/components/Library/Toast/Toast';
 
+import Avatar from '@/components/global/Avatar';
+
 import {
   getCommunityComments,
   postCommunityComments,
@@ -20,20 +22,6 @@ function timeAgo(dateStr: string): string {
   if (diff < 3600) return `${Math.floor(diff / 60)}분전`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}시간전`;
   return `${Math.floor(diff / 86400)}일전`;
-}
-
-function Avatar({ name, src, size = 'sm' }: { name: string; src: string; size?: 'sm' | 'xs' }) {
-  const cls = size === 'sm' ? 'w-8 h-8 text-xs' : 'w-6 h-6 text-[10px]';
-  if (src) {
-    return <img src={src} alt={name} className={`${cls} rounded-full object-cover shrink-0`} />;
-  }
-  return (
-    <div
-      className={`${cls} rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold shrink-0`}
-    >
-      {name.charAt(0)}
-    </div>
-  );
 }
 
 interface Props {
@@ -212,7 +200,7 @@ export default function Comment({ postId }: Props) {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap wrap-break-word">
                       <ReactMarkdown components={markdownComponents}>
                         {comment.content}
                       </ReactMarkdown>
@@ -248,7 +236,7 @@ export default function Comment({ postId }: Props) {
                 </div>
               </div>
 
-              {/* ── Replies ── */}
+              {/* 응답 */}
               {(comment.children?.length ?? 0) > 0 && (
                 <div className="ml-11 mt-3 space-y-3">
                   {comment.children!.map((reply) => {
