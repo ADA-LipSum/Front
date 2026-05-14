@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
 import {
   TechPostsOverView,
   MOCK_POSTS as TECH_MOCK_POSTS,
@@ -9,13 +8,13 @@ import { HeadSection } from '@/components/Page/community/HeadSection';
 import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
 import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
 import { FilterBar } from '@/components/Page/community/FilterBar';
-import { fetchCommunityPosts } from '@/api/community';
-import type { FetchCommunityPostsParams } from '@/api/community';
+import { getCommunityPosts } from '@/api/community';
+import type { getCommunityPostsParams } from '@/api/community';
 import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
 
-const QNA_PAGE_SIZE = 8;
+const QNA_PAGE_SIZE = 4;
 
-const CATEGORY_MAP: Record<string, FetchCommunityPostsParams['category']> = {
+const CATEGORY_MAP: Record<string, getCommunityPostsParams['category']> = {
   전체: undefined,
   기술: 'TECH',
   밈: 'MEME',
@@ -75,7 +74,7 @@ const Pagination = ({
     'px-3 h-8 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:border hover:border-gray-200 disabled:opacity-30 transition-all';
   const pages = getPageWindow(currentPage, totalPages);
   return (
-    <div className="flex justify-center items-center mt-4 gap-1">
+    <div className="flex justify-center items-center mt-5 gap-1">
       <button
         disabled={currentPage === 0}
         onClick={() => onPageChange(currentPage - 1)}
@@ -116,27 +115,37 @@ const Pagination = ({
   );
 };
 
+const PostSkeleton = () => (
+  <div className="flex items-start gap-3 px-4 py-4 bg-white rounded-xl border border-gray-100 shadow-sm animate-pulse">
+    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0 mt-0.5" />
+    <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+      <div className="h-3 bg-gray-200 rounded-full w-14" />
+      <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+      <div className="h-3 bg-gray-200 rounded-full w-2/5" />
+    </div>
+  </div>
+);
+
 export const Community = () => {
   const navigate = useNavigate();
-  const { isLoggedIn, loading: authLoading } = useAuthStore();
   const [qnaPosts, setQnaPosts] = useState<QnAPostOverViewItem[]>([]);
   const [activeFilter, setActiveFilter] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [qnaPage, setQnaPage] = useState(0);
   const [qnaTotalPages, setQnaTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading || !isLoggedIn) return;
-
     const load = async () => {
+      setIsLoading(true);
       try {
-        const params: FetchCommunityPostsParams = { page: qnaPage, size: QNA_PAGE_SIZE };
+        const params: getCommunityPostsParams = { page: qnaPage, size: QNA_PAGE_SIZE };
         const category = CATEGORY_MAP[activeFilter];
         if (category) params.category = category;
         if (searchQuery) params.query = searchQuery;
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await fetchCommunityPosts(params);
+        const data = await getCommunityPosts(params);
         const res = data as unknown as { content?: any[]; totalPages?: number };
         const content: any[] = res.content ?? [];
 
@@ -157,10 +166,12 @@ export const Community = () => {
         setQnaTotalPages(res.totalPages ?? 1);
       } catch {
         /* no-op */
+      } finally {
+        setIsLoading(false);
       }
     };
     load();
-  }, [activeFilter, searchQuery, isLoggedIn, authLoading, qnaPage]);
+  }, [activeFilter, searchQuery, qnaPage]);
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
@@ -171,13 +182,11 @@ export const Community = () => {
     <div className="bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-6 items-start">
-          {/* ── Main Content ── */}
           <div className="flex-1 min-w-0">
             <AnnounceBanner />
-            {/* Search & Write */}
+
             <HeadSection className="mb-5" onSearch={setSearchQuery} />
 
-            {/* Filter */}
             <FilterBar
               className="mb-6"
               activeFilter={activeFilter}
@@ -185,11 +194,25 @@ export const Community = () => {
             />
 
             {/* QnA Section */}
-            <section className="mb-8">
-              <QnAPostsOverView
-                posts={qnaPosts}
-                onPostClick={(seq) => navigate(`/article/${seq}`)}
-              />
+            <section className="mb-10">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-1 h-5 rounded-full bg-blue-500 inline-block" />
+                <h3 className="text-lg font-bold text-gray-900">커뮤니티 글</h3>
+              </div>
+
+              {isLoading ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {Array.from({ length: QNA_PAGE_SIZE }).map((_, i) => (
+                    <PostSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <QnAPostsOverView
+                  posts={qnaPosts}
+                  onPostClick={(seq) => navigate(`/article/${seq}`)}
+                />
+              )}
+
               <Pagination
                 currentPage={qnaPage}
                 totalPages={qnaTotalPages}
@@ -198,10 +221,11 @@ export const Community = () => {
               />
             </section>
 
-            {/* Tech Posts Section (mock) */}
+            {/* Tech Blog Section */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <h3 className="text-xl font-bold text-gray-900">최신 블로그</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-1 h-5 rounded-full bg-violet-500 inline-block" />
+                <h3 className="text-lg font-bold text-gray-900">최신 블로그</h3>
               </div>
               <TechPostsOverView
                 posts={TECH_MOCK_POSTS.slice(0, 3)}
