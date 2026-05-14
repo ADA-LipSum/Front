@@ -1,94 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { CornerDownRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { markdownComponents } from '@/components/Library/React-Markdown-Syntax/MarkdownComponents';
+import { ShowWarningToast } from '@/components/Library/Toast/Toast';
 
-interface ReplyData {
-  replyId: string;
-  writerUuid: string;
-  writer: string;
-  writerProfileImage: string;
-  content: string;
-  createdAt: string;
-}
-
-interface CommentData {
-  commentId: string;
-  writerUuid: string;
-  writer: string;
-  writerProfileImage: string;
-  content: string;
-  createdAt: string;
-  replies: ReplyData[];
-}
-
-const MOCK_COMMENTS: CommentData[] = [
-  {
-    commentId: '1',
-    writerUuid: 'mock-user-a',
-    writer: '홍길동',
-    writerProfileImage: '',
-    content: `좋은 글이네요! 저는 아래처럼 구현해봤는데 잘 동작하더라고요.
-
-\`\`\`typescript
-function greet(name: string): string {
-  return \`Hello, \${name}!\`;
-}
-
-console.log(greet('World'));
-\`\`\`
-
-혹시 다른 방법도 있을까요?`,
-    createdAt: new Date(Date.now() - 3600 * 1000).toISOString(),
-    replies: [
-      {
-        replyId: 'r1',
-        writerUuid: 'mock-user-b',
-        writer: '김철수',
-        writerProfileImage: '',
-        content: `오, 저는 이렇게 했어요!
-
-\`\`\`python
-def greet(name: str) -> str:
-    return f"Hello, {name}!"
-
-print(greet("World"))
-\`\`\`
-
-파이썬 버전입니다 😄`,
-        createdAt: new Date(Date.now() - 3000 * 1000).toISOString(),
-      },
-    ],
-  },
-  {
-    commentId: '2',
-    writerUuid: 'mock-user-b',
-    writer: '김철수',
-    writerProfileImage: '',
-    content: `저도 비슷한 문제를 겪었는데 이렇게 해결할 수 있군요! \`npm install react-markdown\` 으로 설치하면 바로 쓸 수 있어요.`,
-    createdAt: new Date(Date.now() - 7200 * 1000).toISOString(),
-    replies: [],
-  },
-  {
-    commentId: '3',
-    writerUuid: 'mock-user-c',
-    writer: '이영희',
-    writerProfileImage: '',
-    content: `감사합니다! 덕분에 프로젝트가 한층 더 좋아졌어요.`,
-    createdAt: new Date(Date.now() - 10800 * 1000).toISOString(),
-    replies: [],
-  },
-  {
-    commentId: '4',
-    writerUuid: 'mock-user-a',
-    writer: '홍길동',
-    writerProfileImage: '',
-    content: `추가로 궁금한 점이 있는데, 혹시 이 방법이 모든 상황에서 적용 가능한가요?`,
-    createdAt: new Date(Date.now() - 14400 * 1000).toISOString(),
-    replies: [],
-  },
-];
+import {
+  getCommunityComments,
+  postCommunityComments,
+  updateCommunityComment,
+  deleteCommunityComment,
+} from '@/api/comment';
+import type { CommentData } from '@/api/comment';
 
 function timeAgo(dateStr: string): string {
   const date = new Date(dateStr);
@@ -117,9 +40,9 @@ interface Props {
   postId?: string;
 }
 
-export default function Comment({ postId: _postId }: Props) {
+export default function Comment({ postId }: Props) {
   const { user } = useAuthStore();
-  const [comments, setComments] = useState<CommentData[]>(MOCK_COMMENTS);
+  const [comments, setComments] = useState<CommentData[]>([]);
   const [newComment, setNewComment] = useState('');
 
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
@@ -131,23 +54,33 @@ export default function Comment({ postId: _postId }: Props) {
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
   const [editingReplyContent, setEditingReplyContent] = useState('');
 
-  const totalCount = comments.reduce((acc, c) => acc + 1 + c.replies.length, 0);
+  const totalCount = comments.reduce((acc, c) => acc + 1 + (c.children?.length ?? 0), 0);
+
+  const fetchComments = async () => {
+    if (!postId) return;
+    try {
+      const data = await getCommunityComments(postId);
+      setComments(data);
+    } catch {
+      ShowWarningToast('댓글을 불러오는 데 실패했습니다.');
+    }
+  };
+
+  useEffect(() => {
+    fetchComments();
+  }, [postId]);
 
   // ── Comment handlers ──
 
-  const handleAddComment = () => {
-    if (!newComment.trim() || !user) return;
-    const comment: CommentData = {
-      commentId: Date.now().toString(),
-      writerUuid: user.uuid,
-      writer: user.userNickname,
-      writerProfileImage: user.profileImage,
-      content: newComment.trim(),
-      createdAt: new Date().toISOString(),
-      replies: [],
-    };
-    setComments((prev) => [...prev, comment]);
-    setNewComment('');
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !postId) return;
+    try {
+      await postCommunityComments(postId, newComment.trim());
+      setNewComment('');
+      await fetchComments();
+    } catch {
+      ShowWarningToast('댓글 등록에 실패했습니다.');
+    }
   };
 
   const handleEditCommentStart = (comment: CommentData) => {
@@ -155,15 +88,16 @@ export default function Comment({ postId: _postId }: Props) {
     setEditingCommentContent(comment.content);
   };
 
-  const handleEditCommentSave = (commentId: string) => {
+  const handleEditCommentSave = async (commentId: string) => {
     if (!editingCommentContent.trim()) return;
-    setComments((prev) =>
-      prev.map((c) =>
-        c.commentId === commentId ? { ...c, content: editingCommentContent.trim() } : c,
-      ),
-    );
-    setEditingCommentId(null);
-    setEditingCommentContent('');
+    try {
+      await updateCommunityComment(commentId, editingCommentContent.trim());
+      setEditingCommentId(null);
+      setEditingCommentContent('');
+      await fetchComments();
+    } catch {
+      ShowWarningToast('댓글 수정에 실패했습니다.');
+    }
   };
 
   const handleEditCommentCancel = () => {
@@ -171,8 +105,13 @@ export default function Comment({ postId: _postId }: Props) {
     setEditingCommentContent('');
   };
 
-  const handleDeleteComment = (commentId: string) => {
-    setComments((prev) => prev.filter((c) => c.commentId !== commentId));
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      await deleteCommunityComment(commentId);
+      await fetchComments();
+    } catch {
+      ShowWarningToast('댓글 삭제에 실패했습니다.');
+    }
   };
 
   // ── Reply handlers ──
@@ -182,44 +121,33 @@ export default function Comment({ postId: _postId }: Props) {
     setNewReply('');
   };
 
-  const handleAddReply = (commentId: string) => {
-    if (!newReply.trim() || !user) return;
-    const reply: ReplyData = {
-      replyId: `${commentId}-${Date.now()}`,
-      writerUuid: user.uuid,
-      writer: user.userNickname,
-      writerProfileImage: user.profileImage,
-      content: newReply.trim(),
-      createdAt: new Date().toISOString(),
-    };
-    setComments((prev) =>
-      prev.map((c) => (c.commentId === commentId ? { ...c, replies: [...c.replies, reply] } : c)),
-    );
-    setNewReply('');
-    setReplyingToId(null);
+  const handleAddReply = async (parentCommentId: string) => {
+    if (!newReply.trim() || !postId) return;
+    try {
+      await postCommunityComments(postId, newReply.trim(), parentCommentId);
+      setNewReply('');
+      setReplyingToId(null);
+      await fetchComments();
+    } catch {
+      ShowWarningToast('답글 등록에 실패했습니다.');
+    }
   };
 
-  const handleEditReplyStart = (reply: ReplyData) => {
-    setEditingReplyId(reply.replyId);
+  const handleEditReplyStart = (reply: CommentData) => {
+    setEditingReplyId(reply.commentId);
     setEditingReplyContent(reply.content);
   };
 
-  const handleEditReplySave = (commentId: string, replyId: string) => {
+  const handleEditReplySave = async (replyId: string) => {
     if (!editingReplyContent.trim()) return;
-    setComments((prev) =>
-      prev.map((c) =>
-        c.commentId === commentId
-          ? {
-              ...c,
-              replies: c.replies.map((r) =>
-                r.replyId === replyId ? { ...r, content: editingReplyContent.trim() } : r,
-              ),
-            }
-          : c,
-      ),
-    );
-    setEditingReplyId(null);
-    setEditingReplyContent('');
+    try {
+      await updateCommunityComment(replyId, editingReplyContent.trim());
+      setEditingReplyId(null);
+      setEditingReplyContent('');
+      await fetchComments();
+    } catch {
+      ShowWarningToast('답글 수정에 실패했습니다.');
+    }
   };
 
   const handleEditReplyCancel = () => {
@@ -227,14 +155,13 @@ export default function Comment({ postId: _postId }: Props) {
     setEditingReplyContent('');
   };
 
-  const handleDeleteReply = (commentId: string, replyId: string) => {
-    setComments((prev) =>
-      prev.map((c) =>
-        c.commentId === commentId
-          ? { ...c, replies: c.replies.filter((r) => r.replyId !== replyId) }
-          : c,
-      ),
-    );
+  const handleDeleteReply = async (replyId: string) => {
+    try {
+      await deleteCommunityComment(replyId);
+      await fetchComments();
+    } catch {
+      ShowWarningToast('답글 삭제에 실패했습니다.');
+    }
   };
 
   return (
@@ -249,9 +176,11 @@ export default function Comment({ postId: _postId }: Props) {
 
           return (
             <div key={comment.commentId}>
-              {/* ── Comment ── */}
+              {/* 댓글 */}
               <div className="flex gap-3">
-                <Avatar name={comment.writer} src={comment.writerProfileImage} />
+                <a href={`/profile/${comment.writerCustomId}`}>
+                  <Avatar name={comment.writer} src={comment.writerProfileImage} />
+                </a>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
@@ -320,16 +249,18 @@ export default function Comment({ postId: _postId }: Props) {
               </div>
 
               {/* ── Replies ── */}
-              {comment.replies.length > 0 && (
+              {(comment.children?.length ?? 0) > 0 && (
                 <div className="ml-11 mt-3 space-y-3">
-                  {comment.replies.map((reply) => {
+                  {comment.children!.map((reply) => {
                     const isReplyOwner = user?.uuid === reply.writerUuid;
-                    const isEditingReply = editingReplyId === reply.replyId;
+                    const isEditingReply = editingReplyId === reply.commentId;
 
                     return (
-                      <div key={reply.replyId} className="flex gap-2">
+                      <div key={reply.commentId} className="flex gap-2">
                         <CornerDownRight className="w-4 h-4 text-gray-300 mt-1 shrink-0" />
-                        <Avatar name={reply.writer} src={reply.writerProfileImage} size="xs" />
+                        <a href={`/profile/${reply.writerCustomId}`}>
+                          <Avatar name={reply.writer} src={reply.writerProfileImage} size="xs" />
+                        </a>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
@@ -351,9 +282,7 @@ export default function Comment({ postId: _postId }: Props) {
                               />
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() =>
-                                    handleEditReplySave(comment.commentId, reply.replyId)
-                                  }
+                                  onClick={() => handleEditReplySave(reply.commentId)}
                                   className="text-xs px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                                 >
                                   저장
@@ -383,7 +312,7 @@ export default function Comment({ postId: _postId }: Props) {
                                 수정
                               </button>
                               <button
-                                onClick={() => handleDeleteReply(comment.commentId, reply.replyId)}
+                                onClick={() => handleDeleteReply(reply.commentId)}
                                 className="text-[11px] text-gray-400 hover:text-red-500 transition-colors"
                               >
                                 삭제
