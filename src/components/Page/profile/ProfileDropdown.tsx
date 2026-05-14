@@ -1,8 +1,19 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { UserCircle, CreditCard, Settings, LogOut } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 export default function ProfileDropdown() {
+  const navigate = useNavigate();
+
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    await logout();
+
+    navigate('/');
+  };
+
   return (
     <div className="w-52 bg-white border border-gray-200 rounded-md shadow-lg p-1.5">
       <div className="flex flex-col">
@@ -36,7 +47,10 @@ export default function ProfileDropdown() {
 
         <hr className="my-1 border-gray-300" />
 
-        <button className="text-left px-3 py-2 rounded-lg hover:bg-red-50 text-red-500 transition flex items-center justify-between text-sm">
+        <button
+          className="text-left px-3 py-2 rounded-lg hover:bg-red-50 text-red-500 transition flex items-center justify-between text-sm"
+          onClick={handleLogout}
+        >
           <span>로그아웃</span>
           <LogOut size={17} />
         </button>
