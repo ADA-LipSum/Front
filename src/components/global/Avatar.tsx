@@ -4,7 +4,7 @@ export default function Avatar({
   size = 'md',
 }: {
   name: string;
-  src: string;
+  src: string | undefined | null;
   hoverSrc?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'full';
   className?: string;
@@ -19,7 +19,7 @@ export default function Avatar({
 
   return (
     <div className={`avatar overflow-hidden rounded-full ${sizeClasses[size]}`}>
-      <img src={src} alt={name} className="w-full h-full object-cover" />
+      <img src={src ?? undefined} alt={name} className="w-full h-full object-cover" />
     </div>
   );
 }
