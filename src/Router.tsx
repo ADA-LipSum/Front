@@ -39,7 +39,7 @@ const Router = () => {
         <Route path="/exchange" element={<Exchange />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Proifle />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/*" element={<Settings />} />
         <Route element={<AdminRoute />}>
           <Route path="/dashboard/admin" element={<AdminDashboard />} />
         </Route>
