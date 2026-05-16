@@ -39,7 +39,7 @@ const ProfileImage = ({
         <Avatar
           size="full"
           className="object-cover"
-          src={previewUrl ?? profile?.profileImage ?? ''}
+          src={previewUrl ?? profile?.profileImage ?? null}
           name={'Profile'}
         />
       </div>
