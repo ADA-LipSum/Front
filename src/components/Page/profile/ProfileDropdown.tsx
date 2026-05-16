@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 
-import { UserCircle, CreditCard, Settings, LogOut } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Bookmark, Mail } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 export default function ProfileDropdown() {
@@ -30,19 +30,27 @@ export default function ProfileDropdown() {
         </Link>
 
         <Link
-          to="/payments"
-          className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
-        >
-          <span>결제 내역</span>
-          <CreditCard size={17} />
-        </Link>
-
-        <Link
           to="/settings"
           className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
         >
-          <span>계정 관리</span>
+          <span>설정</span>
           <Settings size={17} />
+        </Link>
+
+        <Link
+          to="/bookmarks"
+          className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
+        >
+          <span>북마크</span>
+          <Bookmark size={17} />
+        </Link>
+
+        <Link
+          to="/contact"
+          className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
+        >
+          <span>문의하기</span>
+          <Mail size={17} />
         </Link>
 
         <hr className="my-1 border-gray-300" />
