@@ -20,6 +20,8 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminRoute from './components/layout/AdminRoute';
 import TeacherRoute from './pages/Teacher/TeacherDashboard';
 import TeacherDashboard from './pages/Teacher/TeacherDashboard';
+import { Inventory } from './pages/Inventory/Inventory';
+import { Bookmarks } from './pages/Bookmark/Bookmarks';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -40,6 +42,8 @@ const Router = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile/:customId" element={<Proifle />} />
         <Route path="/settings/*" element={<Settings />} />
+        <Route path="/inventory" element={<Inventory />} />
+        <Route path="/bookmarks" element={<Bookmarks />} />
         <Route element={<AdminRoute />}>
           <Route path="/dashboard/admin" element={<AdminDashboard />} />
         </Route>
