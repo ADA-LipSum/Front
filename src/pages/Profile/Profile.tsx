@@ -12,6 +12,8 @@ import ProfileImage from '@/components/Page/profile/ProfileImage';
 import SocialLinks from '@/components/Page/profile/SocialLinks';
 import UserNameText from '@/components/Page/profile/UserNameText';
 
+// TODO: 인벤토리 버튼 및 편집 기능 전부 제거할 것
+
 const Profile = () => {
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
