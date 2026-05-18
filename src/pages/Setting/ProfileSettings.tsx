@@ -18,7 +18,6 @@ export const ProfileSettings = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Edit state
   const [editNickname, setEditNickname] = useState('');
   const [editIntro, setEditIntro] = useState('');
   const [editSocialLinks, setEditSocialLinks] = useState({
@@ -32,7 +31,6 @@ export const ProfileSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isImageHovered, setIsImageHovered] = useState(false);
 
-  // Initialize edit state when profile loads
   useEffect(() => {
     if (profile) {
       setEditNickname(profile.userNickname ?? '');
@@ -68,7 +66,6 @@ export const ProfileSettings = () => {
 
     setIsSaving(true);
     try {
-      // Upload image if selected
       if (pendingImageFile) {
         await uploadProfileImage(profile.uuid, pendingImageFile);
         if (previewImageUrl) URL.revokeObjectURL(previewImageUrl);
@@ -76,7 +73,6 @@ export const ProfileSettings = () => {
         setPreviewImageUrl(null);
       }
 
-      // Update profile information
       await updateProfile({
         uuid: profile.uuid,
         userNickname: editNickname,
@@ -94,10 +90,21 @@ export const ProfileSettings = () => {
 
   return (
     <div className="flex gap-20">
-      {/* Left Form */}
+      {/* 왼쪽 폼 */}
       <div className="flex-1 max-w-175">
         <h1 className="text-xl font-bold mb-10 text-gray-800">프로필 정보</h1>
         <div className="space-y-8">
+          {/* 배너 이미지 */}
+          <div className="relative">
+            <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center">
+              <img
+                src={profile?.profileBanner}
+                alt="배너 이미지"
+                className="object-cover w-full h-full rounded-xl"
+              />
+            </div>
+          </div>
+
           {/* 아이디 */}
           <div>
             <label className="block mb-3 font-medium">아이디</label>
@@ -343,7 +350,7 @@ export const ProfileSettings = () => {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handleFileChange}
+            onChange={handleFileChange} // TODO: 파일 업로드 후 crop 기능을 통해 원하는 이미지를 프로필로 할 수 있게 추가하기
           />
         </div>
       </div>
