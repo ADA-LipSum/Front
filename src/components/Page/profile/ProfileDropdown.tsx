@@ -22,7 +22,7 @@ export default function ProfileDropdown() {
         <hr className="my-1 border-gray-300" />
 
         <Link
-          to="/mypage"
+          to={`/profile/${useAuthStore.getState().user?.customId}`}
           className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
         >
           <span>프로필</span>
