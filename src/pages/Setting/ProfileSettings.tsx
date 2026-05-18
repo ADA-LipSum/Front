@@ -92,7 +92,8 @@ export const ProfileSettings = () => {
     <div className="flex gap-20">
       {/* 왼쪽 폼 */}
       <div className="flex-1 max-w-175">
-        <h1 className="text-xl font-bold mb-10 text-gray-800">프로필 정보</h1>
+        <h1 className="text-center text-xl font-bold mb-5 text-gray-800">프로필 정보</h1>
+
         <div className="space-y-8">
           {/* 배너 이미지 */}
           <div className="relative">
@@ -316,7 +317,7 @@ export const ProfileSettings = () => {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-blue-500 text-white py-2 px-4 w-full rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-500 text-white py-3 px-4 w-full rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? '저장 중...' : '저장'}
           </button>
