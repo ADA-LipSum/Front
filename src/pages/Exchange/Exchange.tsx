@@ -2,15 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { fetchMyCoinBalance } from '@/api/coins';
 import { fetchMyPointBalance } from '@/api/points';
-import {
-  purchaseTradeItem,
-  searchTradeItems,
-  type TradeItem,
-} from '@/api/trade';
+import { purchaseTradeItem, searchTradeItems, type TradeItem } from '@/api/trade';
 
 type ExchangeMode = 'COIN' | 'POINT';
 type CoinFilterMode = 'ALL' | 'IN_CART';
 type CoinCategory = 'ALL' | 'SNACK' | 'CANDY_CHOCOLATE' | 'MEAL' | 'DRINK';
+type PointCategory = 'ALL' | 'STICKER' | 'BANNER';
 
 interface ExchangeItem {
   id: string;
@@ -18,7 +15,7 @@ interface ExchangeItem {
   description: string;
   price: number;
   type: ExchangeMode;
-  category: CoinCategory;
+  category: CoinCategory | PointCategory;
   stock: number;
   imageUrl?: string | null;
 }
@@ -51,13 +48,14 @@ export const Exchange = () => {
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [coinFilter, setCoinFilter] = useState<CoinFilterMode>('ALL');
-  const [categoryFilter, setCategoryFilter] = useState<CoinCategory>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<CoinCategory | PointCategory>('ALL');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
 
   const [draftCoinFilter, setDraftCoinFilter] = useState<CoinFilterMode>('ALL');
-  const [draftCategoryFilter, setDraftCategoryFilter] =
-    useState<CoinCategory>('ALL');
+  const [draftCategoryFilter, setDraftCategoryFilter] = useState<CoinCategory | PointCategory>(
+    'ALL',
+  );
   const [draftMinPrice, setDraftMinPrice] = useState('');
   const [draftMaxPrice, setDraftMaxPrice] = useState('');
 
@@ -65,20 +63,20 @@ export const Exchange = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [addTarget, setAddTarget] = useState<ExchangeItem | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [selectedPointItem, setSelectedPointItem] = useState<ExchangeItem | null>(
-    null,
-  );
+  const [selectedPointItem, setSelectedPointItem] = useState<ExchangeItem | null>(null);
 
   const [myCoinBalance, setMyCoinBalance] = useState<number | null>(null);
   const [myPointBalance, setMyPointBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [balanceError, setBalanceError] = useState<string | null>(null);
 
-  const mapCategory = (item: TradeItem): CoinCategory => {
+  const mapCategory = (item: TradeItem): CoinCategory | PointCategory => {
     const text = `${item.name} ${item.description}`.toLowerCase();
     if (/초콜릿|캔디|사탕|choco|candy/.test(text)) return 'CANDY_CHOCOLATE';
     if (/라면|컵밥|즉석|도시락|meal/.test(text)) return 'MEAL';
     if (/음료|커피|주스|탄산|차|drink/.test(text)) return 'DRINK';
+    if (/스티커|sticker/.test(text)) return 'STICKER';
+    if (/배너|banner/.test(text)) return 'BANNER';
     return 'SNACK';
   };
 
@@ -113,8 +111,8 @@ export const Exchange = () => {
       console.error(err);
       const message =
         err && typeof err === 'object' && 'response' in err
-          ? ((err as { response?: { data?: { message?: string } } }).response?.data
-              ?.message ?? '잔액을 불러오지 못했습니다.')
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+            '잔액을 불러오지 못했습니다.')
           : '잔액을 불러오지 못했습니다.';
       setBalanceError(message);
       setMyCoinBalance(null);
@@ -157,8 +155,8 @@ export const Exchange = () => {
       console.error(err);
       const message =
         err && typeof err === 'object' && 'response' in err
-          ? ((err as { response?: { data?: { message?: string } } }).response?.data
-              ?.message ?? '아이템 목록을 불러오지 못했습니다.')
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+            '아이템 목록을 불러오지 못했습니다.')
           : '아이템 목록을 불러오지 못했습니다.';
       setLoadError(message);
       setItems([]);
@@ -200,6 +198,9 @@ export const Exchange = () => {
     return filteredItems.slice(start, start + itemsPerPage);
   }, [filteredItems, page, itemsPerPage]);
 
+  const pointBanners = useMemo(() => items.filter((i) => i.category === 'BANNER'), [items]);
+  const pointStickers = useMemo(() => items.filter((i) => i.category === 'STICKER'), [items]);
+
   const totalPrice = useMemo(
     () => cart.reduce((sum, ci) => sum + ci.item.price * ci.quantity, 0),
     [cart],
@@ -209,9 +210,7 @@ export const Exchange = () => {
     setCart((prev) => {
       const exists = prev.find((c) => c.item.id === item.id);
       if (exists) {
-        return prev.map((c) =>
-          c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c,
-        );
+        return prev.map((c) => (c.item.id === item.id ? { ...c, quantity: c.quantity + 1 } : c));
       }
       return [...prev, { item, quantity: 1 }];
     });
@@ -222,9 +221,7 @@ export const Exchange = () => {
       setCart((prev) => prev.filter((c) => c.item.id !== id));
       return;
     }
-    setCart((prev) =>
-      prev.map((c) => (c.item.id === id ? { ...c, quantity } : c)),
-    );
+    setCart((prev) => prev.map((c) => (c.item.id === id ? { ...c, quantity } : c)));
   };
 
   const openFilter = () => {
@@ -263,8 +260,8 @@ export const Exchange = () => {
       console.error(err);
       const message =
         err && typeof err === 'object' && 'response' in err
-          ? ((err as { response?: { data?: { message?: string } } }).response?.data
-              ?.message ?? '교환에 실패했습니다.')
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+            '교환에 실패했습니다.')
           : '교환에 실패했습니다.';
       alert(message);
     }
@@ -280,8 +277,8 @@ export const Exchange = () => {
       console.error(err);
       const message =
         err && typeof err === 'object' && 'response' in err
-          ? ((err as { response?: { data?: { message?: string } } }).response?.data
-              ?.message ?? '교환에 실패했습니다.')
+          ? ((err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+            '교환에 실패했습니다.')
           : '교환에 실패했습니다.';
       alert(message);
     }
@@ -323,9 +320,7 @@ export const Exchange = () => {
         </div>
       </div>
 
-      <div
-        className={`w-full ${mode === 'COIN' ? 'bg-[#FFC107]' : 'bg-[#7C4DFF]'} py-10`}
-      >
+      <div className={`w-full ${mode === 'COIN' ? 'bg-[#FFC107]' : 'bg-[#7C4DFF]'} py-10`}>
         <div className="max-w-6xl mx-auto px-4">
           <h1 className="text-3xl font-bold text-white">
             {mode === 'COIN' ? '코인 거래소' : '포인트 거래소'}
@@ -483,9 +478,7 @@ export const Exchange = () => {
         </div>
 
         {loading ? (
-          <section className="py-20 text-center text-[#757575] text-sm">
-            불러오는 중...
-          </section>
+          <section className="py-20 text-center text-[#757575] text-sm">불러오는 중...</section>
         ) : loadError ? (
           <section className="py-20 text-center text-red-500 text-sm">{loadError}</section>
         ) : mode === 'COIN' ? (
@@ -522,7 +515,7 @@ export const Exchange = () => {
             <div>
               <h2 className="text-sm font-semibold text-black mb-2">배너</h2>
               <div className="grid grid-cols-4 gap-4">
-                {pagedItems.slice(0, 4).map((item) => (
+                {pointBanners.map((item) => (
                   <div
                     key={item.id}
                     role="button"
@@ -536,7 +529,7 @@ export const Exchange = () => {
                         <img
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-20 h-20 object-cover rounded"
+                          className="w-full h-40 object-cover rounded"
                         />
                       ) : (
                         <div className="w-20 h-20 rounded bg-[#D8D8D8] text-[10px] text-[#666] flex items-center justify-center">
@@ -555,7 +548,7 @@ export const Exchange = () => {
             <div>
               <h2 className="text-sm font-semibold text-black mb-2">스티커</h2>
               <div className="grid grid-cols-5 gap-4">
-                {pagedItems.slice(4).map((item) => (
+                {pointStickers.map((item) => (
                   <div
                     key={item.id}
                     role="button"
@@ -569,16 +562,17 @@ export const Exchange = () => {
                         <img
                           src={item.imageUrl}
                           alt={item.name}
-                          className="w-12 h-12 object-cover rounded"
+                          className="w-40 h-40 object-cover rounded"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded bg-[#D8D8D8] text-[9px] text-[#666] flex items-center justify-center">
+                        <div className="w-40 h-40 rounded bg-[#D8D8D8] text-[9px] text-[#666] flex items-center justify-center">
                           NO
                         </div>
                       )}
                     </div>
                     <div className="px-1.5 py-0.5 bg-white/90 border-t border-[#E0E0E0]">
                       <p className="text-[10px] font-medium text-black truncate">{item.name}</p>
+                      <p className="text-[9px] text-[#757575]">{item.price} 포인트</p>
                     </div>
                   </div>
                 ))}
@@ -591,11 +585,7 @@ export const Exchange = () => {
           <button type="button" onClick={() => setPage(1)} className="px-2">
             ≪
           </button>
-          <button
-            type="button"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            className="px-2"
-          >
+          <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-2">
             ‹
           </button>
           <div className="flex items-center gap-1">
@@ -796,8 +786,8 @@ export const Exchange = () => {
             <h3 className="text-lg font-bold text-black mb-2">이 아이템을 교환할까요?</h3>
             <p className="text-sm text-[#616161] mb-4">
               <span className="font-semibold text-black">{selectedPointItem.name}</span>을(를){' '}
-              <span className="font-semibold text-black">{selectedPointItem.price} 포인트</span>
-              로 교환합니다.
+              <span className="font-semibold text-black">{selectedPointItem.price} 포인트</span>로
+              교환합니다.
             </p>
             <div className="flex justify-end gap-2 text-sm">
               <button
