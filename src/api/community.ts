@@ -42,8 +42,24 @@ export const getCommunityPostDetail = async (postId: string) => {
   return res.data.data;
 };
 
+// 커뮤니티 게시글 작성
+export const createCommunityPost = async (formData: FormData) => {
+  const res = await axios.post<ApiResponse<unknown>>('/api/community/posts', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res.data.data;
+};
+
 // 커뮤니티 게시글 좋아요 토글
 export const toggleCommunityPostLike = async (postId: string) => {
-  const res = await axios.post<ApiResponse<unknown>>(`/api/posts/${postId}/like`);
+  const res = await axios.post<ApiResponse<unknown>>(`/api/community/posts/${postId}/like`);
+  return res.data.data;
+};
+
+// 커뮤니티 게시글 북마크 토글
+export const toggleBookmark = async (postId: string) => {
+  const res = await axios.post<ApiResponse<unknown>>(`/api/community/posts/${postId}/bookmark`);
   return res.data.data;
 };
