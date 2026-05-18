@@ -29,10 +29,13 @@ export default function AnnounceBanner() {
   return (
     <div className="w-5xl mb-5 mx-auto">
       <Swiper
+        key={BANNERS.length}
         modules={[Autoplay, Pagination]}
         slidesPerView={1}
         loop
-        autoplay={{ delay: 5000, disableOnInteraction: true }}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        observer
+        observeParents
         pagination={{ clickable: true }}
         className="rounded-lg border border-gray-200"
         style={
