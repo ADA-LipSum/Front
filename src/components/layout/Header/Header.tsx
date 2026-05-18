@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 
 import { useAuthStore } from '@/store/authStore';
@@ -12,11 +12,17 @@ import ProfileDropdown from '@/components/Page/profile/ProfileDropdown';
 
 export const Header = () => {
   const { isLoggedIn, user } = useAuthStore();
+  const location = useLocation();
 
   const [isOpen, setIsOpen] = useState(false);
 
   // 드롭다운 영역 감지용 ref
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  // 페이지 이동 시 드롭다운 닫기
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,12 +40,12 @@ export const Header = () => {
   }, []);
 
   return (
-    <div className="w-full h-18 bg-[#ffffff] flex items-center pl-10 border-b border-[#d1d0d0]">
+    <div className="w-full h-18 bg-[#ffffff] flex items-center pl-25 border-b border-[#d1d0d0]">
       <Link to="/">
-        <img src={LipSum_Logo_Black} className="w-20" alt="logo" />
+        <img src={LipSum_Logo_Black} className="w-30" alt="logo" />
       </Link>
 
-      <div className="flex items-center ml-20 gap-10 text-black font-semibold">
+      <div className="flex items-center ml-25 gap-10 text-black font-semibold">
         <Link to="/">커뮤니티</Link>
         <Link to="/study-group">그룹 찾기</Link>
         <Link to="/announcement">공지사항</Link>
