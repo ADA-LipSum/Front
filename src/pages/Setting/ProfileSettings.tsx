@@ -92,7 +92,7 @@ export const ProfileSettings = () => {
     <div className="flex gap-20">
       {/* 왼쪽 폼 */}
       <div className="flex-1 max-w-175">
-        <h1 className="text-center text-xl font-bold mb-5 text-gray-800">프로필 정보</h1>
+        <h1 className="text-xl font-bold mb-5">프로필 정보</h1>
 
         <div className="space-y-8">
           {/* 배너 이미지 */}
