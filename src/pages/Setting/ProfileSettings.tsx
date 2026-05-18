@@ -5,12 +5,12 @@ export const ProfileSettings = () => {
     <div className="flex gap-20">
       {/* Left Form */}
       <div className="flex-1 max-w-175">
-        <h1 className="text-xl font-bold mb-10 text-gray-800">회원정보</h1>
+        <h1 className="text-xl font-bold mb-10 text-gray-800">프로필 정보</h1>
 
         <div className="space-y-8">
-          {/* 이름 */}
+          {/* 아이디 */}
           <div>
-            <label className="block mb-3 font-medium">이름</label>
+            <label className="block mb-3 font-medium">아이디</label>
 
             <input
               type="text"
@@ -23,7 +23,8 @@ export const ProfileSettings = () => {
                 outline-none
                 focus:border-black
               "
-              placeholder="이름 입력"
+              placeholder="아이디는 변경할 수 없습니다."
+              readOnly
             />
           </div>
 
@@ -68,7 +69,7 @@ export const ProfileSettings = () => {
       <div className="w-55 flex justify-center">
         <div className="w-45 h-45 rounded-full overflow-hidden bg-gray-200">
           <Avatar
-            src={localStorage.getItem('profileImage') || ''}
+            src={localStorage.getItem('profileImage') || undefined}
             className="object-cover"
             size="full"
             name={'프로필 이미지'}
