@@ -52,10 +52,13 @@ const mapTradeItem = (dto: TradeItemDto): TradeItem => ({
 export interface SearchTradeItemsParams {
   keyword?: string;
   category?: 'FOOD' | 'ETC';
+  subCategory?: 'SNACK' | 'CANDY' | 'JUICE' | 'INSTANT' | 'STICKER' | 'BANNER';
   minPrice?: number;
   maxPrice?: number;
   page?: number;
   size?: number;
+  sort?: 'createdAt' | 'price' | 'name';
+  dir?: 'asc' | 'desc';
 }
 
 export interface SearchTradeItemsResult {
@@ -64,23 +67,24 @@ export interface SearchTradeItemsResult {
   totalElements: number;
 }
 
+// 거래 아이템 검색 함수
 export const searchTradeItems = async (
   params: SearchTradeItemsParams,
 ): Promise<SearchTradeItemsResult> => {
-  const res = await axios.get<ApiResponse<PageResponse<TradeItemDto>>>(
-    '/api/trade/items/search',
-    {
-      params: {
-        keyword: params.keyword || undefined,
-        category: params.category || undefined,
-        minPrice: params.minPrice,
-        maxPrice: params.maxPrice,
-        active: true,
-        page: params.page ?? 0,
-        size: params.size ?? 20,
-      },
+  const res = await axios.get<ApiResponse<PageResponse<TradeItemDto>>>('/api/trade/items/search', {
+    params: {
+      keyword: params.keyword || undefined,
+      category: params.category || undefined,
+      subCategory: params.subCategory || undefined,
+      minPrice: params.minPrice,
+      maxPrice: params.maxPrice,
+      active: true,
+      page: params.page ?? 0,
+      size: params.size ?? 20,
+      sort: params.sort,
+      dir: params.dir,
     },
-  );
+  });
 
   return {
     items: (res.data.data.content ?? []).map(mapTradeItem),
@@ -92,4 +96,3 @@ export const searchTradeItems = async (
 export const purchaseTradeItem = async (itemUuid: string, quantity: number) => {
   return axios.post('/api/trade/transactions', { itemUuid, quantity });
 };
-
