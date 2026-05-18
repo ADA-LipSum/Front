@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getCommunityPostDetail as fetchPostDetail,
   toggleCommunityPostLike,
+  toggleBookmark,
 } from '@/api/community';
 import { useAuthStore } from '@/store/authStore';
 import { ShowWarningToast } from '@/components/Library/Toast/Toast';
@@ -29,6 +30,7 @@ interface PostDetail {
   views: number;
   comments: number;
   isDev: boolean;
+  isBookmarked?: boolean;
   devTags: string;
 }
 
@@ -68,6 +70,7 @@ export const CommunityPostDetail = () => {
         setPost(postData);
         setLikeCount(postData.likes ?? 0);
         setLiked(postData.isLiked ?? false);
+        setBookmarked(postData.isBookmarked ?? false);
       } catch {
         ShowWarningToast('게시물을 불러오는 데 실패했습니다.');
         navigate('/');
@@ -85,6 +88,15 @@ export const CommunityPostDetail = () => {
       setLikeCount((c) => c + (nowLiked ? 1 : -1));
     } catch {
       ShowWarningToast('좋아요 처리에 실패했습니다.');
+    }
+  };
+
+  const handleBookmarkToggle = async () => {
+    try {
+      const nowBookmarked = (await toggleBookmark(postId!)) as boolean;
+      setBookmarked(nowBookmarked);
+    } catch {
+      ShowWarningToast('북마크 처리에 실패했습니다.');
     }
   };
 
@@ -128,8 +140,11 @@ export const CommunityPostDetail = () => {
             onClick={handleShare}
             className="flex flex-col items-center gap-1 p-5 rounded-xl text-gray-400 hover:text-blue-400 hover:bg-blue-50 transition-all"
           >
+            {/* TODO: 링크 공유 시 미리보기 기능 지원할 예정 */}
             <Share2 className="w-5 h-5" />
           </button>
+
+          <div className="w-6 h-px bg-gray-100 my-1" />
         </div>
         {/* ── Main content ── */}
         <div className="w-full max-w-3xl rounded-lg">
@@ -196,7 +211,7 @@ export const CommunityPostDetail = () => {
                   </button>
                   <button
                     className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-                    onClick={() => setBookmarked(!bookmarked)}
+                    onClick={handleBookmarkToggle}
                   >
                     <Bookmark className="w-5 h-5" fill={bookmarked ? 'currentColor' : 'none'} />
                     북마크
