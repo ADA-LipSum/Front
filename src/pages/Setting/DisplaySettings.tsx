@@ -7,7 +7,6 @@ export const DisplaySettings = () => {
         {/* 다크모드 */}
         <div
           className="
-            bg-white
             border border-gray-200
             rounded-2xl
             p-6
@@ -38,33 +37,6 @@ export const DisplaySettings = () => {
               "
             />
           </button>
-        </div>
-
-        {/* 언어 */}
-        <div
-          className="
-            bg-white
-            border border-gray-200
-            rounded-2xl
-            p-6
-          "
-        >
-          <h3 className="font-semibold text-lg mb-4">언어 설정</h3>
-
-          <select
-            className="
-              w-full
-              h-14
-              rounded-xl
-              border border-gray-200
-              px-5
-              bg-white
-            "
-          >
-            <option>한국어</option>
-            <option>English</option>
-            <option>日本語</option>
-          </select>
         </div>
       </div>
     </div>
