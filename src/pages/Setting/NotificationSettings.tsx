@@ -16,7 +16,7 @@ const notifications = [
 export const NotificationSettings = () => {
   return (
     <div className="max-w-187.5">
-      <h1 className="text-xl font-bold mb-10">알림 설정</h1>
+      <h1 className="text-center text-xl font-bold mb-10">알림 설정</h1>
 
       <div className="space-y-5">
         {notifications.map((notification) => (
