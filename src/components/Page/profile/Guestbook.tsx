@@ -53,20 +53,32 @@ const Guestbook = () => {
 
   const handleEdit = async (entryId: number) => {
     if (!customId || !editContent.trim()) return;
-    const updated = await patchGuestbook(customId, editContent.trim());
-    setEntries((prev) => prev.map((e) => (e.id === entryId ? updated : e)));
-    setEditingId(null);
+    try {
+      const updated = await patchGuestbook(customId, editContent.trim());
+      setEntries((prev) => prev.map((e) => (e.id === entryId ? updated : e)));
+      setEditingId(null);
+    } catch (err: any) {
+      ShowErrorToast('방명록 수정에 실패했습니다.');
+    }
   };
 
   const handleDelete = async (entryId: number) => {
     if (!customId) return;
-    await deleteGuestbook(customId);
-    setEntries((prev) => prev.filter((e) => e.id !== entryId));
+    try {
+      await deleteGuestbook(customId);
+      setEntries((prev) => prev.filter((e) => e.id !== entryId));
+    } catch (err: any) {
+      ShowErrorToast('방명록 삭제에 실패했습니다.');
+    }
   };
 
   const startEdit = (entry: GuestbookEntry) => {
-    setEditingId(entry.id);
-    setEditContent(entry.content);
+    try {
+      setEditingId(entry.id);
+      setEditContent(entry.content);
+    } catch (err: any) {
+      ShowErrorToast('방명록 수정에 실패했습니다.');
+    }
   };
 
   return (
@@ -165,7 +177,9 @@ const Guestbook = () => {
                       </button>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-700">{entry.content}</p>
+                    <p className="text-sm text-gray-700 break-all whitespace-pre-wrap">
+                      {entry.content}
+                    </p>
                   )}
                 </div>
               </div>
