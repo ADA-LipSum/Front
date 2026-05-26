@@ -17,7 +17,15 @@ interface CartProps {
   error?: string | null;
 }
 
-export const Cart = ({ items, coinBalance, onQuantityChange, onRemove, onPurchase, purchasing, error }: CartProps) => {
+export const Cart = ({
+  items,
+  coinBalance,
+  onQuantityChange,
+  onRemove,
+  onPurchase,
+  purchasing,
+  error,
+}: CartProps) => {
   const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const afterBalance = coinBalance - totalPrice;
 
