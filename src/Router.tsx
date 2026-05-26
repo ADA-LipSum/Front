@@ -4,11 +4,10 @@ import { useEffect } from 'react';
 
 import { useAuthStore } from '@/store/authStore';
 
-import { Exchange } from '@/pages/Exchange/Exchange';
+import { CoinExchange } from '@/pages/Exchange/CoinExchange';
 import { Login } from '@/pages/Auth/Login';
 import { SocialLogin } from '@/pages/Auth/SocialLogin';
 import MainLayout from '@/components/layout/MainLayout';
-import Proifle from './pages/Profile/Profile';
 import UserNotFound from './pages/NotFound/UserNotFound';
 import { Announcement } from './pages/Announcement/Announcement';
 import { Settings } from './pages/Setting/Settings';
@@ -21,6 +20,8 @@ import TeacherRoute from './pages/Teacher/TeacherDashboard';
 import TeacherDashboard from './pages/Teacher/TeacherDashboard';
 import { Inventory } from './pages/Inventory/Inventory';
 import { Bookmarks } from './pages/Bookmark/Bookmarks';
+import Profile from './pages/Profile/Profile';
+import { PointExchange } from './pages/Exchange/PointExchange';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -37,8 +38,9 @@ const Router = () => {
         <Route path="/article/:postId" element={<CommunityPostDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
-        <Route path="/exchange" element={<Exchange />} />
-        <Route path="/profile/:customId" element={<Proifle />} />
+        <Route path="/exchange/coin" element={<CoinExchange />} />
+        <Route path="/exchange/point" element={<PointExchange />} />
+        <Route path="/profile/:customId" element={<Profile />} />
         <Route path="/settings/*" element={<Settings />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
