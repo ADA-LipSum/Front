@@ -49,7 +49,7 @@ export const Header = () => {
         <Link to="/">커뮤니티</Link>
         <Link to="/study-group">그룹 찾기</Link>
         <Link to="/announcement">공지사항</Link>
-        <Link to="/exchange">거래소</Link>
+        <Link to="/exchange/coin">거래소</Link>
         <Link to="/contact">문의</Link>
 
         {user?.role === 'ADMIN' && <Link to="/dashboard/admin">관리자 대시보드</Link>}
