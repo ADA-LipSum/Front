@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldPlus, Search } from 'lucide-react';
+import { ShieldPlus, Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'react-toastify';
+import { cn } from '@/lib/utils';
 
 interface MockBan {
   banId: number;
@@ -31,18 +32,57 @@ const INITIAL_BANS: MockBan[] = [
 
 const BAN_TYPE_LABELS: Record<string, string> = { TEMPORARY: '임시 정지', PERMANENT: '영구 정지', WARNING: '경고' };
 
+type SortDir = 'asc' | 'desc';
+type SortConfig = { field: keyof MockBan; dir: SortDir } | null;
+
+function SortHead({
+  label, field, sort, onSort, right,
+}: {
+  label: string; field: keyof MockBan; sort: SortConfig; onSort: (f: keyof MockBan) => void; right?: boolean;
+}) {
+  const active = sort?.field === field;
+  const Icon = active ? (sort!.dir === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown;
+  return (
+    <TableHead className={cn('cursor-pointer select-none', right && 'text-right')} onClick={() => onSort(field)}>
+      <div className={cn('flex items-center gap-1', right && 'justify-end')}>
+        {label}
+        <Icon className={cn('h-3 w-3 shrink-0', !active && 'opacity-40')} />
+      </div>
+    </TableHead>
+  );
+}
+
 export default function BansPage() {
   const [bans, setBans] = useState<MockBan[]>(INITIAL_BANS);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [sort, setSort] = useState<SortConfig>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState({ userUuid: '', userNickname: '', reason: '', banType: 'TEMPORARY', duration: '' });
+
+  const handleSort = (field: keyof MockBan) =>
+    setSort((prev) =>
+      prev?.field === field ? (prev.dir === 'asc' ? { field, dir: 'desc' } : null) : { field, dir: 'asc' },
+    );
 
   const filtered = bans.filter((ban) => {
     const matchSearch = !search || ban.userNickname.toLowerCase().includes(search.toLowerCase()) || ban.userUuid.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === 'all' || (statusFilter === 'active' && ban.isActive) || (statusFilter === 'expired' && !ban.isActive);
-    return matchSearch && matchStatus;
+    const matchType = typeFilter === 'all' || ban.banType === typeFilter;
+    return matchSearch && matchStatus && matchType;
   });
+
+  const sorted = sort
+    ? [...filtered].sort((a, b) => {
+        const va = a[sort.field];
+        const vb = b[sort.field];
+        const cmp = typeof va === 'number' && typeof vb === 'number'
+          ? va - vb
+          : String(va ?? '').localeCompare(String(vb ?? ''), 'ko');
+        return sort.dir === 'asc' ? cmp : -cmp;
+      })
+    : filtered;
 
   const handleCreate = () => {
     const newBan: MockBan = {
@@ -82,15 +122,24 @@ export default function BansPage() {
 
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="닉네임 또는 UUID 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8 h-8" />
             </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter((v ?? 'all') as typeof statusFilter)}>
-              <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+            <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v ?? 'all')}>
+              <SelectTrigger className="w-32 h-8"><SelectValue placeholder="제재 유형" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="all">전체 유형</SelectItem>
+                <SelectItem value="WARNING">경고</SelectItem>
+                <SelectItem value="TEMPORARY">임시 정지</SelectItem>
+                <SelectItem value="PERMANENT">영구 정지</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter((v ?? 'all') as typeof statusFilter)}>
+              <SelectTrigger className="w-28 h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체 상태</SelectItem>
                 <SelectItem value="active">활성</SelectItem>
                 <SelectItem value="expired">만료</SelectItem>
               </SelectContent>
@@ -101,17 +150,17 @@ export default function BansPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>사용자</TableHead>
-                <TableHead>제재 유형</TableHead>
-                <TableHead>사유</TableHead>
-                <TableHead>시작일</TableHead>
-                <TableHead>종료일</TableHead>
-                <TableHead>상태</TableHead>
-                <TableHead className="text-right">작업</TableHead>
+                <SortHead label="사용자" field="userNickname" sort={sort} onSort={handleSort} />
+                <SortHead label="제재 유형" field="banType" sort={sort} onSort={handleSort} />
+                <SortHead label="사유" field="reason" sort={sort} onSort={handleSort} />
+                <SortHead label="시작일" field="startDate" sort={sort} onSort={handleSort} />
+                <SortHead label="종료일" field="endDate" sort={sort} onSort={handleSort} />
+                <SortHead label="상태" field="isActive" sort={sort} onSort={handleSort} />
+                <TableHead>작업</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((ban) => (
+              {sorted.map((ban) => (
                 <TableRow key={ban.banId}>
                   <TableCell>
                     <div className="font-medium text-sm">{ban.userNickname}</div>
@@ -128,7 +177,7 @@ export default function BansPage() {
                   <TableCell>
                     <Badge variant={ban.isActive ? 'default' : 'outline'}>{ban.isActive ? '활성' : '만료'}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     {ban.isActive && (
                       <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleRelease(ban.banId)}>
                         해제
@@ -137,7 +186,7 @@ export default function BansPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {filtered.length === 0 && (
+              {sorted.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">제재 내역이 없습니다.</TableCell>
                 </TableRow>
