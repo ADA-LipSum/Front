@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'react-toastify';
+import { cn } from '@/lib/utils';
 
 type ReportStatus = 'PENDING' | 'RESOLVED' | 'DISMISSED';
 
@@ -33,16 +34,55 @@ const STATUS_VARIANTS: Record<ReportStatus, 'default' | 'secondary' | 'outline' 
   PENDING: 'destructive', RESOLVED: 'default', DISMISSED: 'outline',
 };
 
+type SortDir = 'asc' | 'desc';
+type SortConfig = { field: keyof MockReport; dir: SortDir } | null;
+
+function SortHead({
+  label, field, sort, onSort,
+}: {
+  label: string; field: keyof MockReport; sort: SortConfig; onSort: (f: keyof MockReport) => void;
+}) {
+  const active = sort?.field === field;
+  const Icon = active ? (sort!.dir === 'asc' ? ChevronUp : ChevronDown) : ChevronsUpDown;
+  return (
+    <TableHead className="cursor-pointer select-none" onClick={() => onSort(field)}>
+      <div className="flex items-center gap-1">
+        {label}
+        <Icon className={cn('h-3 w-3 shrink-0', !active && 'opacity-40')} />
+      </div>
+    </TableHead>
+  );
+}
+
 export default function ReportsPage() {
   const [reports, setReports] = useState<MockReport[]>(INITIAL_REPORTS);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [sort, setSort] = useState<SortConfig>(null);
+
+  const handleSort = (field: keyof MockReport) =>
+    setSort((prev) =>
+      prev?.field === field ? (prev.dir === 'asc' ? { field, dir: 'desc' } : null) : { field, dir: 'asc' },
+    );
 
   const filtered = reports.filter((r) => {
     const matchSearch = !search || r.reporterNickname.toLowerCase().includes(search.toLowerCase()) || r.targetNickname.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === 'all' || r.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchType = typeFilter === 'all' || r.contentType === typeFilter;
+    return matchSearch && matchStatus && matchType;
   });
+
+  const sorted = sort
+    ? [...filtered].sort((a, b) => {
+        const va = a[sort.field];
+        const vb = b[sort.field];
+        const cmp = typeof va === 'number' && typeof vb === 'number'
+          ? va - vb
+          : String(va ?? '').localeCompare(String(vb ?? ''), 'ko');
+        return sort.dir === 'asc' ? cmp : -cmp;
+      })
+    : filtered;
 
   const handleStatusChange = (reportId: number, status: ReportStatus) => {
     setReports((prev) => prev.map((r) => r.reportId === reportId ? { ...r, status } : r));
@@ -58,15 +98,23 @@ export default function ReportsPage() {
 
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="신고자 / 피신고자 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8 h-8" />
             </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-              <SelectTrigger className="w-36 h-8"><SelectValue /></SelectTrigger>
+            <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v ?? 'all')}>
+              <SelectTrigger className="w-28 h-8"><SelectValue placeholder="유형" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="all">전체 유형</SelectItem>
+                <SelectItem value="게시글">게시글</SelectItem>
+                <SelectItem value="댓글">댓글</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
+              <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체 상태</SelectItem>
                 <SelectItem value="PENDING">대기 중</SelectItem>
                 <SelectItem value="RESOLVED">처리 완료</SelectItem>
                 <SelectItem value="DISMISSED">기각</SelectItem>
@@ -78,17 +126,17 @@ export default function ReportsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>신고자</TableHead>
-                <TableHead>피신고자</TableHead>
-                <TableHead>사유</TableHead>
-                <TableHead>유형</TableHead>
-                <TableHead>신고일</TableHead>
-                <TableHead>상태</TableHead>
-                <TableHead className="text-right">처리</TableHead>
+                <SortHead label="신고자" field="reporterNickname" sort={sort} onSort={handleSort} />
+                <SortHead label="피신고자" field="targetNickname" sort={sort} onSort={handleSort} />
+                <SortHead label="사유" field="reason" sort={sort} onSort={handleSort} />
+                <SortHead label="유형" field="contentType" sort={sort} onSort={handleSort} />
+                <SortHead label="신고일" field="createdAt" sort={sort} onSort={handleSort} />
+                <SortHead label="상태" field="status" sort={sort} onSort={handleSort} />
+                <TableHead>처리</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((report) => (
+              {sorted.map((report) => (
                 <TableRow key={report.reportId}>
                   <TableCell className="text-sm font-medium">{report.reporterNickname}</TableCell>
                   <TableCell className="text-sm">{report.targetNickname}</TableCell>
@@ -98,9 +146,9 @@ export default function ReportsPage() {
                   <TableCell>
                     <Badge variant={STATUS_VARIANTS[report.status]}>{STATUS_LABELS[report.status]}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell>
                     {report.status === 'PENDING' && (
-                      <div className="flex justify-end gap-1.5">
+                      <div className="flex gap-1.5">
                         <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => handleStatusChange(report.reportId, 'RESOLVED')}>처리</Button>
                         <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => handleStatusChange(report.reportId, 'DISMISSED')}>기각</Button>
                       </div>
@@ -108,7 +156,7 @@ export default function ReportsPage() {
                   </TableCell>
                 </TableRow>
               ))}
-              {filtered.length === 0 && (
+              {sorted.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">신고 내역이 없습니다.</TableCell>
                 </TableRow>
