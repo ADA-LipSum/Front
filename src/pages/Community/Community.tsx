@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  TechPostsOverView,
-  MOCK_POSTS as TECH_MOCK_POSTS,
-} from '@/components/Page/community/TechPostsOverView';
 import { HeadSection } from '@/components/Page/community/HeadSection';
 import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
 import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
@@ -179,7 +175,7 @@ export const Community = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex gap-6 items-start">
           <div className="flex-1 min-w-0">
@@ -218,18 +214,6 @@ export const Community = () => {
                 totalPages={qnaTotalPages}
                 onPageChange={setQnaPage}
                 color="blue"
-              />
-            </section>
-
-            {/* Tech Blog Section */}
-            <section>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="w-1 h-5 rounded-full bg-violet-500 inline-block" />
-                <h3 className="text-lg font-bold text-gray-900">최신 블로그</h3>
-              </div>
-              <TechPostsOverView
-                posts={TECH_MOCK_POSTS.slice(0, 3)}
-                onPostClick={(uuid) => navigate(`/${uuid}`)}
               />
             </section>
           </div>
