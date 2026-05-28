@@ -1,41 +1,33 @@
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Plus } from 'lucide-react';
+import type { Product } from './ProductCard';
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  imageUrl: string;
-  category: string;
-  stock?: number;
-}
-
-interface ProductCardProps {
+interface BannerCardProps {
   product: Product;
   isInCart: boolean;
   onAddToCart: (product: Product) => void;
   currencyLabel?: string;
 }
 
-export const ProductCard = ({
+export const BannerCard = ({
   product,
   isInCart,
   onAddToCart,
   currencyLabel = '코인',
-}: ProductCardProps) => {
+}: BannerCardProps) => {
   const isSoldOut = product.stock !== undefined && product.stock === 0;
   const isLowStock = product.stock !== undefined && product.stock > 0 && product.stock <= 5;
 
   return (
     <div
-      className={`bg-white rounded-xl border overflow-hidden transition-shadow group ${
+      className={`bg-white border border-gray-200 overflow-hidden transition-shadow group ${
         isSoldOut ? 'border-gray-100 opacity-60' : 'border-gray-200 hover:shadow-md'
       }`}
     >
-      <div className="relative h-48 bg-gray-50 overflow-hidden">
+      <div className="relative bg-gray-50 overflow-hidden" style={{ aspectRatio: '3 / 1' }}>
         <img
           src={product.imageUrl}
           alt={product.name}
-          className={`w-full h-full object-contain p-2 transition-all ${isSoldOut ? 'grayscale' : ''}`}
+          className={`w-full h-full object-cover transition-all ${isSoldOut ? 'grayscale' : ''}`}
         />
         {isSoldOut && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
@@ -76,11 +68,7 @@ export const ProductCard = ({
                   : 'bg-gray-100 text-gray-600 hover:bg-[#e8d13a] hover:text-white'
             }`}
           >
-            {isInCart && !isSoldOut ? (
-              <ShoppingCart size={14} />
-            ) : (
-              <p className="text-xs">구매하기</p>
-            )}
+            {isInCart && !isSoldOut ? <ShoppingCart size={14} /> : <Plus size={14} />}
           </button>
         </div>
       </div>
