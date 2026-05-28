@@ -233,7 +233,11 @@ export const createBan = (data: {
 }) => axios.post('/api/bans', data).then((r) => r.data).then(tap('createBan'));
 
 export const getBans = () =>
-  axios.get<{ data: Ban[] }>('/api/bans').then((r) => r.data.data).then(tap('getBans'));
+  axios.get<{ data: Ban[] }>('/api/bans').then((r) => {
+    const d = r.data.data;
+    console.log('[admin] getBans raw response:', r.data);
+    return Array.isArray(d) ? d : [];
+  }).then(tap('getBans'));
 
 export const getUserBans = (userUuid: string) =>
   axios.get<{ data: Ban[] }>(`/api/bans/users/${userUuid}`).then((r) => r.data.data).then(tap(`getUserBans(${userUuid})`));
@@ -328,8 +332,16 @@ export const getTradeOrders = (params?: { page?: number; size?: number }) =>
     .then((r) => r.data.data)
     .then(tap('getTradeOrders'));
 
-export const createTradeItem = (data: FormData) =>
-  axios.post('/api/trade/items', data).then((r) => r.data).then(tap('createTradeItem'));
+export const createTradeItem = (data: {
+  name: string;
+  description?: string;
+  price: number;
+  stock?: number;
+  active?: boolean;
+  category: 'FOOD' | 'ETC';
+  subCategory?: 'SNACK' | 'CANDY' | 'JUICE' | 'INSTANT' | 'STICKER' | 'BANNER';
+  imageUrl?: string;
+}) => axios.post('/api/trade/items', data).then((r) => r.data).then(tap('createTradeItem'));
 
 export const updateTradeItem = (itemUuid: string, data: Partial<Pick<TradeItem, 'name' | 'description' | 'price' | 'active'>>) =>
   axios.patch(`/api/trade/items/${itemUuid}`, data).then((r) => r.data).then(tap(`updateTradeItem(${itemUuid})`));
