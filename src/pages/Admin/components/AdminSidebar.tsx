@@ -11,6 +11,7 @@ import {
   BookOpen,
   BellRing,
   HardDrive,
+  Image,
   LogOut,
   ChevronDown,
   Settings,
@@ -59,7 +60,10 @@ const navCommunity = [
   { title: '알림 발송', href: '/dashboard/admin/notifications', icon: BellRing },
 ];
 
-const navSystem = [{ title: 'S3 파일 관리', href: '/dashboard/admin/s3', icon: HardDrive }];
+const navSystem = [
+  { title: 'S3 파일 관리', href: '/dashboard/admin/s3', icon: HardDrive },
+  { title: '배너 관리', href: '/dashboard/admin/banners', icon: Image },
+];
 
 interface NavGroupProps {
   label: string;
