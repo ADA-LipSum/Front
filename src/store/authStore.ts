@@ -35,10 +35,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
   accessToken: null,
 
   login: async (id, password) => {
+    console.log('[Auth] 로그인 시도:', id);
     const res = await loginApi(id, password);
 
     const data = res.data.data ?? res.data;
     const { accessToken, uuid, adminId, customId, userRealname, userNickname, profileImage } = data;
+    console.log('[Auth] 로그인 응답 — accessToken 수신, uuid:', uuid);
 
     // 토큰을 스토어에 먼저 저장해야 인터셉터가 이후 요청에 사용할 수 있음
     set({ accessToken });
@@ -47,6 +49,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
     // role, isFirstLogin 등 추가 정보는 status 엔드포인트에서 가져옴
     const me = await axios.get('/api/auth/status');
     const meData = me.data.data ?? me.data;
+    console.log('[Auth] /auth/status 응답:', meData);
 
     set({
       isLoggedIn: true,
@@ -62,13 +65,16 @@ export const useAuthStore = create<AuthStore>((set) => ({
         isFirstLogin: meData.isFirstLogin ?? false,
       },
     });
+    console.log('[Auth] 로그인 완료 — role:', meData.role);
   },
 
   checkLogin: async () => {
+    console.log('[Auth] checkLogin 시작');
     const attempt = async () => {
       // reissue는 axios 요청 인터셉터가 자동으로 처리
       const me = await axios.get('/api/auth/status');
       const meData = me.data.data ?? me.data;
+      console.log('[Auth] checkLogin 성공:', meData);
 
       set({
         isLoggedIn: true,
@@ -92,19 +98,23 @@ export const useAuthStore = create<AuthStore>((set) => ({
       try {
         await attempt();
         return;
-      } catch {
+      } catch (e) {
+        console.warn(`[Auth] checkLogin 실패 (시도 ${i + 1}/${MAX_RETRIES + 1}):`, e);
         if (i === MAX_RETRIES) break;
         await new Promise((r) => setTimeout(r, 700));
       }
     }
 
+    console.warn('[Auth] checkLogin 최종 실패 — 비로그인 상태로 전환');
     delete axios.defaults.headers.common['Authorization'];
     set({ isLoggedIn: false, loading: false, user: null, accessToken: null });
   },
 
   logout: async () => {
+    console.log('[Auth] 로그아웃 시도');
     try {
       await axios.post('/api/auth/logout');
+      console.log('[Auth] 로그아웃 완료');
     } finally {
       delete axios.defaults.headers.common['Authorization'];
 
@@ -117,12 +127,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   setAccessToken: (accessToken) => {
+    console.log('[Auth] accessToken 갱신');
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
     set({ accessToken });
   },
 
   clearCredentials: () => {
+    console.warn('[Auth] clearCredentials — 인증 정보 초기화');
     delete axios.defaults.headers.common['Authorization'];
 
     set({
