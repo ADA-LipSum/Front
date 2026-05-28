@@ -33,3 +33,16 @@ export const fetchInventoryList = async (uuid: string): Promise<InventoryListRes
     throw new Error(error.response?.data?.message || '인벤토리 목록 조회 실패');
   }
 };
+
+export const patchInventoryBanner = async (uuid: string, inventoryUuid: string): Promise<void> => {
+  try {
+    const response = await axios.patch<ApiResponse<null>>(
+      `api/users/${uuid}/inventory/${inventoryUuid}/apply-banner`,
+    );
+    if (!response.data.success) {
+      throw new Error(response.data.message || '배너 설정 실패');
+    }
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || '배너 설정 실패');
+  }
+};
