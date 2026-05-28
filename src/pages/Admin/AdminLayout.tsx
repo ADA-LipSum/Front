@@ -23,6 +23,7 @@ const breadcrumbMap: Record<string, string> = {
   '/dashboard/admin/groups': '스터디 그룹',
   '/dashboard/admin/notifications': '알림 발송',
   '/dashboard/admin/s3': 'S3 파일 관리',
+  '/dashboard/admin/banners': '배너 관리',
 };
 
 export default function AdminLayout() {
