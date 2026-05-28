@@ -55,24 +55,41 @@ export const useProfileStore = create<ProfileStore>((set) => ({
   },
 
   updateProfile: async ({ uuid, userNickname, intro, socialLinks }) => {
-    const result = await editProfile(uuid, {
-      ...(userNickname ? { nickname: userNickname } : {}),
-      ...(intro !== undefined ? { intro } : {}),
-      ...(socialLinks ?? {}),
-    });
-    set((state) => ({
-      profile: state.profile
-        ? { ...state.profile, ...result, userNickname, intro, socialLinks }
-        : state.profile,
-    }));
+    set({ loading: true, error: null });
+    try {
+      await editProfile(uuid, {
+        ...(userNickname !== undefined ? { nickname: userNickname } : {}),
+        ...(intro !== undefined ? { intro } : {}),
+        ...(socialLinks ?? {}),
+      });
+      set((state) => ({
+        loading: false,
+        profile: state.profile
+          ? {
+              ...state.profile,
+              ...(userNickname !== undefined ? { userNickname } : {}),
+              ...(intro !== undefined ? { intro } : {}),
+              ...(socialLinks !== undefined ? { socialLinks } : {}),
+            }
+          : state.profile,
+      }));
+    } catch (err: any) {
+      set({ loading: false, error: err.response?.data?.message || '프로필 수정 실패' });
+    }
   },
 
   uploadProfileImage: async (uuid, file) => {
-    const imageUrl = await uploadProfileImageApi(uuid, file);
-    set((state) => ({
-      profile: state.profile ? { ...state.profile, profileImage: imageUrl } : state.profile,
-    }));
-    useAuthStore.getState().updateUserProfileImage(imageUrl);
+    set({ loading: true, error: null });
+    try {
+      const imageUrl = await uploadProfileImageApi(uuid, file);
+      set((state) => ({
+        loading: false,
+        profile: state.profile ? { ...state.profile, profileImage: imageUrl } : state.profile,
+      }));
+      useAuthStore.getState().updateUserProfileImage(imageUrl);
+    } catch (err: any) {
+      set({ loading: false, error: err.response?.data?.message || '이미지 업로드 실패' });
+    }
   },
 
   clearProfile: () => {

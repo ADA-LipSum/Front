@@ -4,16 +4,15 @@ import { useEffect } from 'react';
 
 import { useAuthStore } from '@/store/authStore';
 
-import { Exchange } from '@/pages/Exchange/Exchange';
-import { Contact } from '@/pages/Contact/Contact';
+import { CoinExchange } from '@/pages/Exchange/CoinExchange';
 import { Login } from '@/pages/Auth/Login';
 import { SocialLogin } from '@/pages/Auth/SocialLogin';
 import MainLayout from '@/components/layout/MainLayout';
-import Proifle from './pages/Profile/Profile';
 import UserNotFound from './pages/NotFound/UserNotFound';
-import { Announcement } from './pages/Announcement/Contact';
+import { Announcement } from './pages/Announcement/Announcement';
 import { Settings } from './pages/Setting/Settings';
 import { StudyGroup } from './pages/StudyGroup/StudyGroup';
+import { StudyGroupDetail } from './pages/StudyGroup/StudyGroupDetail';
 import { Community } from './pages/Community/Community';
 import { CommunityPostDetail } from './pages/Community/CommunityPostDetail';
 import AdminRoute from './components/layout/AdminRoute';
@@ -33,6 +32,8 @@ import BannersPage from './pages/Admin/pages/BannersPage';
 import TeacherDashboard from './pages/Teacher/TeacherDashboard';
 import { Inventory } from './pages/Inventory/Inventory';
 import { Bookmarks } from './pages/Bookmark/Bookmarks';
+import Profile from './pages/Profile/Profile';
+import { PointExchange } from './pages/Exchange/PointExchange';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -46,11 +47,12 @@ const Router = () => {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Community />} />
         <Route path="/article/:postId" element={<CommunityPostDetail />} />
+        <Route path="/study-group/:groupUuid" element={<StudyGroupDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
-        <Route path="/exchange" element={<Exchange />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/profile/:customId" element={<Proifle />} />
+        <Route path="/exchange/coin" element={<CoinExchange />} />
+        <Route path="/exchange/point" element={<PointExchange />} />
+        <Route path="/profile/:customId" element={<Profile />} />
         <Route path="/settings/*" element={<Settings />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/bookmarks" element={<Bookmarks />} />

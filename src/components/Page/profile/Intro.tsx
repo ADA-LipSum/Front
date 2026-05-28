@@ -1,31 +1,7 @@
 import { useProfileStore } from '@/store/profileStore';
 
-interface IntroProps {
-  isEditing: boolean;
-  editValue: string;
-  onChange: (value: string) => void;
-}
-
-const Intro = ({ isEditing, editValue, onChange }: IntroProps) => {
+const Intro = () => {
   const { profile } = useProfileStore();
-
-  if (isEditing) {
-    return (
-      <div className="text-center mt-5 max-w-3xl w-full min-w-50">
-        <textarea
-          value={editValue}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="소개를 입력하세요"
-          rows={3}
-          maxLength={255}
-          className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow text-center resize-none"
-        />
-        <p>
-          <span className="text-sm">{editValue.length}/255</span>
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="text-center mt-5 w-full max-w-3xl mx-auto">

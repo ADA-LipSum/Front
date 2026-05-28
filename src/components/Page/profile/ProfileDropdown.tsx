@@ -2,7 +2,6 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { UserCircle, Settings, LogOut, Bookmark, Box, Mailbox } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import Avatar from '@/components/global/Avatar';
 
 export default function ProfileDropdown() {
   const navigate = useNavigate();
@@ -20,10 +19,6 @@ export default function ProfileDropdown() {
       <div className="flex flex-col">
         <div className="flex items-center justify-between px-3 py-2">
           <p className="text-base font-semibold">내 계정</p>
-          <Avatar
-            name={'프로필 이미지'}
-            src={useAuthStore.getState().user?.profileImage || undefined}
-          />
         </div>
 
         <hr className="my-1 border-gray-300" />
