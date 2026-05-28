@@ -29,6 +29,7 @@ import ShopPage from './pages/Admin/pages/ShopPage';
 import GroupsPage from './pages/Admin/pages/GroupsPage';
 import NotificationsPage from './pages/Admin/pages/NotificationsPage';
 import S3Page from './pages/Admin/pages/S3Page';
+import BannersPage from './pages/Admin/pages/BannersPage';
 import TeacherDashboard from './pages/Teacher/TeacherDashboard';
 import { Inventory } from './pages/Inventory/Inventory';
 import { Bookmarks } from './pages/Bookmark/Bookmarks';
@@ -70,6 +71,7 @@ const Router = () => {
           <Route path="/dashboard/admin/groups" element={<GroupsPage />} />
           <Route path="/dashboard/admin/notifications" element={<NotificationsPage />} />
           <Route path="/dashboard/admin/s3" element={<S3Page />} />
+          <Route path="/dashboard/admin/banners" element={<BannersPage />} />
         </Route>
       </Route>
 
