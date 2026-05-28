@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'react-toastify';
 import {
@@ -25,8 +26,12 @@ export default function ShopPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [createForm, setCreateForm] = useState({ name: '', description: '', price: '', stock: '' });
-  const [createFile, setCreateFile] = useState<File | null>(null);
+  const [createForm, setCreateForm] = useState({
+    name: '', description: '', price: '', stock: '',
+    category: 'FOOD' as 'FOOD' | 'ETC',
+    subCategory: '' as string,
+    imageUrl: '',
+  });
 
   const [editTarget, setEditTarget] = useState<TradeItem | null>(null);
   const [editForm, setEditForm] = useState({ name: '', description: '', price: '', active: true });
@@ -62,20 +67,22 @@ export default function ShopPage() {
   useEffect(() => { loadOrders(ordersPage); }, [ordersPage]);
 
   const handleCreate = async () => {
-    if (!createForm.name || !createForm.price || !createFile) return;
+    if (!createForm.name || !createForm.price) return;
     setCreating(true);
     try {
-      const fd = new FormData();
-      fd.append('file', createFile);
-      fd.append('name', createForm.name);
-      fd.append('description', createForm.description);
-      fd.append('price', createForm.price);
-      fd.append('stock', createForm.stock || '0');
-      await createTradeItem(fd);
+      await createTradeItem({
+        name: createForm.name,
+        description: createForm.description || undefined,
+        price: Number(createForm.price),
+        stock: createForm.stock ? Number(createForm.stock) : undefined,
+        active: true,
+        category: createForm.category,
+        subCategory: (createForm.subCategory as 'SNACK' | 'CANDY' | 'JUICE' | 'INSTANT' | 'STICKER' | 'BANNER') || undefined,
+        imageUrl: createForm.imageUrl || undefined,
+      });
       toast.success('아이템을 등록했습니다.');
       setCreateOpen(false);
-      setCreateForm({ name: '', description: '', price: '', stock: '' });
-      setCreateFile(null);
+      setCreateForm({ name: '', description: '', price: '', stock: '', category: 'FOOD', subCategory: '', imageUrl: '' });
       loadItems();
     } catch {
       toast.error('아이템 등록에 실패했습니다.');
@@ -317,12 +324,45 @@ export default function ShopPage() {
               <Input value={createForm.name} onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))} placeholder="아이템 이름" />
             </div>
             <div className="space-y-1.5">
-              <Label>설명</Label>
+              <Label>설명 (선택)</Label>
               <Input value={createForm.description} onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))} placeholder="아이템 설명" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>가격 (코인)</Label>
+                <Label>카테고리</Label>
+                <Select value={createForm.category} onValueChange={(v) => setCreateForm((f) => ({ ...f, category: v as 'FOOD' | 'ETC', subCategory: '' }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="FOOD">FOOD (코인)</SelectItem>
+                    <SelectItem value="ETC">ETC (포인트)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>서브카테고리 (선택)</Label>
+                <Select value={createForm.subCategory} onValueChange={(v) => setCreateForm((f) => ({ ...f, subCategory: v ?? '' }))}>
+                  <SelectTrigger><SelectValue placeholder="없음" /></SelectTrigger>
+                  <SelectContent>
+                    {createForm.category === 'FOOD' ? (
+                      <>
+                        <SelectItem value="SNACK">SNACK</SelectItem>
+                        <SelectItem value="CANDY">CANDY</SelectItem>
+                        <SelectItem value="JUICE">JUICE</SelectItem>
+                        <SelectItem value="INSTANT">INSTANT</SelectItem>
+                      </>
+                    ) : (
+                      <>
+                        <SelectItem value="STICKER">STICKER</SelectItem>
+                        <SelectItem value="BANNER">BANNER</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>가격</Label>
                 <Input type="number" value={createForm.price} onChange={(e) => setCreateForm((f) => ({ ...f, price: e.target.value }))} placeholder="0" min={0} />
               </div>
               <div className="space-y-1.5">
@@ -331,13 +371,13 @@ export default function ShopPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>이미지</Label>
-              <Input type="file" accept="image/*" onChange={(e) => setCreateFile(e.target.files?.[0] ?? null)} />
+              <Label>이미지 URL (선택)</Label>
+              <Input value={createForm.imageUrl} onChange={(e) => setCreateForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>취소</Button>
-            <Button onClick={handleCreate} disabled={!createForm.name || !createForm.price || !createFile || creating}>
+            <Button onClick={handleCreate} disabled={!createForm.name || !createForm.price || creating}>
               {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}등록
             </Button>
           </DialogFooter>
