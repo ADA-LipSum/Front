@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore';
 import { useProfileStore } from '@/store/profileStore';
-import { ButtonGroup } from '@/components/Page/profile/ButtonGroup';
 import ContriGraph from '@/components/Page/profile/ContriGraph';
 import Guestbook from '@/components/Page/profile/Guestbook';
 import Intro from '@/components/Page/profile/Intro';
@@ -15,9 +13,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { customId } = useParams<{ customId: string }>();
   const { profile, error, loading, fetchProfileByUsername, clearProfile } = useProfileStore();
-  const authUser = useAuthStore((state) => state.user);
   const isStudent = profile?.role === 'STUDENT';
-  const isOwnProfile = authUser?.customId === customId;
 
   useEffect(() => {
     if (customId) {

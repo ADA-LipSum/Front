@@ -69,13 +69,13 @@ export const PointExchange = () => {
     } finally {
       setPurchasing(false);
     }
-  };
-
-  const handleCloseModal = () => {
-    if (purchasing) return;
     setSelectedProduct(null);
     setPurchaseError(null);
   };
+
+  function handleCloseModal(): void {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <div className="bg-white min-h-screen">

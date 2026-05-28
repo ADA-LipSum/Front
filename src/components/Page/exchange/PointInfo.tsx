@@ -67,7 +67,9 @@ export const PointInfo = ({ history }: PointInfoProps) => {
                   <span className="text-[11px] text-gray-400">{record.date}</span>
                 </div>
               </div>
-              <span className="text-xs text-gray-500 leading-tight break-keep">{record.source}</span>
+              <span className="text-xs text-gray-500 leading-tight break-keep">
+                {record.source}
+              </span>
             </div>
           );
         })}
