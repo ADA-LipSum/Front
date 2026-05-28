@@ -12,6 +12,7 @@ import UserNotFound from './pages/NotFound/UserNotFound';
 import { Announcement } from './pages/Announcement/Announcement';
 import { Settings } from './pages/Setting/Settings';
 import { StudyGroup } from './pages/StudyGroup/StudyGroup';
+import { StudyGroupDetail } from './pages/StudyGroup/StudyGroupDetail';
 import { Community } from './pages/Community/Community';
 import { CommunityPostDetail } from './pages/Community/CommunityPostDetail';
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -36,6 +37,7 @@ const Router = () => {
         {/* <Route path="/" element={<Main />} /> */}
         <Route path="/" element={<Community />} />
         <Route path="/article/:postId" element={<CommunityPostDetail />} />
+        <Route path="/study-group/:groupUuid" element={<StudyGroupDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/exchange/coin" element={<CoinExchange />} />
