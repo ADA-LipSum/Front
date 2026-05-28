@@ -4,9 +4,10 @@ interface ProductGridProps {
   products: Product[];
   cartProductIds: string[];
   onAddToCart: (product: Product) => void;
+  currencyLabel?: string;
 }
 
-export const ProductGrid = ({ products, cartProductIds, onAddToCart }: ProductGridProps) => {
+export const ProductGrid = ({ products, cartProductIds, onAddToCart, currencyLabel }: ProductGridProps) => {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -25,6 +26,7 @@ export const ProductGrid = ({ products, cartProductIds, onAddToCart }: ProductGr
           product={product}
           isInCart={cartProductIds.includes(product.id)}
           onAddToCart={onAddToCart}
+          currencyLabel={currencyLabel}
         />
       ))}
     </div>

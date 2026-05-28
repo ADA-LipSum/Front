@@ -14,15 +14,23 @@ interface PointsBalanceResponse {
 }
 
 export interface PointTransaction {
-  pointsUUid: string;
+  pointsUuid: string;
   userUuid: string;
   changeType: string;
   points: number;
   balanceAfter: number;
   description?: string;
-  refRuleId?: string;
-  refEventUuid?: string;
+  refRuleId?: number | null;
+  refEventUuid?: string | null;
   createdAt: string;
+}
+
+interface PointTransactionPageResponse {
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  content: PointTransaction[];
 }
 
 //  포인트 잔액 조회
@@ -47,11 +55,12 @@ export const fetchPointTransactions = async (
   size?: number,
 ): Promise<PointTransaction[]> => {
   try {
-    const response = await axios.get<ApiResponse<PointTransaction[]>>('api/points/transactions', {
-      params: { userUuid, page, size },
-    });
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data;
+    const response = await axios.get<ApiResponse<PointTransactionPageResponse>>(
+      '/api/points/transactions',
+      { params: { userUuid, page, size } },
+    );
+    if (response.data.success) {
+      return response.data.data.content;
     }
     throw new Error(response.data.message || '포인트 거래내역 조회 실패');
   } catch (error: any) {

@@ -44,6 +44,37 @@ export interface ExchangePageResponse {
   content: ExchangeSearchResponse[];
 }
 
+export interface PointPurchaseResponse {
+  currency: string;
+  logUuid: string;
+  itemUuid: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  totalPoints: number;
+  pointsUuid: string;
+  coinsUuid: string;
+  balanceAfter: number;
+}
+
+export const purchaseWithPoints = async (
+  itemUuid: string,
+  quantity: number = 1,
+): Promise<PointPurchaseResponse> => {
+  try {
+    const res = await axios.post<ApiResponse<PointPurchaseResponse>>('/api/trade/transactions', {
+      itemUuid,
+      quantity,
+    });
+    if (res.data.success) {
+      return res.data.data;
+    }
+    throw new Error(res.data.message || '구매 실패');
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || '구매 실패');
+  }
+};
+
 export const searchExchanges = async (
   params: ExchangeSearchParam,
 ): Promise<ExchangePageResponse> => {

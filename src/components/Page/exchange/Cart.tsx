@@ -15,6 +15,7 @@ interface CartProps {
   onPurchase: () => void;
   purchasing?: boolean;
   error?: string | null;
+  currencyLabel?: string;
 }
 
 export const Cart = ({
@@ -25,6 +26,7 @@ export const Cart = ({
   onPurchase,
   purchasing,
   error,
+  currencyLabel = '코인',
 }: CartProps) => {
   const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const afterBalance = coinBalance - totalPrice;
@@ -59,7 +61,7 @@ export const Cart = ({
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-gray-800 truncate">{product.name}</p>
                   <p className="text-xs text-[#e8d13a] font-bold">
-                    {(product.price * quantity).toLocaleString()} 코인
+                    {(product.price * quantity).toLocaleString()} {currencyLabel}
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
@@ -90,18 +92,18 @@ export const Cart = ({
           <div className="border-t border-gray-100 pt-3 flex flex-col gap-1.5 text-xs">
             <div className="flex justify-between text-gray-600">
               <span>총 금액</span>
-              <span className="font-bold text-gray-800">{totalPrice.toLocaleString()} 코인</span>
+              <span className="font-bold text-gray-800">{totalPrice.toLocaleString()} {currencyLabel}</span>
             </div>
             <div className="flex justify-between text-gray-600">
-              <span>보유 코인</span>
-              <span>{coinBalance.toLocaleString()} 코인</span>
+              <span>보유 {currencyLabel}</span>
+              <span>{coinBalance.toLocaleString()} {currencyLabel}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>결제 후 잔액</span>
               <span
                 className={`font-bold ${afterBalance < 0 ? 'text-red-500' : 'text-emerald-500'}`}
               >
-                {afterBalance.toLocaleString()} 코인
+                {afterBalance.toLocaleString()} {currencyLabel}
               </span>
             </div>
           </div>
