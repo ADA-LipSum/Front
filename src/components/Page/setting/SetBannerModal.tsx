@@ -66,7 +66,7 @@ export const SetBannerModal = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-5xl bg-white rounded-xl shadow-xl flex flex-col max-h-[80vh]"
+        className="w-full max-w-5xl bg-white rounded-sm shadow-xl flex flex-col max-h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
@@ -113,8 +113,6 @@ export const SetBannerModal = ({
             </div>
           )}
         </div>
-
-
       </div>
     </div>
   );
