@@ -1,14 +1,15 @@
 import { useEffect, useState, useRef } from 'react';
-import { Search, Trash2, Loader2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Search, Trash2, Loader2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'react-toastify';
-import { getAdminPosts, deleteUserPosts, type AdminPost, type PagedResponse } from '@/api/admin';
+import { getAdminPosts, deleteUserPosts, deleteComment, resequenceTable, type AdminPost, type PagedResponse } from '@/api/admin';
 import { cn } from '@/lib/utils';
 
 const BOARD_LABELS: Record<string, string> = {
@@ -54,6 +55,17 @@ export default function PostsPage() {
   const [sort, setSort] = useState<SortConfig>(null);
   const [bulkDeleteTarget, setBulkDeleteTarget] = useState<{ uuid: string; writer: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // 댓글 강제 삭제
+  const [commentIdInput, setCommentIdInput] = useState('');
+  const [deleteCommentConfirm, setDeleteCommentConfirm] = useState(false);
+  const [deletingComment, setDeletingComment] = useState(false);
+
+  // AUTO_INCREMENT 재정렬
+  const [reseqTable, setReseqTable] = useState('posts');
+  const [reseqConfirm, setReseqConfirm] = useState(false);
+  const [resequencing, setResequencing] = useState(false);
+
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchPosts = (p: number, q: string) => {
@@ -89,6 +101,35 @@ export default function PostsPage() {
       toast.error('삭제에 실패했습니다.');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleDeleteComment = async () => {
+    const id = Number(commentIdInput);
+    if (!id) return;
+    setDeletingComment(true);
+    try {
+      await deleteComment(id);
+      toast.success(`댓글 #${id}을 삭제했습니다.`);
+      setCommentIdInput('');
+      setDeleteCommentConfirm(false);
+    } catch {
+      toast.error('댓글 삭제에 실패했습니다.');
+    } finally {
+      setDeletingComment(false);
+    }
+  };
+
+  const handleResequence = async () => {
+    setResequencing(true);
+    try {
+      await resequenceTable(reseqTable);
+      toast.success(`${reseqTable} 테이블 재정렬을 시작했습니다.`);
+      setReseqConfirm(false);
+    } catch {
+      toast.error('재정렬 요청에 실패했습니다.');
+    } finally {
+      setResequencing(false);
     }
   };
 
@@ -217,6 +258,54 @@ export default function PostsPage() {
         </div>
       )}
 
+      {/* 관리 도구 */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">관리 도구</CardTitle>
+          <CardDescription>댓글 강제 삭제 및 AUTO_INCREMENT 재정렬</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">댓글 강제 삭제</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="댓글 ID"
+                value={commentIdInput}
+                onChange={(e) => setCommentIdInput(e.target.value)}
+                className="w-36 h-8"
+                min={1}
+              />
+              <Button
+                variant="ghost" size="sm"
+                className="h-8 text-xs text-destructive hover:text-destructive"
+                disabled={!commentIdInput}
+                onClick={() => setDeleteCommentConfirm(true)}
+              >
+                <Trash2 className="mr-1 h-3 w-3" />삭제
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">AUTO_INCREMENT 재정렬</Label>
+            <div className="flex items-center gap-2">
+              <Select value={reseqTable} onValueChange={setReseqTable}>
+                <SelectTrigger className="w-40 h-8"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="posts">게시글 (posts)</SelectItem>
+                  <SelectItem value="comments">댓글 (comments)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setReseqConfirm(true)}>
+                <RefreshCw className="mr-1 h-3 w-3" />재정렬 실행
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 작성자 일괄 삭제 confirm */}
       <AlertDialog open={!!bulkDeleteTarget} onOpenChange={() => setBulkDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -226,11 +315,47 @@ export default function PostsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
               onClick={handleBulkDelete}
               disabled={deleting}
             >
               {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}전체 삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 댓글 삭제 confirm */}
+      <AlertDialog open={deleteCommentConfirm} onOpenChange={setDeleteCommentConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>댓글 #{commentIdInput}을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>해당 댓글의 좋아요 및 자식 댓글도 함께 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={handleDeleteComment}
+              disabled={deletingComment}
+            >
+              {deletingComment && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 재정렬 confirm */}
+      <AlertDialog open={reseqConfirm} onOpenChange={setReseqConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>'{reseqTable}' 테이블을 재정렬하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>AUTO_INCREMENT 값을 현재 데이터 기준으로 재정렬합니다. 서비스 중 실행 시 주의하세요.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={handleResequence} disabled={resequencing}>
+              {resequencing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}실행
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
