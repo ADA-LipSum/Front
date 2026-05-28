@@ -2,19 +2,9 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { getGuestbook, postGuestbook, patchGuestbook, deleteGuestbook } from '@/api/profile';
+import type { GuestbookEntry } from '@/api/profile';
 import { ShowErrorToast } from '@/components/Library/Toast/Toast';
 import Avatar from '@/components/global/Avatar';
-
-interface GuestbookEntry {
-  id: number;
-  writerUuid: string;
-  writerId: string;
-  writerName: string;
-  writerProfileImage: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const Guestbook = () => {
   const { customId } = useParams<{ customId: string }>();

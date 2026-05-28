@@ -8,18 +8,25 @@ interface ApiResponse<T> {
   errorCode?: string | null;
 }
 
-interface Project {
-  id: string;
+export interface Project {
+  id: number;
+  userUuid: string;
   title: string;
   description: string;
-  thumbnailUrl?: string;
+  githubUrl: string;
+  lookingForTeam: boolean;
+  createdAt: string;
 }
 
-interface GuestbookEntry {
-  id: string;
-  authorNickname: string;
+export interface GuestbookEntry {
+  id: number;
+  writerUuid: string;
+  writerId: string;
+  writerName: string;
+  writerProfileImage: string;
   content: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 // 유저 프로필 조회
@@ -50,7 +57,7 @@ export const getGuestbook = async (customId: string) => {
 
 // 방명록 작성
 export const postGuestbook = async (customId: string, content: string) => {
-  const response = await axios.post<ApiResponse<GuestbookEntry[]>>(
+  const response = await axios.post<ApiResponse<GuestbookEntry>>(
     `api/users/${customId}/guestbook`,
     { content },
   );
@@ -59,7 +66,7 @@ export const postGuestbook = async (customId: string, content: string) => {
 
 // 방명록 수정
 export const patchGuestbook = async (customId: string, content: string) => {
-  const response = await axios.patch<ApiResponse<GuestbookEntry[]>>(
+  const response = await axios.patch<ApiResponse<GuestbookEntry>>(
     `api/users/${customId}/guestbook`,
     { content },
   );

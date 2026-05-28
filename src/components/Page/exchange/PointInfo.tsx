@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import type { PaymentRecord } from './CoinInfo';
+
+export interface PaymentRecord {
+  id: string;
+  type: '획득' | '사용';
+  amount: number;
+  source: string;
+  date: string;
+}
 
 interface PointInfoProps {
   history: PaymentRecord[];
