@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useProfileStore } from '@/store/profileStore';
 import { getProjects } from '@/api/profile';
-
-interface Project {
-  id: number;
-  userUuid: string;
-  title: string;
-  description: string;
-  githubUrl: string;
-  lookingForTeam: boolean;
-  createdAt: string;
-}
+import type { Project } from '@/api/profile';
 
 const ProjectList = () => {
   const { profile } = useProfileStore();

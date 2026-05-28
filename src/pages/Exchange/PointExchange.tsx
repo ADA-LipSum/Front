@@ -9,7 +9,7 @@ import type { CartItem } from '@/components/Page/exchange/Cart';
 import type { Product } from '@/components/Page/exchange/ProductCard';
 import { PointLeft } from '@/components/Page/exchange/PointLeft';
 import { PointInfo } from '@/components/Page/exchange/PointInfo';
-import type { PaymentRecord } from '@/components/Page/exchange/CoinInfo';
+import type { PaymentRecord } from '@/components/Page/exchange/PointInfo';
 import { useAuthStore } from '@/store/authStore';
 import { usePointStore } from '@/store/pointStore';
 
@@ -107,7 +107,7 @@ export const PointExchange = () => {
   const handleAddToCart = (product: Product) => {
     setCartItems((prev) => {
       if (prev.find((item) => item.product.id === product.id)) return prev;
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { cartItemUuid: product.id, product, quantity: 1 }];
     });
   };
 
