@@ -1,14 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { Search, UserMinus, Loader2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'react-toastify';
-import { getAdminGroups, getGroupsByCategory, dissolveGroup, type StudyGroup, type PagedResponse } from '@/api/admin';
+import { getAdminGroups, getGroupsByCategory, dissolveGroup, removeGroupMember, type StudyGroup, type PagedResponse } from '@/api/admin';
 import { cn } from '@/lib/utils';
 
 const VISIBILITY_LABELS: Record<string, string> = { PUBLIC: '공개', PRIVATE: '비공개' };
@@ -45,6 +47,9 @@ export default function GroupsPage() {
   const [sort, setSort] = useState<SortConfig>(null);
   const [dissolveTarget, setDissolveTarget] = useState<StudyGroup | null>(null);
   const [dissolving, setDissolving] = useState(false);
+  const [memberRemoveTarget, setMemberRemoveTarget] = useState<StudyGroup | null>(null);
+  const [memberUuid, setMemberUuid] = useState('');
+  const [removing, setRemoving] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchGroups = (p: number, cat: string) => {
@@ -70,6 +75,22 @@ export default function GroupsPage() {
     setSort((prev) =>
       prev?.field === field ? (prev.dir === 'asc' ? { field, dir: 'desc' } : null) : { field, dir: 'asc' },
     );
+
+  const handleRemoveMember = async () => {
+    if (!memberRemoveTarget || !memberUuid.trim()) return;
+    setRemoving(true);
+    try {
+      await removeGroupMember(memberRemoveTarget.groupUuid, memberUuid.trim());
+      toast.success('멤버를 강제 탈퇴시켰습니다.');
+      setMemberRemoveTarget(null);
+      setMemberUuid('');
+      fetchGroups(page, category);
+    } catch {
+      toast.error('멤버 탈퇴에 실패했습니다.');
+    } finally {
+      setRemoving(false);
+    }
+  };
 
   const handleDissolve = async () => {
     if (!dissolveTarget) return;
@@ -197,15 +218,24 @@ export default function GroupsPage() {
                       {new Date(group.createdAt).toLocaleDateString('ko-KR')}
                     </TableCell>
                     <TableCell>
-                      {group.status === 'OPEN' && (
+                      <div className="flex items-center gap-1">
                         <Button
-                          variant="outline" size="sm"
-                          className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
-                          onClick={() => setDissolveTarget(group)}
+                          variant="ghost" size="sm"
+                          className="h-7 text-xs"
+                          onClick={() => { setMemberRemoveTarget(group); setMemberUuid(''); }}
                         >
-                          <UserMinus className="mr-1 h-3 w-3" />강제 해산
+                          멤버 탈퇴
                         </Button>
-                      )}
+                        {group.status === 'OPEN' && (
+                          <Button
+                            variant="outline" size="sm"
+                            className="h-7 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => setDissolveTarget(group)}
+                          >
+                            <UserMinus className="mr-1 h-3 w-3" />강제 해산
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -227,6 +257,29 @@ export default function GroupsPage() {
         </div>
       )}
 
+      <Dialog open={!!memberRemoveTarget} onOpenChange={(open) => { if (!open) { setMemberRemoveTarget(null); setMemberUuid(''); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>멤버 강제 탈퇴</DialogTitle>
+            <DialogDescription>'{memberRemoveTarget?.name}' 그룹에서 멤버를 강제 탈퇴시킵니다. 리더는 탈퇴시킬 수 없습니다.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-1.5">
+            <Label>탈퇴시킬 멤버 UUID</Label>
+            <Input
+              value={memberUuid}
+              onChange={(e) => setMemberUuid(e.target.value)}
+              placeholder="사용자 UUID"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setMemberRemoveTarget(null); setMemberUuid(''); }}>취소</Button>
+            <Button disabled={!memberUuid.trim() || removing} onClick={handleRemoveMember}>
+              {removing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}강제 탈퇴
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={!!dissolveTarget} onOpenChange={() => setDissolveTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -236,7 +289,7 @@ export default function GroupsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
               onClick={handleDissolve}
               disabled={dissolving}
             >
@@ -248,3 +301,4 @@ export default function GroupsPage() {
     </div>
   );
 }
+
