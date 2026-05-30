@@ -1,241 +1,224 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../../api/client';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { HeadSection } from '@/components/Page/community/HeadSection';
+import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
+import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
+import { FilterBar } from '@/components/Page/community/FilterBar';
+import { getCommunityPosts } from '@/api/community';
+import type { getCommunityPostsParams } from '@/api/community';
+import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
 
-type Post = {
-    seq: number;
-    postUuid: string;
-    title: string;
-    writer: string | null;
-    writerProfileImage: string | null;
-    writedAt: string;
-    likes: number;
-    views: number;
-    comments: number;
-    isDev: boolean;
-    devTags: string | null;
-    tag: string;
+const QNA_PAGE_SIZE = 4;
+
+const CATEGORY_MAP: Record<string, getCommunityPostsParams['category']> = {
+  전체: undefined,
+  기술: 'TECH',
+  밈: 'MEME',
+  '프로젝트 자랑': 'PROJECT_SHOWCASE',
+  기타: 'CHAT',
 };
 
-type PageResponse = {
-    content: Post[];
-    totalPages: number;
-    number: number;
+const CATEGORY_LABEL: Record<string, string> = {
+  CHAT: '잡담',
+  MEME: '밈',
+  PROJECT_SHOWCASE: '프로젝트 자랑',
+  TECH: '기술',
 };
 
-export default function CommunityList() {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
+const TECH_SUB_TAG_LABEL: Record<string, string> = {
+  QUESTION: '질문',
+  CHAT: '잡담',
+  TIP: '팁',
+  POLL: '투표',
+};
 
-    const size = 10;
-    const navigate = useNavigate();
-
-    // 게시글 / 검색 리스트 호출
-    const fetchPosts = async () => {
-        try {
-            setLoading(true);
-
-            const res = await api.get('/api/posts', {
-                params: {
-                    page,
-                    size,
-                    search: searchTerm || undefined, // 검색어가 없으면 제외
-                },
-            });
-
-            if (!res.data || !res.data.data) {
-                console.error('Invalid response:', res.data);
-                setPosts([]);
-                setTotalPages(1);
-                return;
-            }
-
-            const data: PageResponse = res.data.data;
-            setPosts(data.content ?? []);
-            setTotalPages(data.totalPages ?? 1);
-        } catch (err) {
-            console.error('API Error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // page 또는 searchTerm 이 바뀔 때마다 다시 요청
-    useEffect(() => {
-        fetchPosts();
-    }, [page, searchTerm]);
-
-    // 검색 실행 함수
-    const handleSearch = () => {
-        setPage(0); // 검색 시 1페이지로 초기화
-        fetchPosts();
-    };
-
-    // 엔터키 검색
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    };
-
-    const formatDate = (iso: string) => {
-        return new Date(iso).toLocaleString('ko-KR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
-    const pageNumbers = Array.from({ length: totalPages }, (_, idx) => idx);
-
-    return (
-        <div className="max-w-4xl px-4 py-6 mx-auto">
-            {/* 제목 + 검색 + 버튼 */}
-            <div className="px-6 py-5 mb-5 bg-white rounded-xl">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold">커뮤니티</h1>
-                        <p className="mt-1 text-xl text-gray-500">{posts.length} 검색 결과</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2 w-80">
-                        {/* 검색창 */}
-                        <div className="relative w-full">
-                            <input
-                                type="text"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="검색어를 입력해 주세요"
-                                className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-md focus:outline-none"
-                            />
-                            <button
-                                onClick={handleSearch}
-                                className="absolute text-xs text-gray-500 -translate-y-1/2 right-3 top-1/2"
-                            >
-                                🔍
-                            </button>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            {/* 필터 버튼 */}
-                            <button className="px-3 py-1 text-xs bg-white border rounded-full hover:bg-gray-100">
-                                필터
-                            </button>
-
-                            {/* 새 글 */}
-                            <Link to="/community/write">
-                                <button className="rounded-full bg-blue-600 text-white px-4 py-1.5 text-xs font-semibold hover:bg-blue-700">
-                                    새 글 작성
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* 게시글 리스트 */}
-            <div className="mt-2 space-y-4">
-                {loading &&
-                    Array.from({ length: size }).map((_, idx) => (
-                        <div
-                            key={idx}
-                            className="flex items-start gap-4 px-6 py-4 bg-white shadow rounded-xl animate-pulse"
-                        >
-                            <div className="w-12 h-12 bg-gray-200 rounded-3xl" />
-                            <div className="flex-1 space-y-2">
-                                <div className="w-3/4 h-4 bg-gray-200 rounded" />
-                                <div className="w-1/2 h-3 bg-gray-100 rounded" />
-                            </div>
-                            <div className="flex flex-col items-end gap-2 text-[10px]">
-                                <div className="w-10 h-3 bg-gray-100 rounded" />
-                                <div className="w-10 h-3 bg-gray-100 rounded" />
-                            </div>
-                        </div>
-                    ))}
-
-                {!loading && posts.length === 0 && (
-                    <div className="px-6 py-6 text-sm text-center text-gray-500 bg-white shadow rounded-xl">
-                        검색 결과가 없습니다.
-                    </div>
-                )}
-
-                {!loading &&
-                    posts.map((post) => (
-                        <div
-                            key={post.postUuid}
-                            onClick={() => navigate(`/community/${post.seq}`)}
-                            className="flex items-start gap-4 px-6 py-4 transition bg-white shadow cursor-pointer rounded-xl hover:bg-gray-50"
-                        >
-                            {post.writerProfileImage ? (
-                                <img src={post.writerProfileImage} className="w-12 h-12 border rounded-3xl" />
-                            ) : (
-                                <div className="w-12 h-12 bg-gray-200 rounded-3xl" />
-                            )}
-
-                            <div className="flex-1">
-                                <h2 className="text-sm font-semibold">{post.title}</h2>
-                                <p className="mt-1 text-xs text-gray-500">
-                                    {post.writer ?? '익명'} · {formatDate(post.writedAt)}
-                                </p>
-
-                                <div className="flex gap-1 mt-2 text-[10px]">
-                                    {post.isDev && post.devTags && (
-                                        <span className="px-2 py-0.5 bg-gray-100 rounded-full">
-                                            {post.devTags.toUpperCase()}
-                                        </span>
-                                    )}
-                                    <span className="px-2 py-0.5 bg-gray-100 rounded-full">{post.tag}</span>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-end gap-1 text-[10px] text-gray-500">
-                                <span>👍 {post.likes}</span>
-                                <span>💬 {post.comments}</span>
-                                <span>👁 {post.views}</span>
-                            </div>
-                        </div>
-                    ))}
-            </div>
-
-            {/* 페이지네이션 */}
-            <div className="flex justify-center gap-3 mt-6">
-                <button
-                    onClick={() => setPage((p) => Math.max(p - 1, 0))}
-                    disabled={page === 0}
-                    className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
-                >
-                    이전
-                </button>
-
-                <div className="flex gap-1">
-                    {pageNumbers.map((p) => (
-                        <button
-                            key={p}
-                            onClick={() => setPage(p)}
-                            className={`w-8 h-8 rounded-full text-xs border flex items-center justify-center ${
-                                p === page
-                                    ? 'bg-black text-white border-black'
-                                    : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-100'
-                            }`}
-                        >
-                            {p + 1}
-                        </button>
-                    ))}
-                </div>
-
-                <button
-                    onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
-                    disabled={page === totalPages - 1}
-                    className="px-4 py-1 text-xs bg-white border rounded-full disabled:bg-gray-100 disabled:text-gray-400"
-                >
-                    다음
-                </button>
-            </div>
-        </div>
-    );
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getDisplayTag(item: any): string {
+  if (item.communityCategory === 'TECH' && item.techSubTag) {
+    return TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag;
+  }
+  return CATEGORY_LABEL[item.communityCategory] ?? '';
 }
+
+const getPageWindow = (current: number, total: number): (number | 'ellipsis')[] => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
+  const pages: (number | 'ellipsis')[] = [0];
+  if (current > 2) pages.push('ellipsis');
+  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) pages.push(i);
+  if (current < total - 3) pages.push('ellipsis');
+  pages.push(total - 1);
+  return pages;
+};
+
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  color = 'blue',
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  color?: 'blue' | 'violet';
+}) => {
+  if (totalPages <= 1) return null;
+  const activeClass =
+    color === 'violet'
+      ? 'bg-violet-500 text-white shadow-sm shadow-violet-200'
+      : 'bg-blue-500 text-white shadow-sm shadow-blue-200';
+  const navClass =
+    'px-3 h-8 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:border hover:border-gray-200 disabled:opacity-30 transition-all';
+  const pages = getPageWindow(currentPage, totalPages);
+  return (
+    <div className="flex justify-center items-center mt-5 gap-1">
+      <button
+        disabled={currentPage === 0}
+        onClick={() => onPageChange(currentPage - 1)}
+        className={navClass}
+      >
+        이전
+      </button>
+      {pages.map((page, idx) =>
+        page === 'ellipsis' ? (
+          <span
+            key={`e${idx}`}
+            className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm select-none"
+          >
+            ···
+          </span>
+        ) : (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`w-8 h-8 text-sm rounded-lg font-medium transition-all ${
+              currentPage === page
+                ? activeClass
+                : 'text-gray-500 hover:bg-white hover:border hover:border-gray-200'
+            }`}
+          >
+            {page + 1}
+          </button>
+        ),
+      )}
+      <button
+        disabled={currentPage === totalPages - 1}
+        onClick={() => onPageChange(currentPage + 1)}
+        className={navClass}
+      >
+        다음
+      </button>
+    </div>
+  );
+};
+
+const PostSkeleton = () => (
+  <div className="flex items-start gap-3 px-4 py-4 bg-white rounded-xl border border-gray-100 shadow-sm animate-pulse">
+    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0 mt-0.5" />
+    <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+      <div className="h-3 bg-gray-200 rounded-full w-14" />
+      <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+      <div className="h-3 bg-gray-200 rounded-full w-2/5" />
+    </div>
+  </div>
+);
+
+export const Community = () => {
+  const navigate = useNavigate();
+  const [qnaPosts, setQnaPosts] = useState<QnAPostOverViewItem[]>([]);
+  const [activeFilter, setActiveFilter] = useState('전체');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [qnaPage, setQnaPage] = useState(0);
+  const [qnaTotalPages, setQnaTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      setIsLoading(true);
+      try {
+        const params: getCommunityPostsParams = { page: qnaPage, size: QNA_PAGE_SIZE };
+        const category = CATEGORY_MAP[activeFilter];
+        if (category) params.category = category;
+        if (searchQuery) params.query = searchQuery;
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = await getCommunityPosts(params);
+        const res = data as unknown as { content?: any[]; totalPages?: number };
+        const content: any[] = res.content ?? [];
+
+        setQnaPosts(
+          content.map((item) => ({
+            seq: item.seq,
+            title: item.title,
+            writer: item.writer,
+            writerProfileImage: item.writerProfileImage,
+            writedAt: item.writedAt,
+            views: item.views,
+            comments: item.comments,
+            tag: getDisplayTag(item),
+            techTags: item.techTags?.length ? item.techTags : undefined,
+          })),
+        );
+
+        setQnaTotalPages(res.totalPages ?? 1);
+      } catch {
+        /* no-op */
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    load();
+  }, [activeFilter, searchQuery, qnaPage]);
+
+  const handleFilterChange = (filter: string) => {
+    setActiveFilter(filter);
+    setQnaPage(0);
+  };
+
+  return (
+    <div>
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex gap-6 items-start">
+          <div className="flex-1 min-w-0">
+            <AnnounceBanner />
+
+            <HeadSection className="mb-5" onSearch={setSearchQuery} />
+
+            <FilterBar
+              className="mb-6"
+              activeFilter={activeFilter}
+              onFilterChange={handleFilterChange}
+            />
+
+            {/* QnA Section */}
+            <section className="mb-10">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="w-1 h-5 rounded-full bg-blue-500 inline-block" />
+                <h3 className="text-lg font-bold text-gray-900">커뮤니티 글</h3>
+              </div>
+
+              {isLoading ? (
+                <div className="grid grid-cols-1 gap-3">
+                  {Array.from({ length: QNA_PAGE_SIZE }).map((_, i) => (
+                    <PostSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <QnAPostsOverView
+                  posts={qnaPosts}
+                  onPostClick={(seq) => navigate(`/article/${seq}`)}
+                />
+              )}
+
+              <Pagination
+                currentPage={qnaPage}
+                totalPages={qnaTotalPages}
+                onPageChange={setQnaPage}
+                color="blue"
+              />
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
