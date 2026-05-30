@@ -22,7 +22,7 @@ export const LoginForm = () => {
     if (loading) return;
     setLoading(true);
     try {
-      await login(id, password);
+      await login(id, password, rememberMe);
       ShowSuccessToast('로그인 성공!');
       navigate('/');
     } catch (err) {
