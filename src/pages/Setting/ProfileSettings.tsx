@@ -4,6 +4,7 @@ import { useProfileStore } from '@/store/profileStore';
 import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
 import Avatar from '@/components/global/Avatar';
 import { Globe, Upload, PlusCircleIcon } from 'lucide-react';
+import { SetBannerModal } from '@/components/Page/setting/SetBannerModal';
 
 import GitHub from '@/assets/GitHub.png';
 import Linkedin from '@/assets/Linkedin.png';
@@ -31,6 +32,8 @@ export const ProfileSettings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isImageHovered, setIsImageHovered] = useState(false);
   const [isUploadBanner, setIsUploadBanner] = useState(false);
+  const [showBannerModal, setShowBannerModal] = useState(false);
+  const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -99,17 +102,18 @@ export const ProfileSettings = () => {
           {/* 배너 이미지 */}
           <div className="relative">
             <div
-              className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center"
+              className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center cursor-pointer"
               onMouseEnter={() => setIsUploadBanner(true)}
               onMouseLeave={() => setIsUploadBanner(false)}
+              onClick={() => setShowBannerModal(true)}
             >
               {isUploadBanner && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors rounded-xl cursor-pointer">
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center transition-colors rounded-xl">
                   <PlusCircleIcon className="w-10 h-10 text-white" />
                 </div>
               )}
               <img
-                src={profile?.profileBanner}
+                src={previewBannerUrl ?? profile?.profileBanner}
                 alt="배너 이미지"
                 className="object-cover w-full h-full rounded-xl"
               />
@@ -333,6 +337,21 @@ export const ProfileSettings = () => {
           </button>
         </div>
       </div>
+
+      {showBannerModal && user?.uuid && (
+        <SetBannerModal
+          userUuid={user.uuid}
+          onTempSelect={(imageUrl) => setPreviewBannerUrl(imageUrl)}
+          onSaved={() => {
+            setPreviewBannerUrl(null);
+            if (user?.uuid) void fetchProfile(user.uuid);
+          }}
+          onClose={() => {
+            setPreviewBannerUrl(null);
+            setShowBannerModal(false);
+          }}
+        />
+      )}
 
       {/* 프로필 이미지 */}
       <div className="w-55 flex justify-center">
