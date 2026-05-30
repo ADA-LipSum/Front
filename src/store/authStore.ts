@@ -98,8 +98,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       try {
         await attempt();
         return;
-      } catch (e) {
+      } catch (e: unknown) {
         console.warn(`[Auth] checkLogin 실패 (시도 ${i + 1}/${MAX_RETRIES + 1}):`, e);
+        // reissue 자체가 실패(refresh token 없음)한 경우엔 재시도해도 의미 없음
+        if ((e as { config?: { _reissueFailed?: boolean } })?.config?._reissueFailed) break;
         if (i === MAX_RETRIES) break;
         await new Promise((r) => setTimeout(r, 700));
       }
