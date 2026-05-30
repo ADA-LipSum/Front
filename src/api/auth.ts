@@ -1,10 +1,11 @@
 import axios from './axios';
 
 // 로그인 API
-export const login = async (id: string, password: string) => {
+export const login = async (id: string, password: string, rememberMe: boolean) => {
   const response = await axios.post('/api/auth/login', {
     id,
     password,
+    rememberMe,
   });
 
   return response.data;
