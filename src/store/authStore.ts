@@ -19,7 +19,7 @@ interface AuthStore {
   user: AuthUser | null;
   accessToken: string | null;
 
-  login: (id: string, password: string) => Promise<void>;
+  login: (id: string, password: string, rememberMe: boolean) => Promise<void>;
   checkLogin: () => Promise<void>;
   logout: () => Promise<void>;
 
@@ -34,9 +34,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   accessToken: null,
 
-  login: async (id, password) => {
+  login: async (id, password, rememberMe) => {
     console.log('[Auth] 로그인 시도:', id);
-    const res = await loginApi(id, password);
+    const res = await loginApi(id, password, rememberMe);
 
     const data = res.data.data ?? res.data;
     const { accessToken, uuid, adminId, customId, userRealname, userNickname, profileImage } = data;
