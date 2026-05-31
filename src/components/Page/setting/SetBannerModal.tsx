@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 import { fetchInventoryList, patchInventoryBanner } from '@/api/inventory';
+import { ShowSuccessToast } from '@/components/Library/Toast/Toast';
 
 interface BannerItem {
   inventoryUuid: string;
@@ -53,6 +54,7 @@ export const SetBannerModal = ({
     setIsSaving(true);
     try {
       await patchInventoryBanner(userUuid, item.inventoryUuid);
+      ShowSuccessToast('배너가 변경되었습니다!');
       onSaved();
       onClose();
     } finally {
