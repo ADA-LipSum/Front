@@ -35,6 +35,7 @@ export const PointExchange = () => {
   const { balance, transactions, fetchBalance, fetchTransactions } = usePointStore();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'sticker' | 'banner'>('sticker');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseError, setPurchaseError] = useState<string | null>(null);
@@ -89,20 +90,44 @@ export const PointExchange = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-8">
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('sticker')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                activeTab === 'sticker'
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              스티커
+            </button>
+            <button
+              onClick={() => setActiveTab('banner')}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                activeTab === 'banner'
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              배너
+            </button>
+          </div>
+
+          {activeTab === 'sticker' ? (
             <StickerList
               searchQuery={searchQuery}
               cartProductIds={[]}
               onAddToCart={handleBuyNow}
               currencyLabel="포인트"
             />
+          ) : (
             <BannerList
               searchQuery={searchQuery}
               cartProductIds={[]}
               onAddToCart={handleBuyNow}
               currencyLabel="포인트"
             />
-          </div>
+          )}
         </div>
 
         <div className="w-72 shrink-0 flex flex-col gap-4">
