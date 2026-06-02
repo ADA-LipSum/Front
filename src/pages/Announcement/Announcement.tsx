@@ -25,12 +25,12 @@ export const Announcement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const pinnedPosts = MOCK_POSTS.filter(p => p.isPinned);
-  const regularPosts = MOCK_POSTS.filter(p => !p.isPinned);
+  const pinnedPosts = MOCK_POSTS.filter((p) => p.isPinned);
+  const regularPosts = MOCK_POSTS.filter((p) => !p.isPinned);
 
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { '전체': MOCK_POSTS.length };
-    MOCK_POSTS.forEach(p => {
+    const counts: Record<string, number> = { 전체: MOCK_POSTS.length };
+    MOCK_POSTS.forEach((p) => {
       counts[p.category] = (counts[p.category] || 0) + 1;
     });
     return counts;
@@ -40,8 +40,14 @@ export const Announcement = () => {
     (selectedCategory === '전체' || p.category === selectedCategory) &&
     (!searchQuery || p.title.includes(searchQuery));
 
-  const filteredPinned = useMemo(() => pinnedPosts.filter(matchesFilter), [selectedCategory, searchQuery]);
-  const filteredRegular = useMemo(() => regularPosts.filter(matchesFilter), [selectedCategory, searchQuery]);
+  const filteredPinned = useMemo(
+    () => pinnedPosts.filter(matchesFilter),
+    [selectedCategory, searchQuery],
+  );
+  const filteredRegular = useMemo(
+    () => regularPosts.filter(matchesFilter),
+    [selectedCategory, searchQuery],
+  );
 
   const totalPages = Math.max(1, Math.ceil(filteredRegular.length / ITEMS_PER_PAGE));
   const pagedRegular = filteredRegular.slice(
@@ -70,12 +76,15 @@ export const Announcement = () => {
             <p className="text-sm text-gray-500 mt-1">학교와 운영팀의 소식을 한눈에 확인하세요</p>
           </div>
           <div className="relative mt-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-400" size={15} />
+            <Search
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-400"
+              size={15}
+            />
             <input
               type="text"
               placeholder="공지 제목으로 검색"
               value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               className="pl-10 pr-4 py-2 text-sm border border-blue-200 rounded-full bg-white focus:outline-none focus:border-blue-400 w-64 placeholder:text-gray-400"
             />
           </div>
@@ -83,7 +92,7 @@ export const Announcement = () => {
 
         {/* Category Tabs */}
         <div className="flex items-center gap-2 mb-5">
-          {CATEGORIES.map(cat => {
+          {CATEGORIES.map((cat) => {
             const count = categoryCounts[cat.label] ?? 0;
             const isSelected = selectedCategory === cat.label;
             return (
@@ -117,13 +126,13 @@ export const Announcement = () => {
             {/* Pagination */}
             <div className="flex items-center justify-center gap-1 mt-5">
               <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="p-2 rounded-lg text-gray-400 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={16} />
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
@@ -137,7 +146,7 @@ export const Announcement = () => {
                 </button>
               ))}
               <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="p-2 rounded-lg text-gray-400 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
@@ -156,11 +165,6 @@ export const Announcement = () => {
                 >
                   {selectedPost.category}
                 </span>
-                {selectedPost.isHot && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-500 text-white leading-none">
-                    HOT
-                  </span>
-                )}
               </div>
               <h2 className="text-lg font-bold text-gray-900 leading-snug mb-3">
                 {selectedPost.title}
