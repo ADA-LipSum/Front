@@ -81,7 +81,7 @@ function applyFilters(feeds: ShareFeedItem[], sort: SortOrder, media: MediaFilte
   return result;
 }
 
-export const Community2 = () => {
+export const Community = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<CommunityTab>('general');
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
@@ -108,7 +108,9 @@ export const Community2 = () => {
             writedAt: item.writedAt,
             views: item.views,
             comments: item.comments,
-            tag: item.techSubTag ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag) : undefined,
+            tag: item.techSubTag
+              ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag)
+              : undefined,
             techTags: item.techTags?.length ? item.techTags : undefined,
           })),
         );
