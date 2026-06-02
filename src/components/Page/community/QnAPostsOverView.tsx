@@ -20,7 +20,7 @@ function timeAgo(dateStr: string): string {
   if (diff < 60) return `약 ${diff}초 전`;
   if (diff < 3600) return `약 ${Math.floor(diff / 60)}분 전`;
   if (diff < 86400) return `약 ${Math.floor(diff / 3600)}시간 전`;
-  return `약 ${Math.floor(diff / 86400)}일 전`;
+  return `${Math.floor(diff / 86400)}일 전`;
 }
 
 const TAG_COLORS: Record<string, string> = {

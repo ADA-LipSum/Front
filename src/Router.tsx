@@ -33,6 +33,7 @@ import { Bookmarks } from './pages/Bookmark/Bookmarks';
 import Profile from './pages/Profile/Profile';
 import { PointExchange } from './pages/Exchange/PointExchange';
 import { Login } from './pages/Auth/Login';
+import { Community2 } from './pages/Community2/Community2';
 
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
@@ -45,6 +46,7 @@ const Router = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Community />} />
+        <Route path="/community2" element={<Community2 />} />
         <Route path="/article/:postId" element={<CommunityPostDetail />} />
         <Route path="/study-group/:groupUuid" element={<StudyGroupDetail />} />
         <Route path="/study-group" element={<StudyGroup />} />

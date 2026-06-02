@@ -27,7 +27,7 @@ export default function AnnounceBanner() {
   }, []);
 
   return (
-    <div className="w-4xl mb-5 mx-auto">
+    <div className="w-180 mx-auto">
       <Swiper
         key={BANNERS.length}
         modules={[Autoplay, Pagination]}
