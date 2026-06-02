@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowUpDown, Flame, Image, Video, AlignLeft } from 'lucide-react';
 import {
   ShareFeedOverView,
@@ -6,9 +7,12 @@ import {
   MOCK_FEED_TEXT_ONLY,
   type ShareFeedItem,
 } from '@/components/coummnity2/ShareFeedOverView';
+import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
+import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
 import { RightWidget } from '@/components/coummnity2/RightWidget';
 import { LeftWidget } from '@/components/coummnity2/LeftWidget';
 import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
+import { getCommunityPosts } from '@/api/community';
 
 type CommunityTab = 'general' | 'dev';
 type SortOrder = 'latest' | 'popular';
@@ -45,6 +49,24 @@ const ALL_FEEDS: ShareFeedItem[] = [
   MOCK_FEED_TEXT_ONLY,
 ];
 
+const TECH_SUB_TAG_LABEL: Record<string, string> = {
+  QUESTION: '질문',
+  CHAT: '잡담',
+  TIP: '팁',
+  POLL: '투표',
+};
+
+const PostSkeleton = () => (
+  <div className="flex items-start gap-3 px-4 py-4 bg-white rounded-xl border border-gray-100 shadow-sm animate-pulse">
+    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0 mt-0.5" />
+    <div className="flex-1 min-w-0 space-y-2 pt-0.5">
+      <div className="h-3 bg-gray-200 rounded-full w-14" />
+      <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+      <div className="h-3 bg-gray-200 rounded-full w-2/5" />
+    </div>
+  </div>
+);
+
 function applyFilters(feeds: ShareFeedItem[], sort: SortOrder, media: MediaFilter) {
   let result = [...feeds];
 
@@ -60,9 +82,44 @@ function applyFilters(feeds: ShareFeedItem[], sort: SortOrder, media: MediaFilte
 }
 
 export const Community2 = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<CommunityTab>('general');
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>('all');
+
+  const [devPosts, setDevPosts] = useState<QnAPostOverViewItem[]>([]);
+  const [devLoading, setDevLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab !== 'dev') return;
+    const load = async () => {
+      setDevLoading(true);
+      try {
+        const data = await getCommunityPosts({ category: 'TECH', size: 20 });
+        const res = data as unknown as { content?: any[]; totalPages?: number };
+        const content: any[] = res.content ?? [];
+        setDevPosts(
+          content.map((item) => ({
+            seq: item.seq,
+            postUuid: item.postUuid,
+            title: item.title,
+            writer: item.writer,
+            writerProfileImage: item.writerProfileImage,
+            writedAt: item.writedAt,
+            views: item.views,
+            comments: item.comments,
+            tag: item.techSubTag ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag) : undefined,
+            techTags: item.techTags?.length ? item.techTags : undefined,
+          })),
+        );
+      } catch {
+        /* no-op */
+      } finally {
+        setDevLoading(false);
+      }
+    };
+    load();
+  }, [activeTab]);
 
   const filteredFeeds = applyFilters(ALL_FEEDS, sortOrder, mediaFilter);
 
@@ -129,57 +186,74 @@ export const Community2 = () => {
             />
           </div>
 
-          {/* 필터 칩 */}
-          <div className="flex items-center justify-between">
-            {/* 정렬 */}
-            <div className="flex gap-1.5">
-              {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
-                const active = sortOrder === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setSortOrder(id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                      active
-                        ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
-                    }`}
-                  >
-                    <Icon size={12} />
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+          {/* 필터 칩 — 일반 탭에서만 표시 */}
+          {activeTab === 'general' && (
+            <div className="flex items-center justify-between">
+              {/* 정렬 */}
+              <div className="flex gap-1.5">
+                {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = sortOrder === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setSortOrder(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* 미디어 타입 */}
-            <div className="flex gap-1.5">
-              {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
-                const active = mediaFilter === id;
-                return (
-                  <button
-                    key={id}
-                    onClick={() => setMediaFilter(id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                      active
-                        ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
-                    }`}
-                  >
-                    <Icon size={12} />
-                    {label}
-                  </button>
-                );
-              })}
+              {/* 미디어 타입 */}
+              <div className="flex gap-1.5">
+                {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = mediaFilter === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setMediaFilter(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </section>
 
         {/* 배너 */}
         <AnnounceBanner />
 
         {/* 피드 목록 */}
-        {filteredFeeds.length > 0 ? (
+        {activeTab === 'dev' ? (
+          <div className="w-180">
+            {devLoading ? (
+              <div className="grid grid-cols-1 gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <PostSkeleton key={i} />
+                ))}
+              </div>
+            ) : (
+              <QnAPostsOverView
+                posts={devPosts}
+                onPostClick={(seq) => navigate(`/article/${seq}`)}
+              />
+            )}
+          </div>
+        ) : filteredFeeds.length > 0 ? (
           filteredFeeds.map((feed, i) => <ShareFeedOverView key={i} feed={feed} />)
         ) : (
           <div className="w-180 flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
