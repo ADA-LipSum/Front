@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { MOCK_POSTS, QnAPostsOverView } from '../../components/Page/community/QnAPostsOverView';
+import { QnAPostsOverView } from '../../components/Page/community/QnAPostsOverView';
 
 const meta: Meta<typeof QnAPostsOverView> = {
   title: 'Community/QnAPostsOverView',
@@ -21,23 +21,11 @@ const meta: Meta<typeof QnAPostsOverView> = {
 export default meta;
 type Story = StoryObj<typeof QnAPostsOverView>;
 
-export const Default: Story = {
-  args: {
-    posts: MOCK_POSTS,
-  },
-};
+export const Default: Story = {};
 
-export const FourPosts: Story = {
-  args: {
-    posts: MOCK_POSTS.slice(0, 4),
-  },
-};
+export const FourPosts: Story = {};
 
-export const TwoPosts: Story = {
-  args: {
-    posts: MOCK_POSTS.slice(0, 2),
-  },
-};
+export const TwoPosts: Story = {};
 
 export const Empty: Story = {
   args: {
