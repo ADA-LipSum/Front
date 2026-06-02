@@ -69,7 +69,7 @@ export const Community2 = () => {
   return (
     <div className="flex justify-center gap-6 p-8 min-h-screen items-start">
       {/* 왼쪽 sticky 위젯 */}
-      <aside className="sticky top-8 self-start shrink-0">
+      <aside className="sticky top-0 self-start shrink-0">
         <LeftWidget />
       </aside>
 
@@ -190,7 +190,7 @@ export const Community2 = () => {
       </main>
 
       {/* 오른쪽 sticky 위젯 */}
-      <aside className="sticky top-8 self-start shrink-0">
+      <aside className="sticky top-0 self-start shrink-0">
         <RightWidget />
       </aside>
     </div>
