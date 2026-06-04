@@ -87,7 +87,7 @@ export default function NotificationsPage() {
                   value={form.targetRole}
                   onValueChange={(v) => setForm((f) => ({ ...f, targetRole: v ?? 'ALL' }))}
                 >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue>{{ ALL: '전체 사용자', ...ROLE_LABELS }[form.targetRole] ?? form.targetRole}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">전체 사용자</SelectItem>
                     <SelectItem value="STUDENT">학생</SelectItem>
