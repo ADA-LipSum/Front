@@ -6,16 +6,73 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'react-toastify';
 import {
-  getTradeItems, getTradeOrders, createTradeItem, updateTradeItem, deleteTradeItem,
-  rechargeStock, cancelOrder, type TradeItem, type TradeOrder, type PagedResponse,
+  getTradeItems,
+  getTradeOrders,
+  createTradeItem,
+  updateTradeItem,
+  deleteTradeItem,
+  rechargeStock,
+  cancelOrder,
+  type TradeItem,
+  type TradeOrder,
+  type PagedResponse,
 } from '@/api/admin';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  FOOD: '음식 (코인)',
+  ETC: '기타 (포인트)',
+};
+
+const SUB_CATEGORY_LABELS: Record<string, string> = {
+  SNACK: '과자',
+  CANDY: '사탕',
+  JUICE: '음료',
+  INSTANT: '인스턴스',
+  STICKER: '스티커',
+  BANNER: '배너',
+};
 
 export default function ShopPage() {
   const [items, setItems] = useState<TradeItem[]>([]);
@@ -27,7 +84,10 @@ export default function ShopPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState({
-    name: '', description: '', price: '', stock: '',
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
     category: 'FOOD' as 'FOOD' | 'ETC',
     subCategory: '' as string,
     imageUrl: '',
@@ -63,8 +123,12 @@ export default function ShopPage() {
       .finally(() => setOrdersLoading(false));
   };
 
-  useEffect(() => { loadItems(); }, []);
-  useEffect(() => { loadOrders(ordersPage); }, [ordersPage]);
+  useEffect(() => {
+    loadItems();
+  }, []);
+  useEffect(() => {
+    loadOrders(ordersPage);
+  }, [ordersPage]);
 
   const handleCreate = async () => {
     if (!createForm.name || !createForm.price) return;
@@ -77,12 +141,27 @@ export default function ShopPage() {
         stock: createForm.stock ? Number(createForm.stock) : undefined,
         active: true,
         category: createForm.category,
-        subCategory: (createForm.subCategory as 'SNACK' | 'CANDY' | 'JUICE' | 'INSTANT' | 'STICKER' | 'BANNER') || undefined,
+        subCategory:
+          (createForm.subCategory as
+            | 'SNACK'
+            | 'CANDY'
+            | 'JUICE'
+            | 'INSTANT'
+            | 'STICKER'
+            | 'BANNER') || undefined,
         imageUrl: createForm.imageUrl || undefined,
       });
       toast.success('아이템을 등록했습니다.');
       setCreateOpen(false);
-      setCreateForm({ name: '', description: '', price: '', stock: '', category: 'FOOD', subCategory: '', imageUrl: '' });
+      setCreateForm({
+        name: '',
+        description: '',
+        price: '',
+        stock: '',
+        category: 'FOOD',
+        subCategory: '',
+        imageUrl: '',
+      });
       loadItems();
     } catch {
       toast.error('아이템 등록에 실패했습니다.');
@@ -162,10 +241,13 @@ export default function ShopPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">상점 / 거래 관리</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">거래 아이템과 주문 내역을 관리합니다.</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            거래 아이템과 주문 내역을 관리합니다.
+          </p>
         </div>
         <Button size="sm" onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />아이템 등록
+          <Plus className="mr-2 h-4 w-4" />
+          아이템 등록
         </Button>
       </div>
 
@@ -199,38 +281,68 @@ export default function ShopPage() {
                     </TableRow>
                   ) : items.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">아이템이 없습니다.</TableCell>
+                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                        아이템이 없습니다.
+                      </TableCell>
                     </TableRow>
                   ) : (
                     items.map((item) => (
                       <TableRow key={item.itemUuid}>
                         <TableCell className="font-medium text-sm">{item.name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">{item.description}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{item.price.toLocaleString()}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
+                          {item.description}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {item.price.toLocaleString()}
+                        </TableCell>
                         <TableCell className="text-right text-sm">
-                          <span className={item.stock < 5 ? 'text-destructive font-medium' : ''}>{item.stock}</span>
+                          <span className={item.stock < 5 ? 'text-destructive font-medium' : ''}>
+                            {item.stock}
+                          </span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={item.active ? 'default' : 'outline'}>{item.active ? '판매 중' : '중단'}</Badge>
+                          <Badge variant={item.active ? 'default' : 'outline'}>
+                            {item.active ? '판매 중' : '중단'}
+                          </Badge>
                         </TableCell>
-                        <TableCell className="text-sm">{new Date(item.createdAt).toLocaleDateString('ko-KR')}</TableCell>
+                        <TableCell className="text-sm">
+                          {new Date(item.createdAt).toLocaleDateString('ko-KR')}
+                        </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent focus-visible:outline-none">
                               <MoreHorizontal className="h-4 w-4" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => {
-                                setEditTarget(item);
-                                setEditForm({ name: item.name, description: item.description, price: String(item.price), active: item.active });
-                              }}>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setEditTarget(item);
+                                  setEditForm({
+                                    name: item.name,
+                                    description: item.description,
+                                    price: String(item.price),
+                                    active: item.active,
+                                  });
+                                }}
+                              >
                                 수정
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => { setStockTarget(item); setStockAmount(''); }}>
-                                <Package className="mr-2 h-4 w-4" />재고 충전
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setStockTarget(item);
+                                  setStockAmount('');
+                                }}
+                              >
+                                <Package className="mr-2 h-4 w-4" />
+                                재고 충전
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem variant="destructive" onClick={() => setDeleteTarget(item)}>삭제</DropdownMenuItem>
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={() => setDeleteTarget(item)}
+                              >
+                                삭제
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -267,7 +379,9 @@ export default function ShopPage() {
                     </TableRow>
                   ) : (ordersData?.content ?? []).length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">주문이 없습니다.</TableCell>
+                      <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                        주문이 없습니다.
+                      </TableCell>
                     </TableRow>
                   ) : (
                     (ordersData?.content ?? []).map((order) => (
@@ -275,16 +389,25 @@ export default function ShopPage() {
                         <TableCell className="font-mono text-xs">{order.orderId}</TableCell>
                         <TableCell className="text-sm">{order.buyerNickname}</TableCell>
                         <TableCell className="text-sm">{order.itemName}</TableCell>
-                        <TableCell className="text-right font-mono text-sm">{order.price.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-mono text-sm">
+                          {order.price.toLocaleString()}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={order.status === 'COMPLETED' ? 'default' : 'secondary'}>
                             {order.status === 'COMPLETED' ? '완료' : '취소'}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm">{new Date(order.createdAt).toLocaleDateString('ko-KR')}</TableCell>
+                        <TableCell className="text-sm">
+                          {new Date(order.createdAt).toLocaleDateString('ko-KR')}
+                        </TableCell>
                         <TableCell className="text-right">
                           {order.status === 'COMPLETED' && (
-                            <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => setCancelTarget(order)}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => setCancelTarget(order)}
+                            >
                               취소/환불
                             </Button>
                           )}
@@ -299,11 +422,23 @@ export default function ShopPage() {
 
           {(ordersData?.totalPages ?? 1) > 1 && (
             <div className="flex items-center justify-center gap-2 mt-2">
-              <Button variant="outline" size="sm" disabled={ordersPage === 0} onClick={() => setOrdersPage((p) => p - 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={ordersPage === 0}
+                onClick={() => setOrdersPage((p) => p - 1)}
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <span className="text-sm text-muted-foreground">{ordersPage + 1} / {ordersData!.totalPages}</span>
-              <Button variant="outline" size="sm" disabled={ordersPage >= (ordersData?.totalPages ?? 1) - 1} onClick={() => setOrdersPage((p) => p + 1)}>
+              <span className="text-sm text-muted-foreground">
+                {ordersPage + 1} / {ordersData!.totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={ordersPage >= (ordersData?.totalPages ?? 1) - 1}
+                onClick={() => setOrdersPage((p) => p + 1)}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -321,39 +456,63 @@ export default function ShopPage() {
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label>아이템명</Label>
-              <Input value={createForm.name} onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))} placeholder="아이템 이름" />
+              <Input
+                value={createForm.name}
+                onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="아이템 이름"
+              />
             </div>
             <div className="space-y-1.5">
               <Label>설명 (선택)</Label>
-              <Input value={createForm.description} onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))} placeholder="아이템 설명" />
+              <Input
+                value={createForm.description}
+                onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="아이템 설명"
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>카테고리</Label>
-                <Select value={createForm.category} onValueChange={(v) => setCreateForm((f) => ({ ...f, category: v as 'FOOD' | 'ETC', subCategory: '' }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={createForm.category}
+                  onValueChange={(v) =>
+                    setCreateForm((f) => ({ ...f, category: v as 'FOOD' | 'ETC', subCategory: '' }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue>{CATEGORY_LABELS[createForm.category] ?? createForm.category}</SelectValue>
+                  </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="FOOD">FOOD (코인)</SelectItem>
-                    <SelectItem value="ETC">ETC (포인트)</SelectItem>
+                    <SelectItem value="FOOD">음식 (코인)</SelectItem>
+                    <SelectItem value="ETC">기타 (포인트)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>서브카테고리 (선택)</Label>
-                <Select value={createForm.subCategory} onValueChange={(v) => setCreateForm((f) => ({ ...f, subCategory: v ?? '' }))}>
-                  <SelectTrigger><SelectValue placeholder="없음" /></SelectTrigger>
+                <Select
+                  value={createForm.subCategory}
+                  onValueChange={(v) => setCreateForm((f) => ({ ...f, subCategory: v ?? '' }))}
+                >
+                  <SelectTrigger>
+                    {createForm.subCategory ? (
+                      <SelectValue>{SUB_CATEGORY_LABELS[createForm.subCategory] ?? createForm.subCategory}</SelectValue>
+                    ) : (
+                      <SelectValue placeholder="없음" />
+                    )}
+                  </SelectTrigger>
                   <SelectContent>
                     {createForm.category === 'FOOD' ? (
                       <>
-                        <SelectItem value="SNACK">SNACK</SelectItem>
-                        <SelectItem value="CANDY">CANDY</SelectItem>
-                        <SelectItem value="JUICE">JUICE</SelectItem>
-                        <SelectItem value="INSTANT">INSTANT</SelectItem>
+                        <SelectItem value="SNACK">과자</SelectItem>
+                        <SelectItem value="CANDY">사탕</SelectItem>
+                        <SelectItem value="JUICE">음료</SelectItem>
+                        <SelectItem value="INSTANT">인스턴스</SelectItem>
                       </>
                     ) : (
                       <>
-                        <SelectItem value="STICKER">STICKER</SelectItem>
-                        <SelectItem value="BANNER">BANNER</SelectItem>
+                        <SelectItem value="STICKER">스티커</SelectItem>
+                        <SelectItem value="BANNER">배너</SelectItem>
                       </>
                     )}
                   </SelectContent>
@@ -363,21 +522,42 @@ export default function ShopPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>가격</Label>
-                <Input type="number" value={createForm.price} onChange={(e) => setCreateForm((f) => ({ ...f, price: e.target.value }))} placeholder="0" min={0} />
+                <Input
+                  type="number"
+                  value={createForm.price}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, price: e.target.value }))}
+                  placeholder="0"
+                  min={0}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>초기 재고</Label>
-                <Input type="number" value={createForm.stock} onChange={(e) => setCreateForm((f) => ({ ...f, stock: e.target.value }))} placeholder="0" min={0} />
+                <Input
+                  type="number"
+                  value={createForm.stock}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, stock: e.target.value }))}
+                  placeholder="0"
+                  min={0}
+                />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>이미지 URL (선택)</Label>
-              <Input value={createForm.imageUrl} onChange={(e) => setCreateForm((f) => ({ ...f, imageUrl: e.target.value }))} placeholder="https://..." />
+              <Input
+                value={createForm.imageUrl}
+                onChange={(e) => setCreateForm((f) => ({ ...f, imageUrl: e.target.value }))}
+                placeholder="https://..."
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>취소</Button>
-            <Button onClick={handleCreate} disabled={!createForm.name || !createForm.price || creating}>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>
+              취소
+            </Button>
+            <Button
+              onClick={handleCreate}
+              disabled={!createForm.name || !createForm.price || creating}
+            >
               {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}등록
             </Button>
           </DialogFooter>
@@ -394,20 +574,36 @@ export default function ShopPage() {
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label>아이템명</Label>
-              <Input value={editForm.name} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>설명</Label>
-              <Input value={editForm.description} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} />
+              <Input
+                value={editForm.description}
+                onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>가격 (코인)</Label>
-              <Input type="number" value={editForm.price} onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))} min={0} />
+              <Input
+                type="number"
+                value={editForm.price}
+                onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value }))}
+                min={0}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>판매 상태</Label>
-              <Select value={editForm.active ? 'active' : 'inactive'} onValueChange={(v) => setEditForm((f) => ({ ...f, active: v === 'active' }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={editForm.active ? 'active' : 'inactive'}
+                onValueChange={(v) => setEditForm((f) => ({ ...f, active: v === 'active' }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">판매 중</SelectItem>
                   <SelectItem value="inactive">판매 중단</SelectItem>
@@ -416,7 +612,9 @@ export default function ShopPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditTarget(null)}>취소</Button>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>
+              취소
+            </Button>
             <Button onClick={handleEdit} disabled={!editForm.name || !editForm.price || editing}>
               {editing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}저장
             </Button>
@@ -433,10 +631,18 @@ export default function ShopPage() {
           </DialogHeader>
           <div className="py-4 space-y-1.5">
             <Label>충전 수량</Label>
-            <Input type="number" value={stockAmount} onChange={(e) => setStockAmount(e.target.value)} placeholder="0" min={1} />
+            <Input
+              type="number"
+              value={stockAmount}
+              onChange={(e) => setStockAmount(e.target.value)}
+              placeholder="0"
+              min={1}
+            />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setStockTarget(null)}>취소</Button>
+            <Button variant="outline" onClick={() => setStockTarget(null)}>
+              취소
+            </Button>
             <Button disabled={!stockAmount || rechargingStock} onClick={handleRechargeStock}>
               {rechargingStock && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}충전
             </Button>
@@ -469,7 +675,9 @@ export default function ShopPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>주문을 취소하시겠습니까?</AlertDialogTitle>
-            <AlertDialogDescription>'{cancelTarget?.itemName}' 주문이 취소되며 코인이 구매자에게 환불됩니다.</AlertDialogDescription>
+            <AlertDialogDescription>
+              '{cancelTarget?.itemName}' 주문이 취소되며 코인이 구매자에게 환불됩니다.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>취소</AlertDialogCancel>

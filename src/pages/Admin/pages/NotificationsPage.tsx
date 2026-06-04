@@ -6,24 +6,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-toastify';
 import { sendNotification, getNotificationHistory, type NotificationHistory } from '@/api/admin';
+
+const ROLE_LABELS: Record<string, string> = {
+  ALL: '전체',
+  STUDENT: '학생',
+  TEACHER: '선생님',
+  ADMIN: '관리자',
+};
 
 const TYPE_LABELS: Record<string, string> = {
   POLL_ENDED: '투표 종료',
@@ -71,21 +65,13 @@ export default function NotificationsPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">알림 발송</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          전체 공지 알림을 발송하고 이력을 확인합니다.
-        </p>
+        <p className="text-sm text-muted-foreground mt-0.5">전체 공지 알림을 발송하고 이력을 확인합니다.</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="send">
-            <Send className="mr-2 h-4 w-4" />
-            알림 발송
-          </TabsTrigger>
-          <TabsTrigger value="history">
-            <History className="mr-2 h-4 w-4" />
-            발송 이력
-          </TabsTrigger>
+          <TabsTrigger value="send"><Send className="mr-2 h-4 w-4" />알림 발송</TabsTrigger>
+          <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />발송 이력</TabsTrigger>
         </TabsList>
 
         <TabsContent value="send">
@@ -101,9 +87,7 @@ export default function NotificationsPage() {
                   value={form.targetRole}
                   onValueChange={(v) => setForm((f) => ({ ...f, targetRole: v ?? 'ALL' }))}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue>{{ ALL: '전체 사용자', ...ROLE_LABELS }[form.targetRole] ?? form.targetRole}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ALL">전체 사용자</SelectItem>
                     <SelectItem value="STUDENT">학생</SelectItem>
@@ -180,9 +164,7 @@ export default function NotificationsPage() {
                     history.map((h) => (
                       <TableRow key={h.id}>
                         <TableCell className="font-medium text-sm">{h.title}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground max-w-60 truncate">
-                          {h.message}
-                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-[240px] truncate">{h.message}</TableCell>
                         <TableCell>
                           <Badge variant="secondary">{TYPE_LABELS[h.type] ?? h.type}</Badge>
                         </TableCell>

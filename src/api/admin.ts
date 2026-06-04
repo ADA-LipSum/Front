@@ -275,6 +275,22 @@ export const getAdminPosts = (params?: {
 export const deleteUserPosts = (uuid: string) =>
   axios.delete(`/api/admin/posts/users/${uuid}`).then((r) => r.data).then(tap(`deleteUserPosts(${uuid})`));
 
+export interface AdminComment {
+  commentId: number;
+  content: string;
+  writerNickname: string;
+  writerUuid: string;
+  createdAt: string;
+  parentCommentId: number | null;
+  likes: number;
+}
+
+export const getPostComments = (postUuid: string) =>
+  axios
+    .get<{ data: AdminComment[] }>(`/api/admin/posts/${postUuid}/comments`)
+    .then((r) => r.data.data)
+    .then(tap(`getPostComments(${postUuid})`));
+
 export const deleteComment = (commentId: number) =>
   axios.delete(`/api/admin/comments/${commentId}`).then((r) => r.data).then(tap(`deleteComment(${commentId})`));
 

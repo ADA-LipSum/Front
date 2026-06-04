@@ -135,8 +135,8 @@ export default function BansPage() {
 
       {stats.length > 0 && (
         <div className="flex gap-3 flex-wrap">
-          {stats.map((s) => (
-            <Card key={s.banType} className="flex-1 min-w-[140px]">
+          {stats.map((s, i) => (
+            <Card key={s.banType ?? i} className="flex-1 min-w-[140px]">
               <CardContent className="pt-4 pb-3">
                 <div className="text-xs text-muted-foreground">{BAN_TYPE_LABELS[s.banType] ?? s.banType}</div>
                 <div className="text-2xl font-bold">{s.activeCount}</div>
@@ -155,7 +155,7 @@ export default function BansPage() {
               <Input placeholder="닉네임 또는 UUID 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8 h-8" />
             </div>
             <Select value={typeFilter} onValueChange={(v) => setTypeFilter(v ?? 'all')}>
-              <SelectTrigger className="w-32 h-8"><SelectValue placeholder="제재 유형" /></SelectTrigger>
+              <SelectTrigger className="w-32 h-8"><SelectValue>{{ all: '전체 유형', WARNING: '경고', TEMPORARY: '임시 정지', PERMANENT: '영구 정지' }[typeFilter] ?? typeFilter}</SelectValue></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">전체 유형</SelectItem>
                 <SelectItem value="WARNING">경고</SelectItem>
@@ -164,7 +164,7 @@ export default function BansPage() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter((v ?? 'all') as typeof statusFilter)}>
-              <SelectTrigger className="w-28 h-8"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-28 h-8"><SelectValue>{{ all: '전체 상태', active: '활성', expired: '만료' }[statusFilter] ?? statusFilter}</SelectValue></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">전체 상태</SelectItem>
                 <SelectItem value="active">활성</SelectItem>
@@ -198,8 +198,8 @@ export default function BansPage() {
                   <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">제재 내역이 없습니다.</TableCell>
                 </TableRow>
               ) : (
-                sorted.map((ban) => (
-                  <TableRow key={ban.banId}>
+                sorted.map((ban, index) => (
+                  <TableRow key={ban.banId ?? index}>
                     <TableCell>
                       <div className="font-medium text-sm">{ban.userNickname}</div>
                       <div className="text-xs text-muted-foreground font-mono">{ban.userUuid}</div>
@@ -244,7 +244,7 @@ export default function BansPage() {
             <div className="space-y-1.5">
               <Label>제재 유형</Label>
               <Select value={form.banType} onValueChange={(v) => setForm((f) => ({ ...f, banType: v ?? 'TEMPORARY' }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue>{BAN_TYPE_LABELS[form.banType] ?? form.banType}</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="WARNING">경고</SelectItem>
                   <SelectItem value="TEMPORARY">임시 정지</SelectItem>
