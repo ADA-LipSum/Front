@@ -179,7 +179,7 @@ export default function UsersPage() {
                 <Input placeholder="닉네임, 아이디 또는 UUID 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8 h-8" />
               </div>
               <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? 'all')}>
-                <SelectTrigger className="w-32 h-8"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-32 h-8"><SelectValue>{{ all: '전체 역할', ...ROLE_LABELS }[roleFilter] ?? roleFilter}</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">전체 역할</SelectItem>
                   <SelectItem value="ADMIN">관리자</SelectItem>
@@ -306,7 +306,7 @@ export default function UsersPage() {
             <div className="space-y-1.5">
               <Label>역할</Label>
               <Select value={form.role} onValueChange={(v) => setForm((f) => ({ ...f, role: v ?? 'STUDENT' }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue>{ROLE_LABELS[form.role] ?? form.role}</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="STUDENT">학생</SelectItem>
                   <SelectItem value="MENTOR">멘토</SelectItem>
@@ -334,7 +334,7 @@ export default function UsersPage() {
           </DialogHeader>
           <div className="py-4">
             <Select value={newRole} onValueChange={(v) => v && setNewRole(v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue>{ROLE_LABELS[newRole] ?? newRole}</SelectValue></SelectTrigger>
               <SelectContent>
                 <SelectItem value="STUDENT">학생</SelectItem>
                 <SelectItem value="MENTOR">멘토</SelectItem>
