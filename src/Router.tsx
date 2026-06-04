@@ -32,7 +32,7 @@ import { Bookmarks } from './pages/Bookmark/Bookmarks';
 import Profile from './pages/Profile/Profile';
 import { PointExchange } from './pages/Exchange/PointExchange';
 import { Login } from './pages/Auth/Login';
-import { Community } from './pages/Community/Community2';
+import { Community } from './pages/Community/Community';
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
 
