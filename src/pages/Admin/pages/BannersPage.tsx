@@ -237,7 +237,7 @@ export default function BannersPage() {
             <div className="space-y-1.5">
               <Label>활성 상태</Label>
               <Select value={editActive ? 'active' : 'inactive'} onValueChange={(v) => setEditActive(v === 'active')}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue>{editActive ? '활성' : '비활성'}</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">활성</SelectItem>
                   <SelectItem value="inactive">비활성</SelectItem>
