@@ -3,7 +3,7 @@ import {
   ShareFeedOverView,
   MOCK_FEED_WITH_IMAGES,
   MOCK_FEED_TEXT_ONLY,
-} from '@/components/coummnity2/ShareFeedOverView';
+} from '@/components/Page/community/ShareFeedOverView';
 
 const meta: Meta<typeof ShareFeedOverView> = {
   title: 'Community/ShareFeedOverView',
