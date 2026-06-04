@@ -50,7 +50,6 @@ export const Header = () => {
         <Link to="/study-group">그룹 찾기</Link>
         <Link to="/announcement">공지사항</Link>
         <Link to="/exchange/coin">거래소</Link>
-        <Link to="/contact">문의</Link>
 
         {user?.role === 'ADMIN' && <Link to="/dashboard/admin">관리자 대시보드</Link>}
         {user?.role === 'TEACHER' && <Link to="/dashboard/teacher">선생님 대시보드</Link>}
@@ -87,7 +86,7 @@ export const Header = () => {
           </>
         ) : (
           <Link to="/login">
-            <button className="px-4 py-2 bg-blue-500 text-white font-semibold rounded hover:bg-blue-700 transition hover:cursor-pointer">
+            <button className="px-4 py-2 border border-green-500 text-green-500 font-semibold rounded hover:bg-green-100 transition hover:cursor-pointer">
               로그인
             </button>
           </Link>
