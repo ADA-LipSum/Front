@@ -70,6 +70,24 @@ export interface CheckoutResponse {
   items: CartItemResponse[];
 }
 
+export interface CoinTransaction {
+  coinUuid: string;
+  userUuid: string;
+  changeType: 'GAIN' | 'LOSS' | 'USE';
+  coins: number;
+  balanceAfter: number;
+  description?: string;
+  createdAt: string;
+}
+
+export interface CoinTransactionPageResponse {
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  content: CoinTransaction[];
+}
+
 // 내 카트 조회
 export const fetchCart = async (): Promise<CartItemResponse[]> => {
   const res = await axios.get<ApiResponse<CartItemResponse[]>>('/api/trade/cart');
@@ -77,8 +95,14 @@ export const fetchCart = async (): Promise<CartItemResponse[]> => {
 };
 
 // 카트에 아이템 추가
-export const addToCart = async (itemUuid: string, quantity: number = 1): Promise<CartItemResponse> => {
-  const res = await axios.post<ApiResponse<CartItemResponse>>('/api/trade/cart', { itemUuid, quantity });
+export const addToCart = async (
+  itemUuid: string,
+  quantity: number = 1,
+): Promise<CartItemResponse> => {
+  const res = await axios.post<ApiResponse<CartItemResponse>>('/api/trade/cart', {
+    itemUuid,
+    quantity,
+  });
   return res.data.data;
 };
 
@@ -102,4 +126,16 @@ export const updateCartQuantity = async (
 export const checkoutCart = async (): Promise<CheckoutResponse> => {
   const res = await axios.post<ApiResponse<CheckoutResponse>>('/api/trade/cart/checkout');
   return res.data.data;
+};
+
+// 코인 거래내역 조회
+export const fetchCoinTransactions = async (
+  userUuid: string,
+  page: number = 0,
+  size: number = 20,
+): Promise<CoinTransactionPageResponse> => {
+  const response = await axios.get<ApiResponse<CoinTransactionPageResponse>>('/api/coins/transactions', {
+    params: { userUuid, page, size },
+  });
+  return response.data.data;
 };

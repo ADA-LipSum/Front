@@ -5,7 +5,7 @@ import { BannerCard } from './BannerCard';
 import { Pagination } from './Pagination';
 import type { Product } from './ProductCard';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 4;
 
 interface BannerListProps {
   searchQuery?: string;
@@ -67,7 +67,6 @@ export const BannerList = ({
 
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-700 mb-3">배너</h2>
       {loading ? (
         <div className="flex justify-center items-center h-32 text-gray-400 text-sm">
           불러오는 중...

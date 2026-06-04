@@ -5,7 +5,7 @@ import { ProductGrid } from './ProductGrid';
 import { Pagination } from './Pagination';
 import type { Product } from './ProductCard';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 8;
 
 interface StickerListProps {
   searchQuery?: string;
@@ -14,7 +14,12 @@ interface StickerListProps {
   currencyLabel?: string;
 }
 
-export const StickerList = ({ searchQuery = '', cartProductIds, onAddToCart, currencyLabel }: StickerListProps) => {
+export const StickerList = ({
+  searchQuery = '',
+  cartProductIds,
+  onAddToCart,
+  currencyLabel,
+}: StickerListProps) => {
   const [items, setItems] = useState<ExchangeSearchResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +67,6 @@ export const StickerList = ({ searchQuery = '', cartProductIds, onAddToCart, cur
 
   return (
     <section>
-      <h2 className="text-base font-semibold text-gray-700 mb-3">스티커</h2>
       {loading ? (
         <div className="flex justify-center items-center h-32 text-gray-400 text-sm">
           불러오는 중...

@@ -10,33 +10,26 @@ type ConfirmToastOptions = {
   onConfirm: () => void | Promise<void>;
 };
 
+let _toastCounter = 0;
+
+const showToast = (
+  type: 'success' | 'error' | 'info' | 'warn',
+  message: string,
+) => {
+  return toast[type](message, { ...baseOptions, toastId: ++_toastCounter });
+};
+
 /** 성공 토스트 */
-export const ShowSuccessToast = (message: string) =>
-  toast.success(message, {
-    ...baseOptions,
-    toastId: message,
-  });
+export const ShowSuccessToast = (message: string) => showToast('success', message);
 
 /** 에러 토스트 */
-export const ShowErrorToast = (message: string) =>
-  toast.error(message, {
-    ...baseOptions,
-    toastId: message,
-  });
+export const ShowErrorToast = (message: string) => showToast('error', message);
 
 /** 정보 토스트 */
-export const ShowInfoToast = (message: string) =>
-  toast.info(message, {
-    ...baseOptions,
-    toastId: message,
-  });
+export const ShowInfoToast = (message: string) => showToast('info', message);
 
 /** 경고 토스트 */
-export const ShowWarningToast = (message: string) =>
-  toast.warn(message, {
-    ...baseOptions,
-    toastId: message,
-  });
+export const ShowWarningToast = (message: string) => showToast('warn', message);
 
 /** 확인 토스트 (confirm 대체) */
 export const ShowConfirmToast = ({ message, onConfirm }: ConfirmToastOptions) =>

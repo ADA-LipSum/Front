@@ -27,7 +27,7 @@ export default function AnnounceBanner() {
   }, []);
 
   return (
-    <div className="w-4xl mb-5 mx-auto">
+    <div className="w-180 mx-auto">
       <Swiper
         key={BANNERS.length}
         modules={[Autoplay, Pagination]}
@@ -37,7 +37,7 @@ export default function AnnounceBanner() {
         observer
         observeParents
         pagination={{ clickable: true }}
-        className="rounded-lg border border-gray-200"
+        className="rounded-lg overflow-hidden h-50"
         style={
           {
             '--swiper-pagination-color': '#3B82F6',
@@ -47,7 +47,7 @@ export default function AnnounceBanner() {
       >
         {BANNERS.map((banner: Banner) => (
           <SwiperSlide key={banner.id}>
-            <img src={banner.imageUrl} alt={banner.title} className="w-full h-50 object-cover" />
+            <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover block" />
           </SwiperSlide>
         ))}
       </Swiper>

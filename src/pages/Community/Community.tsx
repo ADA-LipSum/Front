@@ -1,114 +1,59 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HeadSection } from '@/components/Page/community/HeadSection';
+import { ArrowUpDown, Flame, Image, Video, AlignLeft } from 'lucide-react';
+import {
+  ShareFeedOverView,
+  MOCK_FEED_WITH_IMAGES,
+  MOCK_FEED_TEXT_ONLY,
+  type ShareFeedItem,
+} from '@/components/Page/community/ShareFeedOverView';
 import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
 import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
-import { FilterBar } from '@/components/Page/community/FilterBar';
-import { getCommunityPosts } from '@/api/community';
-import type { getCommunityPostsParams } from '@/api/community';
+import { RightWidget } from '@/components/Page/community/RightWidget';
+import { LeftWidget } from '@/components/Page/community/LeftWidget';
 import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
+import { getCommunityPosts } from '@/api/community';
 
-const QNA_PAGE_SIZE = 4;
+type CommunityTab = 'general' | 'dev' | 'study-group';
+type SortOrder = 'latest' | 'popular';
+type MediaFilter = 'all' | 'photo' | 'video' | 'text';
 
-const CATEGORY_MAP: Record<string, getCommunityPostsParams['category']> = {
-  전체: undefined,
-  기술: 'TECH',
-  밈: 'MEME',
-  '프로젝트 자랑': 'PROJECT_SHOWCASE',
-  기타: 'CHAT',
-};
+const TABS: { id: CommunityTab; label: string; icon: string }[] = [
+  {
+    id: 'general',
+    label: '일반',
+    icon: 'https://images.woopicx.com/assets/a9a7a4ec-6cd2-4f22-adbe-732d78480faa/main.png',
+  },
+  {
+    id: 'dev',
+    label: '개발',
+    icon: 'https://static.vecteezy.com/system/resources/thumbnails/047/247/445/small/3d-code-icon-symbols-of-programming-illustration-png.png',
+  },
+];
 
-const CATEGORY_LABEL: Record<string, string> = {
-  CHAT: '잡담',
-  MEME: '밈',
-  PROJECT_SHOWCASE: '프로젝트 자랑',
-  TECH: '기술',
-};
+const SORT_OPTIONS: { id: SortOrder; label: string; icon: typeof ArrowUpDown }[] = [
+  { id: 'latest', label: '최신순', icon: ArrowUpDown },
+  { id: 'popular', label: '인기순', icon: Flame },
+];
+
+const MEDIA_OPTIONS: { id: MediaFilter; label: string; icon: typeof Image }[] = [
+  { id: 'all', label: '전체', icon: AlignLeft },
+  { id: 'photo', label: '사진', icon: Image },
+  { id: 'video', label: '영상', icon: Video },
+  { id: 'text', label: '텍스트', icon: AlignLeft },
+];
+
+const ALL_FEEDS: ShareFeedItem[] = [
+  MOCK_FEED_WITH_IMAGES,
+  MOCK_FEED_WITH_IMAGES,
+  MOCK_FEED_TEXT_ONLY,
+];
 
 const TECH_SUB_TAG_LABEL: Record<string, string> = {
   QUESTION: '질문',
   CHAT: '잡담',
   TIP: '팁',
   POLL: '투표',
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getDisplayTag(item: any): string {
-  if (item.communityCategory === 'TECH' && item.techSubTag) {
-    return TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag;
-  }
-  return CATEGORY_LABEL[item.communityCategory] ?? '';
-}
-
-const getPageWindow = (current: number, total: number): (number | 'ellipsis')[] => {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-  const pages: (number | 'ellipsis')[] = [0];
-  if (current > 2) pages.push('ellipsis');
-  for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) pages.push(i);
-  if (current < total - 3) pages.push('ellipsis');
-  pages.push(total - 1);
-  return pages;
-};
-
-const Pagination = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-  color = 'blue',
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-  color?: 'blue' | 'violet';
-}) => {
-  if (totalPages <= 1) return null;
-  const activeClass =
-    color === 'violet'
-      ? 'bg-violet-500 text-white shadow-sm shadow-violet-200'
-      : 'bg-blue-500 text-white shadow-sm shadow-blue-200';
-  const navClass =
-    'px-3 h-8 rounded-lg text-sm font-medium text-gray-500 hover:bg-white hover:border hover:border-gray-200 disabled:opacity-30 transition-all';
-  const pages = getPageWindow(currentPage, totalPages);
-  return (
-    <div className="flex justify-center items-center mt-5 gap-1">
-      <button
-        disabled={currentPage === 0}
-        onClick={() => onPageChange(currentPage - 1)}
-        className={navClass}
-      >
-        이전
-      </button>
-      {pages.map((page, idx) =>
-        page === 'ellipsis' ? (
-          <span
-            key={`e${idx}`}
-            className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm select-none"
-          >
-            ···
-          </span>
-        ) : (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`w-8 h-8 text-sm rounded-lg font-medium transition-all ${
-              currentPage === page
-                ? activeClass
-                : 'text-gray-500 hover:bg-white hover:border hover:border-gray-200'
-            }`}
-          >
-            {page + 1}
-          </button>
-        ),
-      )}
-      <button
-        disabled={currentPage === totalPages - 1}
-        onClick={() => onPageChange(currentPage + 1)}
-        className={navClass}
-      >
-        다음
-      </button>
-    </div>
-  );
 };
 
 const PostSkeleton = () => (
@@ -122,103 +67,208 @@ const PostSkeleton = () => (
   </div>
 );
 
+function applyFilters(feeds: ShareFeedItem[], sort: SortOrder, media: MediaFilter) {
+  let result = [...feeds];
+
+  if (media === 'photo') result = result.filter((f) => (f.images?.length ?? 0) > 0);
+  else if (media === 'video') result = result.filter((f) => (f as any).videos?.length > 0);
+  else if (media === 'text') result = result.filter((f) => !f.images?.length);
+
+  if (sort === 'popular') result = result.sort((a, b) => b.likes - a.likes);
+  else
+    result = result.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
+
+  return result;
+}
+
 export const Community = () => {
   const navigate = useNavigate();
-  const [qnaPosts, setQnaPosts] = useState<QnAPostOverViewItem[]>([]);
-  const [activeFilter, setActiveFilter] = useState('전체');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [qnaPage, setQnaPage] = useState(0);
-  const [qnaTotalPages, setQnaTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<CommunityTab>('general');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
+  const [mediaFilter, setMediaFilter] = useState<MediaFilter>('all');
+
+  const [devPosts, setDevPosts] = useState<QnAPostOverViewItem[]>([]);
+  const [devLoading, setDevLoading] = useState(false);
 
   useEffect(() => {
+    if (activeTab !== 'dev') return;
     const load = async () => {
-      setIsLoading(true);
+      setDevLoading(true);
       try {
-        const params: getCommunityPostsParams = { page: qnaPage, size: QNA_PAGE_SIZE };
-        const category = CATEGORY_MAP[activeFilter];
-        if (category) params.category = category;
-        if (searchQuery) params.query = searchQuery;
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = await getCommunityPosts(params);
+        const data = await getCommunityPosts({ category: 'TECH', size: 20 });
         const res = data as unknown as { content?: any[]; totalPages?: number };
         const content: any[] = res.content ?? [];
-
-        setQnaPosts(
+        setDevPosts(
           content.map((item) => ({
             seq: item.seq,
+            postUuid: item.postUuid,
             title: item.title,
             writer: item.writer,
             writerProfileImage: item.writerProfileImage,
             writedAt: item.writedAt,
             views: item.views,
             comments: item.comments,
-            tag: getDisplayTag(item),
+            tag: item.techSubTag
+              ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag)
+              : undefined,
             techTags: item.techTags?.length ? item.techTags : undefined,
           })),
         );
-
-        setQnaTotalPages(res.totalPages ?? 1);
       } catch {
         /* no-op */
       } finally {
-        setIsLoading(false);
+        setDevLoading(false);
       }
     };
     load();
-  }, [activeFilter, searchQuery, qnaPage]);
+  }, [activeTab]);
 
-  const handleFilterChange = (filter: string) => {
-    setActiveFilter(filter);
-    setQnaPage(0);
-  };
+  const filteredFeeds = applyFilters(ALL_FEEDS, sortOrder, mediaFilter);
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex gap-6 items-start">
-          <div className="flex-1 min-w-0">
-            <AnnounceBanner />
+    <div className="flex justify-center gap-6 p-8 min-h-screen items-start">
+      {/* 왼쪽 sticky 위젯 */}
+      <aside className="sticky top-0 self-start shrink-0">
+        <LeftWidget />
+      </aside>
 
-            <HeadSection className="mb-5" onSearch={setSearchQuery} />
+      {/* 메인 피드 */}
+      <main className="flex flex-col items-center gap-8">
+        {/* 커뮤니티 탭 */}
+        <section className="flex w-180">
+          {TABS.map(({ id, label, icon }) => {
+            const isActive = activeTab === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex-1 flex flex-col items-center gap-1 pb-2 text-sm font-medium transition-all border-b-2 ${
+                  isActive
+                    ? 'border-blue-500 text-blue-500'
+                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                <img
+                  src={icon}
+                  alt={label}
+                  className={`w-10 h-10 object-contain transition-all duration-200 ${
+                    isActive ? 'scale-110 drop-shadow-md' : 'opacity-50 grayscale'
+                  }`}
+                />
+                {label}
+              </button>
+            );
+          })}
+        </section>
 
-            <FilterBar
-              className="mb-6"
-              activeFilter={activeFilter}
-              onFilterChange={handleFilterChange}
+        {/* 검색 바 + 필터 */}
+        <section className="w-180 flex flex-col gap-5">
+          {/* 검색 입력 */}
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                />
+              </svg>
+            </span>
+            <input
+              type="text"
+              placeholder="검색어를 입력하세요..."
+              className="w-full pl-10 pr-4 py-3 rounded-full bg-white border border-gray-200 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
             />
+          </div>
 
-            {/* QnA Section */}
-            <section className="mb-10">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="w-1 h-5 rounded-full bg-blue-500 inline-block" />
-                <h3 className="text-lg font-bold text-gray-900">커뮤니티 글</h3>
+          {/* 필터 칩 — 일반 탭에서만 표시 */}
+          {activeTab === 'general' && (
+            <div className="flex items-center justify-between">
+              {/* 정렬 */}
+              <div className="flex gap-1.5">
+                {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = sortOrder === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setSortOrder(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
 
-              {isLoading ? (
-                <div className="grid grid-cols-1 gap-3">
-                  {Array.from({ length: QNA_PAGE_SIZE }).map((_, i) => (
-                    <PostSkeleton key={i} />
-                  ))}
-                </div>
-              ) : (
-                <QnAPostsOverView
-                  posts={qnaPosts}
-                  onPostClick={(seq) => navigate(`/article/${seq}`)}
-                />
-              )}
+              {/* 미디어 타입 */}
+              <div className="flex gap-1.5">
+                {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = mediaFilter === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setMediaFilter(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </section>
 
-              <Pagination
-                currentPage={qnaPage}
-                totalPages={qnaTotalPages}
-                onPageChange={setQnaPage}
-                color="blue"
+        {/* 배너 */}
+        <AnnounceBanner />
+
+        {/* 피드 목록 */}
+        {activeTab === 'dev' ? (
+          <div className="w-180">
+            {devLoading ? (
+              <div className="grid grid-cols-1 gap-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <PostSkeleton key={i} />
+                ))}
+              </div>
+            ) : (
+              <QnAPostsOverView
+                posts={devPosts}
+                onPostClick={(seq) => navigate(`/article/${seq}`)}
               />
-            </section>
+            )}
           </div>
-        </div>
-      </div>
+        ) : filteredFeeds.length > 0 ? (
+          filteredFeeds.map((feed, i) => <ShareFeedOverView key={i} feed={feed} />)
+        ) : (
+          <div className="w-180 flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
+            <span className="text-4xl">🔍</span>
+            <p className="text-sm font-medium">해당 조건의 게시글이 없어요</p>
+          </div>
+        )}
+      </main>
+
+      {/* 오른쪽 sticky 위젯 */}
+      <aside className="sticky top-0 self-start shrink-0">
+        <RightWidget />
+      </aside>
     </div>
   );
 };

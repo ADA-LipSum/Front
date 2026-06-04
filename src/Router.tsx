@@ -5,15 +5,12 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 
 import { CoinExchange } from '@/pages/Exchange/CoinExchange';
-import { Login } from '@/pages/Auth/Login';
-import { SocialLogin } from '@/pages/Auth/SocialLogin';
 import MainLayout from '@/components/layout/MainLayout';
 import UserNotFound from './pages/NotFound/UserNotFound';
 import { Announcement } from './pages/Announcement/Announcement';
 import { Settings } from './pages/Setting/Settings';
 import { StudyGroup } from './pages/StudyGroup/StudyGroup';
 import { StudyGroupDetail } from './pages/StudyGroup/StudyGroupDetail';
-import { Community } from './pages/Community/Community';
 import { CommunityPostDetail } from './pages/Community/CommunityPostDetail';
 import AdminRoute from './components/layout/AdminRoute';
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -34,7 +31,8 @@ import { Inventory } from './pages/Inventory/Inventory';
 import { Bookmarks } from './pages/Bookmark/Bookmarks';
 import Profile from './pages/Profile/Profile';
 import { PointExchange } from './pages/Exchange/PointExchange';
-
+import { Login } from './pages/Auth/Login';
+import { Community } from './pages/Community/Community';
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
 
@@ -79,7 +77,6 @@ const Router = () => {
 
       <Route path="/not-found/user" element={<UserNotFound />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/social-login" element={<SocialLogin />} />
     </Routes>
   );
 };

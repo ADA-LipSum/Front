@@ -19,7 +19,7 @@ interface AuthStore {
   user: AuthUser | null;
   accessToken: string | null;
 
-  login: (id: string, password: string) => Promise<void>;
+  login: (id: string, password: string, rememberMe: boolean) => Promise<void>;
   checkLogin: () => Promise<void>;
   logout: () => Promise<void>;
 
@@ -34,9 +34,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   accessToken: null,
 
-  login: async (id, password) => {
+  login: async (id, password, rememberMe) => {
     console.log('[Auth] 로그인 시도:', id);
-    const res = await loginApi(id, password);
+    const res = await loginApi(id, password, rememberMe);
 
     const data = res.data.data ?? res.data;
     const { accessToken, uuid, adminId, customId, userRealname, userNickname, profileImage } = data;
@@ -98,8 +98,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       try {
         await attempt();
         return;
-      } catch (e) {
+      } catch (e: unknown) {
         console.warn(`[Auth] checkLogin 실패 (시도 ${i + 1}/${MAX_RETRIES + 1}):`, e);
+        // reissue 자체가 실패(refresh token 없음)한 경우엔 재시도해도 의미 없음
+        if ((e as { config?: { _reissueFailed?: boolean } })?.config?._reissueFailed) break;
         if (i === MAX_RETRIES) break;
         await new Promise((r) => setTimeout(r, 700));
       }

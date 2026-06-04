@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Coins, Users, History, Search, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Coins, Users, History, Search, ChevronLeft, ChevronRight, Loader2, Receipt } from 'lucide-react';
+import { fetchCoinTransactions, type CoinTransaction, type CoinTransactionPageResponse } from '@/api/coins';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,12 @@ export default function CoinsPage() {
   const [historyPage, setHistoryPage] = useState(0);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  const [txUserSearch, setTxUserSearch] = useState('');
+  const [txSelectedUser, setTxSelectedUser] = useState<BalanceInfo | null>(null);
+  const [txData, setTxData] = useState<CoinTransactionPageResponse | null>(null);
+  const [txPage, setTxPage] = useState(0);
+  const [txLoading, setTxLoading] = useState(false);
+
   useEffect(() => {
     getUserBalances()
       .then(setBalances)
@@ -51,6 +58,25 @@ export default function CoinsPage() {
   };
 
   useEffect(() => { loadHistory(historyPage); }, [historyPage]);
+
+  const loadUserTransactions = (user: BalanceInfo, page: number) => {
+    setTxLoading(true);
+    fetchCoinTransactions(user.uuid, page, 20)
+      .then(setTxData)
+      .catch(() => toast.error('거래내역을 불러오지 못했습니다.'))
+      .finally(() => setTxLoading(false));
+  };
+
+  useEffect(() => {
+    if (txSelectedUser) loadUserTransactions(txSelectedUser, txPage);
+  }, [txPage]);
+
+  const txFilteredBalances = balances.filter(
+    (u) =>
+      !txUserSearch ||
+      u.userNickname.toLowerCase().includes(txUserSearch.toLowerCase()) ||
+      u.adminId.toLowerCase().includes(txUserSearch.toLowerCase()),
+  );
 
   const filteredBalances = balances.filter(
     (u) =>
@@ -118,6 +144,7 @@ export default function CoinsPage() {
           <TabsTrigger value="individual"><Coins className="mr-2 h-4 w-4" />개별 조정</TabsTrigger>
           <TabsTrigger value="bulk"><Users className="mr-2 h-4 w-4" />역할별 일괄 지급</TabsTrigger>
           <TabsTrigger value="history"><History className="mr-2 h-4 w-4" />지급 내역</TabsTrigger>
+          <TabsTrigger value="transactions"><Receipt className="mr-2 h-4 w-4" />사용자 거래내역</TabsTrigger>
         </TabsList>
 
         <TabsContent value="individual">
@@ -324,7 +351,7 @@ export default function CoinsPage() {
                         </TableCell>
                         <TableCell className="text-right font-mono text-sm">{h.coins.toLocaleString()}</TableCell>
                         <TableCell className="text-right font-mono text-sm">{h.balanceAfter.toLocaleString()}</TableCell>
-                        <TableCell className="text-sm max-w-[180px] truncate">{h.description}</TableCell>
+                        <TableCell className="text-sm max-w-45 truncate">{h.description}</TableCell>
                         <TableCell className="text-sm">{new Date(h.createdAt).toLocaleDateString('ko-KR')}</TableCell>
                       </TableRow>
                     ))
@@ -341,6 +368,122 @@ export default function CoinsPage() {
               </Button>
               <span className="text-sm text-muted-foreground">{historyPage + 1} / {historyData!.totalPages}</span>
               <Button variant="outline" size="sm" disabled={historyPage >= (historyData?.totalPages ?? 1) - 1} onClick={() => setHistoryPage((p) => p + 1)}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="transactions">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="md:col-span-1">
+              <CardHeader>
+                <CardTitle className="text-base">사용자 검색</CardTitle>
+                <CardDescription>거래내역을 조회할 사용자를 선택합니다.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="닉네임 또는 아이디 검색..."
+                    value={txUserSearch}
+                    onChange={(e) => setTxUserSearch(e.target.value)}
+                    className="pl-8 h-8"
+                  />
+                </div>
+                {balancesLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : (
+                  <div className="max-h-96 overflow-y-auto space-y-1">
+                    {txFilteredBalances.slice(0, 50).map((u) => (
+                      <button
+                        key={u.uuid}
+                        type="button"
+                        className={`w-full text-left rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent ${txSelectedUser?.uuid === u.uuid ? 'bg-accent font-medium' : ''}`}
+                        onClick={() => {
+                          setTxSelectedUser(u);
+                          setTxPage(0);
+                          setTxData(null);
+                          loadUserTransactions(u, 0);
+                        }}
+                      >
+                        <div className="font-medium">{u.userNickname}</div>
+                        <div className="text-xs text-muted-foreground">{u.adminId} · 코인 {u.coinBalance.toLocaleString()}</div>
+                      </button>
+                    ))}
+                    {txFilteredBalances.length === 0 && (
+                      <p className="text-center py-4 text-sm text-muted-foreground">검색 결과가 없습니다.</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="text-base">코인 거래내역</CardTitle>
+                <CardDescription>
+                  {txSelectedUser ? `${txSelectedUser.userNickname}의 거래내역` : '왼쪽에서 사용자를 선택하세요.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>유형</TableHead>
+                      <TableHead className="text-right">수량</TableHead>
+                      <TableHead className="text-right">변경 후</TableHead>
+                      <TableHead>설명</TableHead>
+                      <TableHead>일시</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!txSelectedUser ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">사용자를 선택하면 거래내역이 표시됩니다.</TableCell>
+                      </TableRow>
+                    ) : txLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-12">
+                          <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                        </TableCell>
+                      </TableRow>
+                    ) : (txData?.content ?? []).length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">거래내역이 없습니다.</TableCell>
+                      </TableRow>
+                    ) : (
+                      (txData?.content ?? []).map((tx: CoinTransaction) => (
+                        <TableRow key={tx.coinUuid}>
+                          <TableCell>
+                            <Badge variant={tx.changeType === 'GAIN' ? 'default' : tx.changeType === 'USE' ? 'secondary' : 'destructive'}>
+                              {tx.changeType === 'GAIN' ? '지급' : tx.changeType === 'USE' ? '사용' : '차감'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className={`text-right font-mono text-sm ${tx.coins < 0 ? 'text-destructive' : 'text-green-600'}`}>
+                            {tx.coins > 0 ? '+' : ''}{tx.coins.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right font-mono text-sm">{tx.balanceAfter.toLocaleString()}</TableCell>
+                          <TableCell className="text-sm max-w-40 truncate">{tx.description ?? '-'}</TableCell>
+                          <TableCell className="text-sm whitespace-nowrap">{new Date(tx.createdAt).toLocaleDateString('ko-KR')}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
+
+          {(txData?.totalPages ?? 0) > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <Button variant="outline" size="sm" disabled={txPage === 0} onClick={() => setTxPage((p) => p - 1)}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">{txPage + 1} / {txData!.totalPages}</span>
+              <Button variant="outline" size="sm" disabled={txPage >= (txData?.totalPages ?? 1) - 1} onClick={() => setTxPage((p) => p + 1)}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
