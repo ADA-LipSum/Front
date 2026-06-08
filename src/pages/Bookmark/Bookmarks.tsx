@@ -19,7 +19,12 @@ const BookmarkCard = ({ post, onClick }: { post: BookmarkPost; onClick: () => vo
     className="flex items-start gap-3 px-4 py-4 cursor-pointer bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-100 transition-all duration-200"
   >
     {post.writerProfileImage ? (
-      <Avatar name={post.writer} src={post.writerProfileImage} size="md" className="shrink-0 mt-0.5" />
+      <Avatar
+        name={post.writer}
+        src={post.writerProfileImage}
+        size="md"
+        className="shrink-0 mt-0.5"
+      />
     ) : (
       <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
         {post.writer.charAt(0)}
@@ -35,9 +40,7 @@ const BookmarkCard = ({ post, onClick }: { post: BookmarkPost; onClick: () => vo
         )}
       </div>
 
-      <p className="text-sm font-semibold text-gray-800 truncate leading-snug mb-1">
-        {post.title}
-      </p>
+      <p className="text-sm font-semibold text-gray-800 truncate leading-snug mb-1">{post.title}</p>
 
       <div className="flex items-center gap-2 text-xs text-gray-400 flex-wrap">
         <span className="font-medium text-gray-500">{post.writer}</span>
@@ -95,16 +98,15 @@ export const Bookmarks = () => {
     <div className="min-h-screen bg-[#f7f8fa]">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <div className="flex items-center gap-2 mb-6">
-          <Bookmark size={20} className="text-indigo-500" />
           <h1 className="text-xl font-bold text-gray-800">내 북마크</h1>
-          {data && (
-            <span className="ml-1 text-sm text-gray-400">{data.totalElements}개</span>
-          )}
+          {data && <span className="ml-1 text-sm text-gray-400">{data.totalElements}개</span>}
         </div>
 
         {isLoading ? (
           <div className="flex flex-col gap-3">
-            {Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)}
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
         ) : posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-gray-400">

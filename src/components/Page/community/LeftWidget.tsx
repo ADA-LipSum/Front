@@ -90,7 +90,7 @@ export const LeftWidget = () => {
   return (
     <div className="flex flex-col gap-4 w-72 py-8">
       {/* 급식 카드 */}
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+      <div className="bg-white rounded-sm overflow-hidden border border-gray-100 shadow-sm">
         <div className="px-4 pt-4 pb-2 flex items-center gap-2">
           <Utensils size={15} className="text-orange-400 shrink-0" />
           <span className="text-sm font-semibold text-gray-700">오늘의 급식</span>
@@ -103,7 +103,7 @@ export const LeftWidget = () => {
             <button
               key={type}
               onClick={() => setActiveMeal(type)}
-              className={`flex-1 py-1.5 text-xs font-medium rounded-lg transition-all ${
+              className={`flex-1 py-1.5 text-xs font-medium rounded-sm transition-all ${
                 activeMeal === type
                   ? 'bg-orange-50 text-orange-500 border border-orange-200'
                   : 'text-gray-400 hover:text-gray-600'
@@ -118,7 +118,7 @@ export const LeftWidget = () => {
         <ul className="px-4 pb-4 space-y-1.5">
           {mealLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
-              <li key={i} className="h-3.5 bg-gray-100 rounded-full animate-pulse w-3/4" />
+              <li key={i} className="h-3.5 bg-gray-100 rounded-sm animate-pulse w-3/4" />
             ))
           ) : !currentMeal ? (
             <li className="text-xs text-gray-400 text-center py-2">급식 정보가 없습니다</li>
@@ -126,7 +126,7 @@ export const LeftWidget = () => {
             <>
               {(currentMeal.menus ?? []).map((item, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-sm bg-orange-300 shrink-0" />
                   {item}
                 </li>
               ))}
@@ -141,7 +141,7 @@ export const LeftWidget = () => {
       </div>
 
       {/* 학사 일정 카드 */}
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+      <div className="bg-white rounded-sm overflow-hidden border border-gray-100 shadow-sm">
         <div className="px-4 pt-4 pb-2 flex items-center gap-2">
           <CalendarDays size={15} className="text-blue-400 shrink-0" />
           <span className="text-sm font-semibold text-gray-700">학사 일정</span>
@@ -151,7 +151,7 @@ export const LeftWidget = () => {
         <div className="flex items-center justify-between px-3 mb-1">
           <button
             onClick={prevMonth}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+            className="p-1 rounded-sm hover:bg-gray-100 text-gray-400 transition-colors"
           >
             <ChevronLeft size={15} />
           </button>
@@ -160,7 +160,7 @@ export const LeftWidget = () => {
           </span>
           <button
             onClick={nextMonth}
-            className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors"
+            className="p-1 rounded-sm hover:bg-gray-100 text-gray-400 transition-colors"
           >
             <ChevronRight size={15} />
           </button>
@@ -189,20 +189,20 @@ export const LeftWidget = () => {
                 {day !== null && (
                   <>
                     <div
-                      className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium transition-colors cursor-default ${
+                      className={`w-7 h-7 flex items-center justify-center rounded-sm text-xs font-medium transition-colors cursor-default ${
                         isToday(day)
                           ? 'bg-blue-500 text-white font-bold'
                           : col === 0
-                            ? 'text-red-400 hover:bg-red-50'
+                            ? 'text-red-400 hover:bg-red-100'
                             : col === 6
-                              ? 'text-blue-400 hover:bg-blue-50'
-                              : 'text-gray-700 hover:bg-gray-100'
+                              ? 'text-blue-400 hover:bg-blue-100'
+                              : 'text-gray-700 hover:bg-gray-200'
                       }`}
                     >
                       {day}
                     </div>
                     {eventDateSet.has(day) && (
-                      <span className="w-1 h-1 rounded-full bg-orange-400 mt-0.5" />
+                      <span className="w-1 h-1 rounded-sm bg-orange-400 mt-0.5" />
                     )}
                   </>
                 )}
@@ -216,7 +216,7 @@ export const LeftWidget = () => {
           <div className="px-4 pb-4 space-y-1.5 border-t border-gray-100 pt-3 max-h-36 overflow-y-auto">
             {monthEvents.map((event, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${event.color}`} />
+                <span className={`w-2 h-2 rounded-sm shrink-0 ${event.color}`} />
                 <span className="text-xs text-gray-500 leading-snug">
                   <span className="font-medium text-gray-600">
                     {month + 1}/{event.date}

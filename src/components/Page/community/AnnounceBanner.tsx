@@ -37,7 +37,7 @@ export default function AnnounceBanner() {
         observer
         observeParents
         pagination={{ clickable: true }}
-        className="rounded-lg overflow-hidden h-50"
+        className="rounded-sm overflow-hidden h-50"
         style={
           {
             '--swiper-pagination-color': '#3B82F6',
@@ -47,7 +47,11 @@ export default function AnnounceBanner() {
       >
         {BANNERS.map((banner: Banner) => (
           <SwiperSlide key={banner.id}>
-            <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover block" />
+            <img
+              src={banner.imageUrl}
+              alt={banner.title}
+              className="w-full h-full object-cover block"
+            />
           </SwiperSlide>
         ))}
       </Swiper>

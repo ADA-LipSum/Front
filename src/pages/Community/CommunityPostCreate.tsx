@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { markdownComponents } from '@/components/Library/React-Markdown-Syntax/MarkdownComponents';
 import { createGeneralPost, createDevPost } from '@/api/community';
 import type { CreateDevPostPollInput } from '@/api/community';
-import { Eye, EyeOff, Plus, X, ChevronLeft } from 'lucide-react';
+import { Eye, EyeOff, Plus, X, Image, Video, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import {
   ShowSuccessToast,
@@ -13,18 +13,12 @@ import {
 } from '@/components/Library/Toast/Toast';
 
 type CommunityType = 'general' | 'dev';
-type GeneralCategory = 'CHAT' | 'MEME' | 'PROJECT_SHOWCASE';
-type DevSubTag = 'QUESTION' | 'PROJECT' | 'RESOURCE_SHARING';
-
-const GENERAL_CATEGORIES: { value: GeneralCategory; label: string }[] = [
-  { value: 'CHAT', label: '잡담' },
-  { value: 'MEME', label: '밈' },
-  { value: 'PROJECT_SHOWCASE', label: '프로젝트 소개' },
-];
+type DevSubTag = 'QUESTION' | 'PROJECT' | 'MEME' | 'RESOURCE_SHARING';
 
 const DEV_SUBTAGS: { value: DevSubTag; label: string }[] = [
   { value: 'QUESTION', label: '질문' },
   { value: 'PROJECT', label: '프로젝트' },
+  { value: 'MEME', label: '밈' },
   { value: 'RESOURCE_SHARING', label: '자료 공유' },
 ];
 
@@ -59,15 +53,20 @@ export const CommunityPostCreate = () => {
   const { isLoggedIn } = useAuthStore();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+
   const [communityType, setCommunityType] = useState<CommunityType>('general');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isPreview, setIsPreview] = useState(false);
-  const [generalCategory, setGeneralCategory] = useState<GeneralCategory>('CHAT');
   const [devSubTag, setDevSubTag] = useState<DevSubTag>('QUESTION');
   const [techTags, setTechTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [showMediaInList, setShowMediaInList] = useState(true);
 
   const [hasPoll, setHasPoll] = useState(false);
   const [pollQuestion, setPollQuestion] = useState('');
@@ -125,11 +124,11 @@ export const CommunityPostCreate = () => {
       ShowWarningToast('제목을 입력해주세요.');
       return false;
     }
-    if (!content.trim()) {
+    if (communityType === 'dev' && !content.trim()) {
       ShowWarningToast('내용을 입력해주세요.');
       return false;
     }
-    if (communityType === 'dev' && hasPoll) {
+    if (hasPoll) {
       if (!pollQuestion.trim()) {
         ShowWarningToast('투표 질문을 입력해주세요.');
         return false;
@@ -151,21 +150,25 @@ export const CommunityPostCreate = () => {
     setIsSubmitting(true);
     try {
       let postId: number;
+      const poll: CreateDevPostPollInput | undefined = hasPoll
+        ? {
+            question: pollQuestion.trim(),
+            options: pollOptions.filter((o) => o.trim()),
+            endsAt: new Date(pollEndsAt).toISOString(),
+            anonymous: pollAnonymous,
+          }
+        : undefined;
+
       if (communityType === 'general') {
         postId = await createGeneralPost({
           title: title.trim(),
-          content: content.trim(),
-          communityCategory: generalCategory,
+          content: content.trim() || undefined,
+          images: imageFiles,
+          videos: videoFiles,
+          showMediaInList,
+          ...(poll && { poll }),
         });
       } else {
-        const poll: CreateDevPostPollInput | undefined = hasPoll
-          ? {
-              question: pollQuestion.trim(),
-              options: pollOptions.filter((o) => o.trim()),
-              endsAt: new Date(pollEndsAt).toISOString(),
-              anonymous: pollAnonymous,
-            }
-          : undefined;
         postId = await createDevPost({
           title: title.trim(),
           content: content.trim(),
@@ -219,36 +222,128 @@ export const CommunityPostCreate = () => {
           </button>
         </div>
 
-        {/* Category / SubTag */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5">
-          <p className="text-sm font-semibold text-gray-700 mb-3">
-            {isDev ? '게시글 유형' : '카테고리'}
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            {(isDev ? DEV_SUBTAGS : GENERAL_CATEGORIES).map((item) => {
-              const isActive = isDev ? devSubTag === item.value : generalCategory === item.value;
-              return (
+        {/* SubTag (dev only) */}
+        {isDev && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+            <p className="text-sm font-semibold text-gray-700 mb-3">게시글 유형</p>
+            <div className="flex gap-2 flex-wrap">
+              {DEV_SUBTAGS.map((item) => (
                 <button
                   key={item.value}
-                  onClick={() =>
-                    isDev
-                      ? setDevSubTag(item.value as DevSubTag)
-                      : setGeneralCategory(item.value as GeneralCategory)
-                  }
+                  onClick={() => setDevSubTag(item.value)}
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                    isActive
-                      ? isDev
-                        ? 'bg-indigo-500 text-white border-indigo-500'
-                        : 'bg-green-500 text-white border-green-500'
+                    devSubTag === item.value
+                      ? 'bg-indigo-500 text-white border-indigo-500'
                       : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 >
                   {item.label}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* 파일 첨부 (general only) */}
+        {!isDev && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+            <p className="text-sm font-semibold text-gray-700">파일 첨부</p>
+
+            {/* 이미지 */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                >
+                  <Image size={13} />
+                  이미지 추가
+                </button>
+                <span className="text-xs text-gray-400">jpeg, png, gif, webp, svg · 최대 15MB</span>
+              </div>
+              <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                multiple
+                hidden
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  setImageFiles((prev) => [...prev, ...files]);
+                  e.target.value = '';
+                }}
+              />
+              {imageFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {imageFiles.map((file, i) => (
+                    <div key={i} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
+                      <span className="max-w-32 truncate">{file.name}</span>
+                      <button onClick={() => setImageFiles((prev) => prev.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-400 transition">
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 영상 */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                >
+                  <Video size={13} />
+                  영상 추가
+                </button>
+                <span className="text-xs text-gray-400">mp4 · 최대 100MB</span>
+              </div>
+              <input
+                ref={videoInputRef}
+                type="file"
+                accept="video/mp4"
+                multiple
+                hidden
+                onChange={(e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  setVideoFiles((prev) => [...prev, ...files]);
+                  e.target.value = '';
+                }}
+              />
+              {videoFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {videoFiles.map((file, i) => (
+                    <div key={i} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
+                      <span className="max-w-32 truncate">{file.name}</span>
+                      <button onClick={() => setVideoFiles((prev) => prev.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-400 transition">
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 목록 미디어 노출 */}
+            <div className="flex items-center justify-between pt-1 border-t border-gray-100">
+              <div>
+                <span className="text-sm text-gray-700">목록에서 미디어 노출</span>
+                <p className="text-xs text-gray-400 mt-0.5">끄면 상세 조회에서만 이미지·영상이 보입니다</p>
+              </div>
+              <button
+                onClick={() => setShowMediaInList((v) => !v)}
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${showMediaInList ? 'bg-green-500' : 'bg-gray-200'}`}
+                role="switch"
+                aria-checked={showMediaInList}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${showMediaInList ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tech tags (dev only) */}
         {isDev && (
@@ -317,10 +412,10 @@ export const CommunityPostCreate = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
-            maxLength={100}
+            maxLength={20}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
           />
-          <div className="text-right text-xs text-gray-400 mt-1.5">{title.length}/100</div>
+          <div className="text-right text-xs text-gray-400 mt-1.5">{title.length}/20</div>
         </div>
 
         {/* Content editor */}
@@ -385,8 +480,8 @@ export const CommunityPostCreate = () => {
           )}
         </div>
 
-        {/* Poll (dev only) */}
-        {isDev && (
+        {/* Poll */}
+        {(
           <div className="bg-white rounded-2xl border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>

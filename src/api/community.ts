@@ -45,6 +45,7 @@ export interface CommunityPostItem {
   thumbnailImage: string | null;
   images: string[];
   videos: string[];
+  isBookmarked: boolean;
 }
 
 export interface CommunityPostsPage {
@@ -70,7 +71,7 @@ export const getCommunityPosts = async (params: getCommunityPostsParams) => {
 export interface getDevCommunityPostsParams {
   page?: number;
   size?: number;
-  postType?: 'ALL' | 'QUESTION' | 'PROJECT' | 'RESOURCE_SHARING';
+  postType?: 'ALL' | 'QUESTION' | 'PROJECT' | 'MEME' | 'RESOURCE_SHARING';
   language?: string;
   query?: string;
   sort?: 'LATEST' | 'POPULAR';
@@ -152,14 +153,6 @@ export const getCommunityPostDetail = async (postId: string): Promise<PostDetail
   return res.data.data;
 };
 
-export interface CreateGeneralPostRequest {
-  title: string;
-  content: string;
-  communityCategory: 'CHAT' | 'MEME' | 'PROJECT_SHOWCASE';
-  images?: string[];
-  videos?: string[];
-}
-
 export interface CreateDevPostPollInput {
   question: string;
   options: string[];
@@ -167,34 +160,45 @@ export interface CreateDevPostPollInput {
   anonymous: boolean;
 }
 
-export interface CreateDevPostRequest {
+export interface CreateGeneralPostRequest {
   title: string;
-  content: string;
-  techSubTag: 'QUESTION' | 'PROJECT' | 'RESOURCE_SHARING';
-  techTags?: string[];
-  images?: string[];
+  content?: string;
+  images?: File[];
+  videos?: File[];
+  showMediaInList?: boolean;
   poll?: CreateDevPostPollInput;
 }
 
-// 일반 커뮤니티 게시글 작성 (JSON)
+export interface CreateDevPostRequest {
+  title: string;
+  content: string;
+  techSubTag: 'QUESTION' | 'PROJECT' | 'MEME' | 'RESOURCE_SHARING';
+  techTags?: string[];
+  poll?: CreateDevPostPollInput;
+}
+
+// 일반 커뮤니티 게시글 작성 (multipart/form-data)
 export const createGeneralPost = async (data: CreateGeneralPostRequest): Promise<number> => {
-  const res = await axios.post<ApiResponse<number>>('/api/community/posts', data);
+  const formData = new FormData();
+  formData.append('title', data.title);
+  if (data.content) formData.append('content', data.content);
+  data.images?.forEach((file) => formData.append('images', file));
+  data.videos?.forEach((file) => formData.append('videos', file));
+  if (data.showMediaInList !== undefined) {
+    formData.append('showMediaInList', String(data.showMediaInList));
+  }
+  if (data.poll) {
+    formData.append('poll', JSON.stringify(data.poll));
+  }
+  const res = await axios.post<ApiResponse<number>>('/api/community/posts', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
   return res.data.data;
 };
 
 // 개발 커뮤니티 게시글 작성 (JSON)
 export const createDevPost = async (data: CreateDevPostRequest): Promise<number> => {
   const res = await axios.post<ApiResponse<number>>('/api/community/dev/posts', data);
-  return res.data.data;
-};
-
-// 커뮤니티 게시글 작성 (multipart)
-export const createCommunityPost = async (formData: FormData) => {
-  const res = await axios.post<ApiResponse<unknown>>('/api/community/posts', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
   return res.data.data;
 };
 
@@ -205,7 +209,7 @@ export const toggleCommunityPostLike = async (postId: string) => {
 };
 
 // 커뮤니티 게시글 북마크 토글
-export const toggleBookmark = async (postId: string) => {
-  const res = await axios.post<ApiResponse<unknown>>(`/api/community/posts/${postId}/bookmark`);
+export const toggleBookmark = async (postId: number | string): Promise<boolean> => {
+  const res = await axios.post<ApiResponse<boolean>>(`/api/community/posts/${postId}/bookmark`);
   return res.data.data;
 };

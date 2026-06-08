@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '@/components/global/Avatar';
-import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
+
+import { useQueryClient } from '@tanstack/react-query';
+import { toggleBookmark } from '@/api/community';
 
 export interface ReactionItem {
   emoji: string;
@@ -21,12 +24,14 @@ export interface ShareFeedItem {
   likes: number;
   comments: number;
   reactions?: ReactionItem[];
+  isBookmarked?: boolean;
 }
 
 type MediaItem = { type: 'image'; url: string } | { type: 'video'; url: string };
 
 function timeAgo(dateStr: string): string {
-  const normalized = dateStr.endsWith('Z') || /[+\-]\d{2}:\d{2}$/.test(dateStr) ? dateStr : dateStr + 'Z';
+  const normalized =
+    dateStr.endsWith('Z') || /[+\-]\d{2}:\d{2}$/.test(dateStr) ? dateStr : dateStr + 'Z';
   const date = new Date(normalized);
   const diff = Math.floor((Date.now() - date.getTime()) / 1000);
   if (diff < 60) return `약 ${diff}초 전`;
@@ -42,12 +47,18 @@ interface ShareFeedOverViewProps {
   onShare?: (id: number) => void;
 }
 
-export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFeedOverViewProps) => {
+export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverViewProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [liked, setLiked] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(feed.isBookmarked);
   const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsBookmarked(feed.isBookmarked);
+  }, [feed.isBookmarked]);
 
   useEffect(() => {
     if (!showPicker) return;
@@ -75,6 +86,16 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
     onLike?.(feed.id);
   };
 
+  const handleBookmark = async () => {
+    try {
+      const bookmarked = await toggleBookmark(feed.id);
+      setIsBookmarked(bookmarked);
+      queryClient.invalidateQueries({ queryKey: ['communityPosts'] });
+    } catch (error) {
+      console.error('북마크 처리 중 오류 발생:', error);
+    }
+  };
+
   return (
     <div className="flex gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors">
       {/* Avatar 컬럼 */}
@@ -82,7 +103,7 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
         {feed.profileImage ? (
           <Avatar name={feed.realName} src={feed.profileImage} size="md" />
         ) : (
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold">
+          <div className="w-10 h-10 rounded-sm bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold">
             {feed.realName.charAt(0)}
           </div>
         )}
@@ -97,10 +118,10 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
           <span className="text-xs text-gray-300">·</span>
           <span className="text-xs text-gray-400">{timeAgo(feed.postedAt)}</span>
           <button
-            onClick={() => onShare?.(feed.id)}
-            className="ml-auto text-gray-400 hover:text-indigo-500 transition-colors"
+            onClick={handleBookmark}
+            className={`ml-auto transition-colors ${isBookmarked ? 'text-[#2B7FFF]' : 'text-gray-300 hover:text-[#2B7FFF]'}`}
           >
-            <Share2 size={16} />
+            <Bookmark size={16} className={isBookmarked ? 'fill-[#2B7FFF]' : ''} />
           </button>
         </div>
 
@@ -122,13 +143,13 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
         {/* 미디어 캐러셀 */}
         {hasMedia && (
           <div
-            className="mt-2 rounded-sm overflow-hidden bg-gray-100 relative aspect-video cursor-pointer border border-gray-100"
+            className="mt-2 rounded-sm overflow-hidden bg-gray-100 relative cursor-pointer border border-gray-100"
             onClick={() => navigate(`/article/${feed.id}`)}
           >
             {mediaItems[currentIndex].type === 'video' ? (
               <video
                 src={mediaItems[currentIndex].url}
-                className="w-full h-full object-cover"
+                className="w-full h-auto max-h-150 object-cover"
                 controls
                 onClick={(e) => e.stopPropagation()}
               />
@@ -136,7 +157,7 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
               <img
                 src={mediaItems[currentIndex].url}
                 alt={`미디어 ${currentIndex + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-auto max-h-150 object-cover"
               />
             )}
             {mediaCount > 1 && (
@@ -146,7 +167,7 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
                     e.stopPropagation();
                     prev();
                   }}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition-colors"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-sm bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition-colors"
                 >
                   <ChevronLeft size={15} />
                 </button>
@@ -155,11 +176,11 @@ export const ShareFeedOverView = ({ feed, onLike, onComment, onShare }: ShareFee
                     e.stopPropagation();
                     next();
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-sm bg-black/30 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/50 transition-colors"
                 >
                   <ChevronRight size={15} />
                 </button>
-                <span className="absolute top-2 right-2 text-xs text-white bg-black/40 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="absolute top-2 right-2 text-xs text-white bg-black/40 backdrop-blur-sm rounded-sm px-2 py-0.5">
                   {currentIndex + 1}/{mediaCount}
                 </span>
               </>

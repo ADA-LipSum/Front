@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpDown, Flame, Image, Video, AlignLeft } from 'lucide-react';
+import {
+  ArrowUpDown,
+  Flame,
+  Image,
+  Video,
+  AlignLeft,
+  HelpCircle,
+  FolderOpen,
+  Share2,
+  Laugh,
+} from 'lucide-react';
 import {
   ShareFeedOverView,
   type ShareFeedItem,
 } from '@/components/Page/community/ShareFeedOverView';
-import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
-import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOverView';
+import { DevPostsOverView } from '@/components/Page/community/DevPostsOverView';
+import type { DevPostOverViewItem } from '@/components/Page/community/DevPostsOverView';
 import { RightWidget } from '@/components/Page/community/RightWidget';
 import { LeftWidget } from '@/components/Page/community/LeftWidget';
 import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
@@ -16,7 +26,7 @@ import { useQuery } from '@tanstack/react-query';
 type CommunityTab = 'general' | 'dev' | 'study-group';
 type SortOrder = 'latest' | 'popular';
 type MediaFilter = 'all' | 'photo' | 'video' | 'text';
-type DevPostType = 'ALL' | 'QUESTION' | 'PROJECT' | 'RESOURCE_SHARING';
+type DevPostType = 'ALL' | 'QUESTION' | 'PROJECT' | 'MEME' | 'RESOURCE_SHARING';
 
 const TABS: { id: CommunityTab; label: string; icon: string }[] = [
   {
@@ -43,11 +53,12 @@ const MEDIA_OPTIONS: { id: MediaFilter; label: string; icon: typeof Image }[] = 
   { id: 'text', label: '텍스트', icon: AlignLeft },
 ];
 
-const DEV_POST_TYPE_OPTIONS: { id: DevPostType; label: string }[] = [
-  { id: 'ALL', label: '전체' },
-  { id: 'QUESTION', label: '질문' },
-  { id: 'PROJECT', label: '프로젝트' },
-  { id: 'RESOURCE_SHARING', label: '자료공유' },
+const DEV_POST_TYPE_OPTIONS: { id: DevPostType; label: string; icon: typeof AlignLeft }[] = [
+  { id: 'ALL', label: '전체', icon: AlignLeft },
+  { id: 'QUESTION', label: '질문', icon: HelpCircle },
+  { id: 'PROJECT', label: '프로젝트', icon: FolderOpen },
+  { id: 'MEME', label: '밈', icon: Laugh },
+  { id: 'RESOURCE_SHARING', label: '자료공유', icon: Share2 },
 ];
 
 const TECH_SUB_TAG_LABEL: Record<string, string> = {
@@ -55,6 +66,7 @@ const TECH_SUB_TAG_LABEL: Record<string, string> = {
   CHAT: '잡담',
   TIP: '팁',
   POLL: '투표',
+  RESOURCE_SHARING: '자료공유',
 };
 
 const PostSkeleton = () => (
@@ -118,13 +130,18 @@ export const Community = () => {
     postedAt: item.writedAt,
     title: item.title,
     description: '',
-    images: item.images?.length ? item.images : item.thumbnailImage ? [item.thumbnailImage] : undefined,
+    images: item.images?.length
+      ? item.images
+      : item.thumbnailImage
+        ? [item.thumbnailImage]
+        : undefined,
     videos: item.videos?.length ? item.videos : undefined,
     likes: item.likes,
     comments: item.comments,
+    isBookmarked: item.isBookmarked,
   }));
 
-  const devPosts: QnAPostOverViewItem[] = (devData?.content ?? []).map((item) => ({
+  const devPosts: DevPostOverViewItem[] = (devData?.content ?? []).map((item) => ({
     seq: item.seq,
     postUuid: item.postUuid,
     title: item.title,
@@ -198,7 +215,7 @@ export const Community = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="검색어를 입력하세요..."
-              className="w-full pl-10 pr-4 py-3 rounded-full bg-white border border-gray-200 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-3 rounded-sm bg-white border border-gray-200 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
             />
           </div>
 
@@ -206,15 +223,15 @@ export const Community = () => {
           {activeTab === 'general' && (
             <div className="flex items-center justify-between">
               <div className="flex gap-1.5">
-                {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
-                  const active = sortOrder === id;
+                {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = mediaFilter === id;
                   return (
                     <button
                       key={id}
-                      onClick={() => setSortOrder(id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                      onClick={() => setMediaFilter(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${
                         active
-                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
                       }`}
                     >
@@ -225,15 +242,15 @@ export const Community = () => {
                 })}
               </div>
               <div className="flex gap-1.5">
-                {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
-                  const active = mediaFilter === id;
+                {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = sortOrder === id;
                   return (
                     <button
                       key={id}
-                      onClick={() => setMediaFilter(id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                      onClick={() => setSortOrder(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${
                         active
-                          ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
+                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
                       }`}
                     >
@@ -250,18 +267,19 @@ export const Community = () => {
           {activeTab === 'dev' && (
             <div className="flex items-center justify-between">
               <div className="flex gap-1.5">
-                {DEV_POST_TYPE_OPTIONS.map(({ id, label }) => {
+                {DEV_POST_TYPE_OPTIONS.map(({ id, label, icon: Icon }) => {
                   const active = devPostType === id;
                   return (
                     <button
                       key={id}
                       onClick={() => setDevPostType(id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${
                         active
-                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
                       }`}
                     >
+                      <Icon size={12} />
                       {label}
                     </button>
                   );
@@ -274,7 +292,7 @@ export const Community = () => {
                     <button
                       key={id}
                       onClick={() => setDevSortOrder(id)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${
                         active
                           ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
                           : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
@@ -297,27 +315,29 @@ export const Community = () => {
         {activeTab === 'dev' ? (
           <div className="w-180">
             {devLoading ? (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-sm border border-gray-100 shadow-sm overflow-hidden">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <PostSkeleton key={i} />
                 ))}
               </div>
             ) : (
-              <QnAPostsOverView
+              <DevPostsOverView
                 posts={devPosts}
                 onPostClick={(seq) => navigate(`/article/${seq}`)}
               />
             )}
           </div>
         ) : generalLoading ? (
-          <div className="w-180 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="w-180 bg-white rounded-sm border border-gray-100 shadow-sm overflow-hidden">
             {Array.from({ length: 5 }).map((_, i) => (
               <PostSkeleton key={i} />
             ))}
           </div>
         ) : generalFeeds.length > 0 ? (
-          <div className="w-180 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
-            {generalFeeds.map((feed, i) => <ShareFeedOverView key={i} feed={feed} />)}
+          <div className="w-180 bg-white rounded-sm border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
+            {generalFeeds.map((feed, i) => (
+              <ShareFeedOverView key={i} feed={feed} />
+            ))}
           </div>
         ) : (
           <div className="w-180 flex flex-col items-center justify-center py-20 gap-3 text-gray-400">

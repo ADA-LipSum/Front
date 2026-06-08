@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { QnAPostsOverView } from '../../components/Page/community/QnAPostsOverView';
+import { QnAPostsOverView } from '../../components/Page/community/DevPostsOverView';
 
 const meta: Meta<typeof QnAPostsOverView> = {
   title: 'Community/QnAPostsOverView',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   getCommunityPostDetail,
   toggleCommunityPostLike,
@@ -42,7 +43,10 @@ function parseMediaUrls(raw: string | string[] | null): string[] {
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) return parsed.filter(Boolean);
   } catch {}
-  return raw.split(',').map((s) => s.trim()).filter(Boolean);
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 function timeAgo(dateStr: string): string {
@@ -57,6 +61,7 @@ function timeAgo(dateStr: string): string {
 export const CommunityPostDetail = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isLoggedIn, loading: authLoading } = useAuthStore();
 
   const [post, setPost] = useState<PostDetail | null>(null);
@@ -108,6 +113,7 @@ export const CommunityPostDetail = () => {
     try {
       const nowBookmarked = (await toggleBookmark(postId!)) as boolean;
       setBookmarked(nowBookmarked);
+      queryClient.invalidateQueries({ queryKey: ['communityPosts'] });
     } catch {
       ShowWarningToast('북마크 처리에 실패했습니다.');
     }
@@ -131,7 +137,9 @@ export const CommunityPostDetail = () => {
   if (!post) return null;
 
   const categoryLabel = COMMUNITY_CATEGORY_LABEL[post.communityCategory] ?? post.communityCategory;
-  const subTagLabel = post.techSubTag ? (TECH_SUB_TAG_LABEL[post.techSubTag] ?? post.techSubTag) : null;
+  const subTagLabel = post.techSubTag
+    ? (TECH_SUB_TAG_LABEL[post.techSubTag] ?? post.techSubTag)
+    : null;
 
   return (
     <div className="min-h-screen py-5">
@@ -260,6 +268,23 @@ export const CommunityPostDetail = () => {
                         src={src}
                         alt={`첨부 이미지 ${i + 1}`}
                         className="max-w-full rounded-xl border border-gray-100"
+                      />
+                    ))}
+                  </div>
+                ) : null;
+              })()}
+
+              {/* Videos */}
+              {(() => {
+                const vids = parseMediaUrls(post.videos);
+                return vids.length > 0 ? (
+                  <div className="mt-6 space-y-3">
+                    {vids.map((src, i) => (
+                      <video
+                        key={i}
+                        src={src}
+                        controls
+                        className="max-w-full rounded-xl border border-gray-100 bg-black"
                       />
                     ))}
                   </div>

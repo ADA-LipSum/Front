@@ -59,8 +59,8 @@ export const Header = () => {
         {isLoggedIn ? (
           <>
             <Link to="/community/write">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group bg-green-500 hover:bg-green-600 transition">
-                <Pen size={20} color="#fff" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300 hover:bg-gray-100">
+                <Pen size={20} color="#6b7280" />
               </div>
             </Link>
 
@@ -69,10 +69,10 @@ export const Header = () => {
             </div>
 
             {/* 프로필 영역 */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative flex items-center" ref={dropdownRef}>
               <button
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white"
+                className="w-12 h-12 rounded-full ml-2 border border-gray-300 overflow-hidden hover:cursor-pointer bg-white flex items-center justify-center"
               >
                 <Avatar
                   name={'프로필 이미지'}
