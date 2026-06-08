@@ -153,6 +153,12 @@ export const getCommunityPostDetail = async (postId: string): Promise<PostDetail
   return res.data.data;
 };
 
+// 개발 커뮤니티 게시글 상세 조회
+export const getDevCommunityPostDetail = async (postId: string): Promise<PostDetail> => {
+  const res = await axios.get<ApiResponse<PostDetail>>(`/api/community/dev/posts/${postId}`);
+  return res.data.data;
+};
+
 export interface CreateDevPostPollInput {
   question: string;
   options: string[];
@@ -212,4 +218,39 @@ export const toggleCommunityPostLike = async (postId: string) => {
 export const toggleBookmark = async (postId: number | string): Promise<boolean> => {
   const res = await axios.post<ApiResponse<boolean>>(`/api/community/posts/${postId}/bookmark`);
   return res.data.data;
+};
+
+export interface UpdatePostRequest {
+  title?: string;
+  content?: string;
+  images?: string;
+  videos?: string;
+  isDev?: boolean;
+  devTags?: string;
+  boardType?: string;
+  communityCategory?: string;
+  techSubTag?: string;
+  techTags?: string[];
+  thumbnailImage?: string;
+  showMediaInList?: boolean;
+}
+
+// 커뮤니티 게시글 수정
+export const updateCommunityPost = async (postId: number, data: UpdatePostRequest) => {
+  const res = await axios.put<ApiResponse<unknown>>(`/api/community/posts/${postId}`, data);
+  return res.data;
+};
+
+// 커뮤니티 게시글 삭제
+export const deleteCommunityPost = async (postId: number) => {
+  const res = await axios.delete<ApiResponse<unknown>>(`/api/community/posts/${postId}`);
+  return res.data;
+};
+
+// 커뮤니티 게시글 신고
+export const reportCommunityPost = async (postId: number, reason: string) => {
+  const res = await axios.post<ApiResponse<unknown>>(`/api/community/posts/${postId}/report`, {
+    reason,
+  });
+  return res.data;
 };

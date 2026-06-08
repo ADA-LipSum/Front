@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Avatar from '@/components/global/Avatar';
 import { Heart, MessageCircle, Bookmark, ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { useQueryClient } from '@tanstack/react-query';
-import { toggleBookmark } from '@/api/community';
-
 export interface ReactionItem {
   emoji: string;
   count: number;
@@ -47,11 +44,9 @@ interface ShareFeedOverViewProps {
   onShare?: (id: number) => void;
 }
 
-export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverViewProps) => {
+export const ShareFeedOverView = ({ feed, onComment }: ShareFeedOverViewProps) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [liked, setLiked] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(feed.isBookmarked);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -81,21 +76,6 @@ export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverView
   const prev = () => setCurrentIndex((i) => (i - 1 + mediaCount) % mediaCount);
   const next = () => setCurrentIndex((i) => (i + 1) % mediaCount);
 
-  const handleLike = () => {
-    setLiked((v) => !v);
-    onLike?.(feed.id);
-  };
-
-  const handleBookmark = async () => {
-    try {
-      const bookmarked = await toggleBookmark(feed.id);
-      setIsBookmarked(bookmarked);
-      queryClient.invalidateQueries({ queryKey: ['communityPosts'] });
-    } catch (error) {
-      console.error('북마크 처리 중 오류 발생:', error);
-    }
-  };
-
   return (
     <div className="flex gap-3 px-4 py-3 hover:bg-gray-50/50 transition-colors">
       {/* Avatar 컬럼 */}
@@ -117,28 +97,12 @@ export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverView
           <span className="text-xs text-gray-400">@{feed.username}</span>
           <span className="text-xs text-gray-300">·</span>
           <span className="text-xs text-gray-400">{timeAgo(feed.postedAt)}</span>
-          <button
-            onClick={handleBookmark}
+          <div
             className={`ml-auto transition-colors ${isBookmarked ? 'text-[#2B7FFF]' : 'text-gray-300 hover:text-[#2B7FFF]'}`}
           >
             <Bookmark size={16} className={isBookmarked ? 'fill-[#2B7FFF]' : ''} />
-          </button>
+          </div>
         </div>
-
-        {/* 제목 */}
-        <p
-          className="text-sm font-medium text-gray-800 mt-1 leading-snug cursor-pointer hover:text-blue-600 transition-colors"
-          onClick={() => navigate(`/article/${feed.id}`)}
-        >
-          {feed.title}
-        </p>
-
-        {/* 본문 미리보기 */}
-        {feed.description && (
-          <p className="text-sm text-gray-500 mt-0.5 line-clamp-3 leading-relaxed">
-            {feed.description}
-          </p>
-        )}
 
         {/* 미디어 캐러셀 */}
         {hasMedia && (
@@ -188,8 +152,23 @@ export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverView
           </div>
         )}
 
+        {/* 제목 */}
+        <p
+          className="text-sm font-medium text-gray-800 mt-3 leading-snug cursor-pointer hover:text-blue-600 transition-colors"
+          onClick={() => navigate(`/article/${feed.id}`)}
+        >
+          {feed.title}
+        </p>
+
+        {/* 본문 미리보기 */}
+        {feed.description && (
+          <p className="text-sm text-gray-500 mt-0.5 line-clamp-3 leading-relaxed">
+            {feed.description}
+          </p>
+        )}
+
         {/* 액션 바 */}
-        <div className="flex items-center gap-5 mt-2 text-gray-400">
+        <div className="flex items-center gap-5 mt-5 text-gray-400">
           <button
             onClick={() => onComment?.(feed.id)}
             className="flex items-center gap-1.5 hover:text-blue-500 transition-colors"
@@ -197,18 +176,13 @@ export const ShareFeedOverView = ({ feed, onLike, onComment }: ShareFeedOverView
             <MessageCircle size={16} />
             <span className="text-xs">{feed.comments}</span>
           </button>
-          <button
-            onClick={handleLike}
-            className={`flex items-center gap-1.5 transition-colors group ${
-              liked ? 'text-red-500' : 'hover:text-red-500'
-            }`}
+          <div
+            className="flex items-center gap-1.5 transition-colors group
+            "
           >
-            <Heart
-              size={16}
-              className={`transition-all ${liked ? 'fill-red-500' : 'group-hover:fill-red-100'}`}
-            />
-            <span className="text-xs">{feed.likes + (liked ? 1 : 0)}</span>
-          </button>
+            <Heart size={16} className="transition-all" color="#FF2056" />
+            <span className="text-xs">{feed.likes}</span>
+          </div>
         </div>
       </div>
     </div>

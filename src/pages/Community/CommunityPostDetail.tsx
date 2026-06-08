@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   getCommunityPostDetail,
+  getDevCommunityPostDetail,
   toggleCommunityPostLike,
   toggleBookmark,
+  updateCommunityPost,
+  deleteCommunityPost,
+  reportCommunityPost,
   type PostDetail,
   type EmojiReaction,
 } from '@/api/community';
 import { useAuthStore } from '@/store/authStore';
-import { ShowWarningToast } from '@/components/Library/Toast/Toast';
-import { Heart, Share2, Bookmark, Eye, Paperclip, Download } from 'lucide-react';
+import { ShowWarningToast, ShowSuccessToast } from '@/components/Library/Toast/Toast';
+import { Heart, Share2, Bookmark, Eye, Paperclip, Download, Ellipsis } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { markdownComponents } from '@/components/Library/React-Markdown-Syntax/MarkdownComponents';
 import Comment from '@/components/Page/community/Comment';
@@ -62,7 +66,7 @@ export const CommunityPostDetail = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isLoggedIn, loading: authLoading } = useAuthStore();
+  const { isLoggedIn, loading: authLoading, user } = useAuthStore();
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,6 +74,16 @@ export const CommunityPostDetail = () => {
   const [likeCount, setLikeCount] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
   const [reactions, setReactions] = useState<EmojiReaction[]>([]);
+
+  const [showEllipsisMenu, setShowEllipsisMenu] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [reportReason, setReportReason] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const ellipsisRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -83,7 +97,17 @@ export const CommunityPostDetail = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const data = await getCommunityPostDetail(postId);
+        let data: PostDetail;
+        try {
+          data = await getCommunityPostDetail(postId);
+        } catch (err: unknown) {
+          const status = (err as { response?: { status?: number } }).response?.status;
+          if (status === 400) {
+            data = await getDevCommunityPostDetail(postId);
+          } else {
+            throw err;
+          }
+        }
         setPost(data);
         setLikeCount(data.likes ?? 0);
         setLiked(data.isLiked ?? false);
@@ -121,6 +145,69 @@ export const CommunityPostDetail = () => {
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
+  };
+
+  useEffect(() => {
+    if (!showEllipsisMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (ellipsisRef.current && !ellipsisRef.current.contains(e.target as Node)) {
+        setShowEllipsisMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showEllipsisMenu]);
+
+  const handleEditOpen = () => {
+    setEditTitle(post!.title);
+    setEditContent(post!.content);
+    setShowEllipsisMenu(false);
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async () => {
+    if (!postId) return;
+    setActionLoading(true);
+    try {
+      await updateCommunityPost(parseInt(postId), { title: editTitle, content: editContent });
+      setPost((prev) => (prev ? { ...prev, title: editTitle, content: editContent } : prev));
+      setShowEditModal(false);
+      ShowSuccessToast('게시글이 수정되었습니다.');
+    } catch {
+      ShowWarningToast('게시글 수정에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!postId) return;
+    setActionLoading(true);
+    try {
+      await deleteCommunityPost(parseInt(postId));
+      setShowDeleteModal(false);
+      ShowSuccessToast('게시글이 삭제되었습니다.');
+      navigate(-1);
+    } catch {
+      ShowWarningToast('게시글 삭제에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReportSubmit = async () => {
+    if (!postId || !reportReason.trim()) return;
+    setActionLoading(true);
+    try {
+      await reportCommunityPost(parseInt(postId), reportReason);
+      setShowReportModal(false);
+      setReportReason('');
+      ShowSuccessToast('신고가 접수되었습니다.');
+    } catch {
+      ShowWarningToast('신고 처리에 실패했습니다.');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -233,18 +320,53 @@ export const CommunityPostDetail = () => {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={handleShare}
-                    className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                  <button
                     className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                     onClick={handleBookmarkToggle}
                   >
                     <Bookmark className="w-4 h-4" fill={bookmarked ? 'currentColor' : 'none'} />
                     북마크
                   </button>
+                  <div className="relative" ref={ellipsisRef}>
+                    <button
+                      className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                      onClick={() => setShowEllipsisMenu((v) => !v)}
+                    >
+                      <Ellipsis className="w-4 h-4" />
+                    </button>
+                    {showEllipsisMenu && (
+                      <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                        {user?.uuid === post.writerUuid ? (
+                          <>
+                            <button
+                              className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={handleEditOpen}
+                            >
+                              수정
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                              onClick={() => {
+                                setShowEllipsisMenu(false);
+                                setShowDeleteModal(true);
+                              }}
+                            >
+                              삭제
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            className="w-full text-left px-4 py-2.5 text-sm text-orange-500 hover:bg-orange-50 transition-colors"
+                            onClick={() => {
+                              setShowEllipsisMenu(false);
+                              setShowReportModal(true);
+                            }}
+                          >
+                            신고
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -352,6 +474,108 @@ export const CommunityPostDetail = () => {
           <Comment postId={postId} />
         </div>
       </div>
+
+      {/* ── Edit Modal ── */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">게시글 수정</h2>
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="제목"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="내용"
+                rows={8}
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-5">
+              <button
+                className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => setShowEditModal(false)}
+                disabled={actionLoading}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-2 text-sm text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                onClick={handleEditSubmit}
+                disabled={actionLoading || !editTitle.trim()}
+              >
+                {actionLoading ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirm Modal ── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">게시글 삭제</h2>
+            <p className="text-sm text-gray-500 mb-6">정말 이 게시글을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={actionLoading}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                onClick={handleDeleteConfirm}
+                disabled={actionLoading}
+              >
+                {actionLoading ? '삭제 중...' : '삭제'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Report Modal ── */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">게시글 신고</h2>
+            <textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              placeholder="신고 사유를 입력해주세요."
+              rows={4}
+              className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none"
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                onClick={() => {
+                  setShowReportModal(false);
+                  setReportReason('');
+                }}
+                disabled={actionLoading}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-2 text-sm text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                onClick={handleReportSubmit}
+                disabled={actionLoading || !reportReason.trim()}
+              >
+                {actionLoading ? '처리 중...' : '신고'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
