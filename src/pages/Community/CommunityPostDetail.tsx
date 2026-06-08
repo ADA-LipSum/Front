@@ -1,57 +1,70 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  getCommunityPostDetail as fetchPostDetail,
+  getCommunityPostDetail,
   toggleCommunityPostLike,
   toggleBookmark,
+  type PostDetail,
+  type EmojiReaction,
 } from '@/api/community';
 import { useAuthStore } from '@/store/authStore';
 import { ShowWarningToast } from '@/components/Library/Toast/Toast';
-
-import { Heart, Share2, Bookmark, Eye } from 'lucide-react';
-
+import { Heart, Share2, Bookmark, Eye, Paperclip, Download } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { markdownComponents } from '@/components/Library/React-Markdown-Syntax/MarkdownComponents';
 import Comment from '@/components/Page/community/Comment';
+import { Poll } from '@/components/Page/community/Poll';
 
-interface PostDetail {
-  postUuid: string;
-  seq: number | null;
-  writerUuid: string;
-  writerCustomId: string;
-  writer: string;
-  writerProfileImage: string;
-  title: string;
-  content: string;
-  images: string[] | null;
-  videos: string[] | null;
-  writedAt: string;
-  updatedAt: string;
-  likes: number;
-  isLiked?: boolean;
-  views: number;
-  comments: number;
-  isDev: boolean;
-  isBookmarked?: boolean;
-  devTags: string;
+const COMMUNITY_CATEGORY_LABEL: Record<string, string> = {
+  CHAT: '잡담',
+  MEME: '밈',
+  PROJECT_SHOWCASE: '프로젝트 자랑',
+  TECH: '개발',
+};
+
+const TECH_SUB_TAG_LABEL: Record<string, string> = {
+  QUESTION: '질문',
+  CHAT: '잡담',
+  TIP: '팁',
+  POLL: '투표',
+};
+
+const FILE_SIZE_LABEL = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+function parseMediaUrls(raw: string | string[] | null): string[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw.filter(Boolean);
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {}
+  return raw.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
 function timeAgo(dateStr: string): string {
   const date = new Date(dateStr);
   const diff = Math.floor((Date.now() - date.getTime()) / 1000);
-  if (diff < 60) return ` ${diff}초전`;
-  if (diff < 3600) return ` ${Math.floor(diff / 60)}분전`;
-  if (diff < 86400) return ` ${Math.floor(diff / 3600)}시간전`;
-  return ` ${Math.floor(diff / 86400)}일전`;
+  if (diff < 60) return `${diff}초 전`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  return `${Math.floor(diff / 86400)}일 전`;
 }
 
 export const CommunityPostDetail = () => {
   const { postId } = useParams<{ postId: string }>();
   const navigate = useNavigate();
   const { isLoggedIn, loading: authLoading } = useAuthStore();
+
   const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
+  const [reactions, setReactions] = useState<EmojiReaction[]>([]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -65,12 +78,12 @@ export const CommunityPostDetail = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const data = await fetchPostDetail(postId);
-        const postData = data as PostDetail;
-        setPost(postData);
-        setLikeCount(postData.likes ?? 0);
-        setLiked(postData.isLiked ?? false);
-        setBookmarked(postData.isBookmarked ?? false);
+        const data = await getCommunityPostDetail(postId);
+        setPost(data);
+        setLikeCount(data.likes ?? 0);
+        setLiked(data.isLiked ?? false);
+        setBookmarked(data.isBookmarked ?? false);
+        setReactions(data.emojiReactions ?? []);
       } catch {
         ShowWarningToast('게시물을 불러오는 데 실패했습니다.');
         navigate('/');
@@ -100,6 +113,10 @@ export const CommunityPostDetail = () => {
     }
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -113,9 +130,8 @@ export const CommunityPostDetail = () => {
 
   if (!post) return null;
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-  };
+  const categoryLabel = COMMUNITY_CATEGORY_LABEL[post.communityCategory] ?? post.communityCategory;
+  const subTagLabel = post.techSubTag ? (TECH_SUB_TAG_LABEL[post.techSubTag] ?? post.techSubTag) : null;
 
   return (
     <div className="min-h-screen py-5">
@@ -140,12 +156,12 @@ export const CommunityPostDetail = () => {
             onClick={handleShare}
             className="flex flex-col items-center gap-1 p-5 rounded-xl text-gray-400 hover:text-blue-400 hover:bg-blue-50 transition-all"
           >
-            {/* TODO: 링크 공유 시 미리보기 기능 지원할 예정 */}
             <Share2 className="w-5 h-5" />
           </button>
 
           <div className="w-6 h-px bg-gray-100 my-1" />
         </div>
+
         {/* ── Main content ── */}
         <div className="w-full max-w-3xl rounded-lg">
           <div>
@@ -153,22 +169,24 @@ export const CommunityPostDetail = () => {
             <div className="px-8 pt-8 pb-6">
               {/* Badges */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="text-xs font-semibold rounded-md px-2.5 py-1 bg-gray-100 text-gray-500">
-                  Q&A
-                </span>
-
-                {post.isDev && post.devTags && (
-                  <>
-                    {post.devTags.split(',').map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs font-semibold rounded-md px-2.5 py-1 bg-blue-400 text-white"
-                      >
-                        {tag.trim()}
-                      </span>
-                    ))}
-                  </>
+                {categoryLabel && (
+                  <span className="text-xs font-semibold rounded-md px-2.5 py-1 bg-gray-100 text-gray-500">
+                    {categoryLabel}
+                  </span>
                 )}
+                {subTagLabel && (
+                  <span className="text-xs font-semibold rounded-md px-2.5 py-1 bg-indigo-50 text-indigo-500">
+                    {subTagLabel}
+                  </span>
+                )}
+                {(post.techTags ?? []).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="text-xs font-semibold rounded-md px-2.5 py-1 bg-blue-400 text-white"
+                  >
+                    {tag.trim()}
+                  </span>
+                ))}
               </div>
 
               {/* Title */}
@@ -206,18 +224,18 @@ export const CommunityPostDetail = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
-                    <Share2 className="w-5 h-5" />
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
                   </button>
                   <button
                     className="flex items-center gap-1.5 text-xs text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
                     onClick={handleBookmarkToggle}
                   >
-                    <Bookmark className="w-5 h-5" fill={bookmarked ? 'currentColor' : 'none'} />
+                    <Bookmark className="w-4 h-4" fill={bookmarked ? 'currentColor' : 'none'} />
                     북마크
-                  </button>
-                  <button className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors font-bold text-base tracking-widest">
-                    ···
                   </button>
                 </div>
               </div>
@@ -225,30 +243,87 @@ export const CommunityPostDetail = () => {
 
             <div className="h-px bg-gray-100" />
 
-            {/* ── Content + Like/Dislike ── */}
-            <div className="flex">
-              {/* Content */}
-              <div className="flex-1 min-w-0 px-8 py-8">
-                <p className="text-[15px] text-gray-700 leading-7 whitespace-pre-wrap">
-                  {post.content}
-                </p>
+            {/* ── Content ── */}
+            <div className="px-8 py-8">
+              <div className="markdown-preview text-[15px] leading-7">
+                <ReactMarkdown components={markdownComponents}>{post.content}</ReactMarkdown>
+              </div>
 
-                {post.images && post.images.length > 0 && (
+              {/* Images */}
+              {(() => {
+                const imgs = parseMediaUrls(post.images);
+                return imgs.length > 0 ? (
                   <div className="mt-6 space-y-3">
-                    {post.images.map((src, i) => (
+                    {imgs.map((src, i) => (
                       <img
                         key={i}
                         src={src}
                         alt={`첨부 이미지 ${i + 1}`}
-                        className="max-w-full rounded-xl border-gray-100"
+                        className="max-w-full rounded-xl border border-gray-100"
                       />
                     ))}
                   </div>
-                )}
-              </div>
+                ) : null;
+              })()}
+
+              {/* Poll */}
+              {(post.poll || post.techSubTag === 'POLL') && (
+                <Poll postUuid={post.postUuid} initialPoll={post.poll} />
+              )}
+
+              {/* Emoji reactions */}
+              {reactions.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="flex flex-wrap gap-2">
+                    {reactions.map((r) => (
+                      <button
+                        key={r.emoji}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-all ${
+                          r.reacted
+                            ? 'bg-blue-50 border-blue-300 text-blue-600'
+                            : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
+                        }`}
+                      >
+                        <span>{r.emoji}</span>
+                        <span className="font-medium">{r.count}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Attachments */}
+              {post.attachments && post.attachments.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-100">
+                  <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-1.5">
+                    <Paperclip className="w-3.5 h-3.5" />
+                    첨부파일 {post.attachments.length}개
+                  </p>
+                  <div className="space-y-2">
+                    {post.attachments.map((file) => (
+                      <a
+                        key={file.id}
+                        href={file.fileUrl}
+                        download={file.fileName}
+                        className="flex items-center justify-between px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 hover:bg-gray-100 transition-colors group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <Paperclip className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span className="text-sm text-gray-700 truncate">{file.fileName}</span>
+                          <span className="text-xs text-gray-400 shrink-0">
+                            {FILE_SIZE_LABEL(file.fileSize)}
+                          </span>
+                        </div>
+                        <Download className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors shrink-0" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            {/* ── Comments Section ── */}
           </div>
+
+          {/* ── Comments ── */}
           <Comment postId={postId} />
         </div>
       </div>

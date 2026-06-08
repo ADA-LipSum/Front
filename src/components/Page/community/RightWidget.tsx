@@ -1,121 +1,78 @@
-import { Heart, MessageCircle, FileText, Smile } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import Avatar from '@/components/global/Avatar';
-
-interface Tag {
-  label: string;
-  count: string | number;
-  color: string;
-}
-
-const POPULAR_TAGS: Tag[] = [
-  { label: 'React', count: '999+', color: 'bg-blue-50 text-blue-600 border-blue-200' },
-  { label: 'TypeScript', count: '98', color: 'bg-green-50 text-green-600 border-green-200' },
-  { label: 'JavaScript', count: '76', color: 'bg-yellow-50 text-yellow-600 border-yellow-200' },
-  { label: 'Python', count: '64', color: 'bg-purple-50 text-purple-600 border-purple-200' },
-  { label: 'Java', count: '51', color: 'bg-pink-50 text-pink-600 border-pink-200' },
-  { label: 'C++', count: '43', color: 'bg-orange-50 text-orange-600 border-orange-200' },
-  { label: 'Go', count: '38', color: 'bg-teal-50 text-teal-600 border-teal-200' },
-  { label: 'Rust', count: '29', color: 'bg-red-50 text-red-600 border-red-200' },
-];
-
-const WEEKLY_ACTIVITY = [12, 5, 20, 8, 15, 3, 18];
-const WEEK_DAYS = ['월', '화', '수', '목', '금', '토', '일'];
-const MAX_ACTIVITY = Math.max(...WEEKLY_ACTIVITY);
-
-const MOCK_USER = {
-  name: '김태호',
-  username: 'rlaxogh76',
-  profileImage:
-    'https://2026project-s3-ada.s3.ap-northeast-2.amazonaws.com/profiles/1b6f8f54-a6e5-4cc3-bd30-afec528c29ed/19cbdc9e-7924-4fa3-9043-6e6cddb80168.jpg',
-  posts: '24',
-  likes: '187',
-  comments: '63',
-  reactions: '41',
-};
+import { useQuery } from '@tanstack/react-query';
+import { getCommunityMyStats } from '@/api/communityMyStats';
+import { getPopularTags } from '@/api/popularTags';
+import { useAuthStore } from '@/store/authStore';
 
 export const RightWidget = () => {
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const { data: stats } = useQuery({
+    queryKey: ['communityMyStats'],
+    queryFn: getCommunityMyStats,
+    retry: false,
+  });
+
+  const { data: popularTags } = useQuery({
+    queryKey: ['popularTags'],
+    queryFn: getPopularTags,
+    staleTime: 1000 * 60 * 60,
+  });
+
   return (
-    <div className="flex flex-col gap-4 py-25 w-68">
-      {/* 내 활동 요약 */}
-      <div className="bg-white rounded-2xl border border-gray-300 overflow-hidden">
-        {/* 프로필 헤더 */}
-        <div className="px-4 pt-4 pb-3 flex items-center gap-3 border-b border-gray-300">
-          <Avatar name={MOCK_USER.name} src={MOCK_USER.profileImage} size="md" />
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">{MOCK_USER.name}</p>
-            <p className="text-xs text-gray-400">@{MOCK_USER.username}</p>
+    <div className="flex flex-col gap-4 py-8 w-72">
+      {/* 내 프로필 / 활동 */}
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+        {!accessToken ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-10 px-4 text-center">
+            <LogIn size={26} className="text-gray-300" />
+            <p className="text-sm text-gray-400">로그인하여 활동을 확인하세요!</p>
           </div>
-        </div>
-
-        {/* 스탯 그리드 */}
-        <div className="grid grid-cols-2 gap-px bg-gray-100 border-b border-gray-300">
-          {[
-            { icon: FileText, label: '작성한 글', value: MOCK_USER.posts, color: 'text-blue-500' },
-            { icon: Heart, label: '받은 좋아요', value: MOCK_USER.likes, color: 'text-red-400' },
-            {
-              icon: MessageCircle,
-              label: '댓글',
-              value: MOCK_USER.comments,
-              color: 'text-green-500',
-            },
-            {
-              icon: Smile,
-              label: '받은 반응',
-              value: MOCK_USER.reactions,
-              color: 'text-orange-400',
-            },
-          ].map(({ icon: Icon, label, value, color }) => (
-            <div key={label} className="bg-white px-4 py-3 flex flex-col gap-1">
-              <Icon size={14} className={color} />
-              <p className="text-lg font-bold text-gray-800 leading-none">{value}</p>
-              <p className="text-xs text-gray-400">{label}</p>
+        ) : (
+          <div className="p-4">
+            <div className="flex items-center gap-3">
+              <Avatar name={stats?.realName ?? ''} src={stats?.profileImage} size="md" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-gray-900 truncate">{stats?.realName ?? '—'}</p>
+                <p className="text-xs text-gray-400">@{stats?.nickname ?? '—'}</p>
+              </div>
             </div>
-          ))}
-        </div>
-
-        {/* 주간 활동 바 차트 */}
-        <div className="px-4 pt-3 pb-4">
-          <p className="text-xs font-semibold text-gray-500 mb-3">이번 주 활동</p>
-          <div className="flex items-end gap-1.5 h-14">
-            {WEEKLY_ACTIVITY.map((val, i) => {
-              const heightPct = Math.round((val / MAX_ACTIVITY) * 100);
-              const isToday = i === new Date().getDay() - 1;
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full flex items-end" style={{ height: '44px' }}>
-                    <div
-                      className={`w-full rounded-t-sm transition-all ${
-                        isToday ? 'bg-blue-400' : 'bg-gray-200'
-                      }`}
-                      style={{ height: `${heightPct}%` }}
-                    />
-                  </div>
-                  <span
-                    className={`text-xs ${isToday ? 'text-blue-500 font-semibold' : 'text-gray-400'}`}
-                  >
-                    {WEEK_DAYS[i]}
-                  </span>
-                </div>
-              );
-            })}
+            <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-gray-100 text-center">
+              <div>
+                <p className="text-base font-bold text-gray-900">{stats?.postCount ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">게시글</p>
+              </div>
+              <div>
+                <p className="text-base font-bold text-gray-900">{stats?.receivedLikes ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">좋아요</p>
+              </div>
+              <div>
+                <p className="text-base font-bold text-gray-900">{stats?.commentCount ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">댓글</p>
+              </div>
+              <div>
+                <p className="text-base font-bold text-gray-900">{stats?.receivedReactions ?? 0}</p>
+                <p className="text-xs text-gray-400 mt-0.5">반응</p>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* 인기 태그 */}
-      <div className="bg-white rounded-2xl border border-gray-300 overflow-hidden">
-        <div className="px-4 pt-4 pb-3 flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-700">인기 개발 태그</span>
+      {/* 트렌딩 태그 */}
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+        <div className="px-4 pt-4 pb-1">
+          <h2 className="text-base font-bold text-gray-900">트렌딩 태그</h2>
         </div>
-        <div className="px-4 pb-4 flex flex-wrap gap-2">
-          {POPULAR_TAGS.map(({ label, count, color }) => (
+        <div className="divide-y divide-gray-50">
+          {(popularTags ?? []).slice(0, 7).map(({ tag, count }, i) => (
             <button
-              key={label}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all hover:opacity-80 ${color}`}
+              key={tag}
+              className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
             >
-              <span>#</span>
-              <span>{label}</span>
-              <span className="opacity-60">{count}</span>
+              <p className="text-xs text-gray-400">{i + 1} · 개발 · Trending</p>
+              <p className="text-sm font-bold text-gray-900 mt-0.5">#{tag}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{count.toLocaleString()}개 게시글</p>
             </button>
           ))}
         </div>

@@ -33,7 +33,7 @@ const SocialLinks = () => {
   if (links.length === 0) return null;
 
   return (
-    <div className="px-4 py-2 absolute left-4 top-110 flex gap-4">
+    <div className="absolute left-4 inset-y-0 flex items-center gap-4 px-2 translate-y-10">
       {links.map(({ url, icon, label }) => (
         <a
           key={label}

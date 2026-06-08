@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 
-import { UserCircle, Settings, LogOut, Bookmark, Box, Mailbox, History } from 'lucide-react';
+import { UserCircle, Settings, LogOut, Bookmark, Box, Mailbox } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 export default function ProfileDropdown() {
@@ -45,14 +45,6 @@ export default function ProfileDropdown() {
         >
           <span>북마크</span>
           <Bookmark size={17} />
-        </Link>
-
-        <Link
-          to="/activity"
-          className="px-3 py-2 rounded-lg hover:bg-gray-100 transition flex items-center justify-between text-sm"
-        >
-          <span>활동 기록</span>
-          <History size={17} />
         </Link>
 
         <Link

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowUpDown, Flame, Image, Video, AlignLeft } from 'lucide-react';
 import {
   ShareFeedOverView,
-  MOCK_FEED_WITH_IMAGES,
-  MOCK_FEED_TEXT_ONLY,
   type ShareFeedItem,
 } from '@/components/Page/community/ShareFeedOverView';
 import { QnAPostsOverView } from '@/components/Page/community/QnAPostsOverView';
@@ -12,11 +10,13 @@ import type { QnAPostOverViewItem } from '@/components/Page/community/QnAPostsOv
 import { RightWidget } from '@/components/Page/community/RightWidget';
 import { LeftWidget } from '@/components/Page/community/LeftWidget';
 import AnnounceBanner from '@/components/Page/community/AnnounceBanner';
-import { getCommunityPosts } from '@/api/community';
+import { getCommunityPosts, getDevCommunityPosts } from '@/api/community';
+import { useQuery } from '@tanstack/react-query';
 
 type CommunityTab = 'general' | 'dev' | 'study-group';
 type SortOrder = 'latest' | 'popular';
 type MediaFilter = 'all' | 'photo' | 'video' | 'text';
+type DevPostType = 'ALL' | 'QUESTION' | 'PROJECT' | 'RESOURCE_SHARING';
 
 const TABS: { id: CommunityTab; label: string; icon: string }[] = [
   {
@@ -43,10 +43,11 @@ const MEDIA_OPTIONS: { id: MediaFilter; label: string; icon: typeof Image }[] = 
   { id: 'text', label: '텍스트', icon: AlignLeft },
 ];
 
-const ALL_FEEDS: ShareFeedItem[] = [
-  MOCK_FEED_WITH_IMAGES,
-  MOCK_FEED_WITH_IMAGES,
-  MOCK_FEED_TEXT_ONLY,
+const DEV_POST_TYPE_OPTIONS: { id: DevPostType; label: string }[] = [
+  { id: 'ALL', label: '전체' },
+  { id: 'QUESTION', label: '질문' },
+  { id: 'PROJECT', label: '프로젝트' },
+  { id: 'RESOURCE_SHARING', label: '자료공유' },
 ];
 
 const TECH_SUB_TAG_LABEL: Record<string, string> = {
@@ -57,78 +58,89 @@ const TECH_SUB_TAG_LABEL: Record<string, string> = {
 };
 
 const PostSkeleton = () => (
-  <div className="flex items-start gap-3 px-4 py-4 bg-white rounded-xl border border-gray-100 shadow-sm animate-pulse">
-    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0 mt-0.5" />
-    <div className="flex-1 min-w-0 space-y-2 pt-0.5">
-      <div className="h-3 bg-gray-200 rounded-full w-14" />
+  <div className="flex gap-3 px-4 py-3 border-b border-gray-100 animate-pulse">
+    <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0" />
+    <div className="flex-1 min-w-0 space-y-2 pt-1">
+      <div className="flex gap-2">
+        <div className="h-3 bg-gray-200 rounded-full w-20" />
+        <div className="h-3 bg-gray-200 rounded-full w-14" />
+      </div>
       <div className="h-4 bg-gray-200 rounded-full w-4/5" />
-      <div className="h-3 bg-gray-200 rounded-full w-2/5" />
+      <div className="h-3 bg-gray-200 rounded-full w-3/5" />
     </div>
   </div>
 );
-
-function applyFilters(feeds: ShareFeedItem[], sort: SortOrder, media: MediaFilter) {
-  let result = [...feeds];
-
-  if (media === 'photo') result = result.filter((f) => (f.images?.length ?? 0) > 0);
-  else if (media === 'video') result = result.filter((f) => (f as any).videos?.length > 0);
-  else if (media === 'text') result = result.filter((f) => !f.images?.length);
-
-  if (sort === 'popular') result = result.sort((a, b) => b.likes - a.likes);
-  else
-    result = result.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-
-  return result;
-}
 
 export const Community = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<CommunityTab>('general');
   const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
   const [mediaFilter, setMediaFilter] = useState<MediaFilter>('all');
-
-  const [devPosts, setDevPosts] = useState<QnAPostOverViewItem[]>([]);
-  const [devLoading, setDevLoading] = useState(false);
+  const [devPostType, setDevPostType] = useState<DevPostType>('ALL');
+  const [devSortOrder, setDevSortOrder] = useState<SortOrder>('latest');
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
   useEffect(() => {
-    if (activeTab !== 'dev') return;
-    const load = async () => {
-      setDevLoading(true);
-      try {
-        const data = await getCommunityPosts({ category: 'TECH', size: 20 });
-        const res = data as unknown as { content?: any[]; totalPages?: number };
-        const content: any[] = res.content ?? [];
-        setDevPosts(
-          content.map((item) => ({
-            seq: item.seq,
-            postUuid: item.postUuid,
-            title: item.title,
-            writer: item.writer,
-            writerProfileImage: item.writerProfileImage,
-            writedAt: item.writedAt,
-            views: item.views,
-            comments: item.comments,
-            tag: item.techSubTag
-              ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag)
-              : undefined,
-            techTags: item.techTags?.length ? item.techTags : undefined,
-          })),
-        );
-      } catch {
-        /* no-op */
-      } finally {
-        setDevLoading(false);
-      }
-    };
-    load();
-  }, [activeTab]);
+    const timer = setTimeout(() => setDebouncedQuery(searchInput.trim()), 400);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
-  const filteredFeeds = applyFilters(ALL_FEEDS, sortOrder, mediaFilter);
+  const { data: generalData, isLoading: generalLoading } = useQuery({
+    queryKey: ['communityPosts', 'general', sortOrder, mediaFilter, debouncedQuery],
+    queryFn: () =>
+      getCommunityPosts({
+        size: 20,
+        sort: sortOrder.toUpperCase() as 'LATEST' | 'POPULAR',
+        mediaFilter: mediaFilter.toUpperCase() as 'ALL' | 'PHOTO' | 'VIDEO' | 'TEXT',
+        query: debouncedQuery || undefined,
+      }),
+    enabled: activeTab === 'general',
+  });
+
+  const { data: devData, isLoading: devLoading } = useQuery({
+    queryKey: ['communityPosts', 'dev', devPostType, devSortOrder, debouncedQuery],
+    queryFn: () =>
+      getDevCommunityPosts({
+        size: 20,
+        postType: devPostType,
+        sort: devSortOrder.toUpperCase() as 'LATEST' | 'POPULAR',
+        query: debouncedQuery || undefined,
+      }),
+    enabled: activeTab === 'dev',
+  });
+
+  const generalFeeds: ShareFeedItem[] = (generalData?.content ?? []).map((item) => ({
+    id: item.seq,
+    username: item.writer,
+    realName: item.writer,
+    profileImage: item.writerProfileImage || undefined,
+    postedAt: item.writedAt,
+    title: item.title,
+    description: '',
+    images: item.images?.length ? item.images : item.thumbnailImage ? [item.thumbnailImage] : undefined,
+    videos: item.videos?.length ? item.videos : undefined,
+    likes: item.likes,
+    comments: item.comments,
+  }));
+
+  const devPosts: QnAPostOverViewItem[] = (devData?.content ?? []).map((item) => ({
+    seq: item.seq,
+    postUuid: item.postUuid,
+    title: item.title,
+    writer: item.writer,
+    writerProfileImage: item.writerProfileImage,
+    writedAt: item.writedAt,
+    views: item.views,
+    comments: item.comments,
+    tag: item.techSubTag ? (TECH_SUB_TAG_LABEL[item.techSubTag] ?? item.techSubTag) : undefined,
+    techTags: item.techTags?.length ? item.techTags : undefined,
+  }));
 
   return (
     <div className="flex justify-center gap-6 p-8 min-h-screen items-start">
       {/* 왼쪽 sticky 위젯 */}
-      <aside className="sticky top-0 self-start shrink-0">
+      <aside className="top-0 self-start shrink-0">
         <LeftWidget />
       </aside>
 
@@ -183,15 +195,16 @@ export const Community = () => {
             </span>
             <input
               type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder="검색어를 입력하세요..."
               className="w-full pl-10 pr-4 py-3 rounded-full bg-white border border-gray-200 text-sm text-gray-700 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
             />
           </div>
 
-          {/* 필터 칩 — 일반 탭에서만 표시 */}
+          {/* 필터 칩 — 일반 탭 */}
           {activeTab === 'general' && (
             <div className="flex items-center justify-between">
-              {/* 정렬 */}
               <div className="flex gap-1.5">
                 {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
                   const active = sortOrder === id;
@@ -211,8 +224,6 @@ export const Community = () => {
                   );
                 })}
               </div>
-
-              {/* 미디어 타입 */}
               <div className="flex gap-1.5">
                 {MEDIA_OPTIONS.map(({ id, label, icon: Icon }) => {
                   const active = mediaFilter === id;
@@ -234,6 +245,49 @@ export const Community = () => {
               </div>
             </div>
           )}
+
+          {/* 필터 칩 — 개발 탭 */}
+          {activeTab === 'dev' && (
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1.5">
+                {DEV_POST_TYPE_OPTIONS.map(({ id, label }) => {
+                  const active = devPostType === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setDevPostType(id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-1.5">
+                {SORT_OPTIONS.map(({ id, label, icon: Icon }) => {
+                  const active = devSortOrder === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setDevSortOrder(id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        active
+                          ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      }`}
+                    >
+                      <Icon size={12} />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </section>
 
         {/* 배너 */}
@@ -243,7 +297,7 @@ export const Community = () => {
         {activeTab === 'dev' ? (
           <div className="w-180">
             {devLoading ? (
-              <div className="grid grid-cols-1 gap-3">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <PostSkeleton key={i} />
                 ))}
@@ -255,8 +309,16 @@ export const Community = () => {
               />
             )}
           </div>
-        ) : filteredFeeds.length > 0 ? (
-          filteredFeeds.map((feed, i) => <ShareFeedOverView key={i} feed={feed} />)
+        ) : generalLoading ? (
+          <div className="w-180 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <PostSkeleton key={i} />
+            ))}
+          </div>
+        ) : generalFeeds.length > 0 ? (
+          <div className="w-180 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-100">
+            {generalFeeds.map((feed, i) => <ShareFeedOverView key={i} feed={feed} />)}
+          </div>
         ) : (
           <div className="w-180 flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
             <span className="text-4xl">🔍</span>
@@ -266,7 +328,7 @@ export const Community = () => {
       </main>
 
       {/* 오른쪽 sticky 위젯 */}
-      <aside className="sticky top-0 self-start shrink-0">
+      <aside className="top-0 self-start shrink-0">
         <RightWidget />
       </aside>
     </div>

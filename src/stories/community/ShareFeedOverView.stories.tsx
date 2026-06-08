@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { MemoryRouter } from 'react-router-dom';
 import {
   ShareFeedOverView,
   MOCK_FEED_WITH_IMAGES,
@@ -8,6 +9,13 @@ import {
 const meta: Meta<typeof ShareFeedOverView> = {
   title: 'Community/ShareFeedOverView',
   component: ShareFeedOverView,
+  decorators: [
+    (Story) => (
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    ),
+  ],
 };
 
 export default meta;

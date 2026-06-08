@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Utensils, CalendarDays } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getMeal, type MealInfo } from '@/api/meal';
 
 type MealType = '조식' | '중식' | '석식';
-
-interface MealMenu {
-  type: MealType;
-  items: string[];
-  kcal: number;
-}
 
 interface SchoolEvent {
   date: number;
@@ -16,23 +12,11 @@ interface SchoolEvent {
   color: string;
 }
 
-const MOCK_MEALS: MealMenu[] = [
-  {
-    type: '조식',
-    items: ['쌀밥', '미역국', '계란후라이', '깍두기', '우유'],
-    kcal: 580,
-  },
-  {
-    type: '중식',
-    items: ['쌀밥', '된장찌개', '제육볶음', '콩나물무침', '깍두기', '배추김치'],
-    kcal: 850,
-  },
-  {
-    type: '석식',
-    items: ['쌀밥', '북어국', '돼지불고기', '시금치나물', '배추김치'],
-    kcal: 780,
-  },
-];
+const MEAL_KEY_MAP: Record<MealType, keyof Awaited<ReturnType<typeof getMeal>>> = {
+  조식: 'breakfast',
+  중식: 'lunch',
+  석식: 'dinner',
+};
 
 const MOCK_EVENTS: SchoolEvent[] = [
   { date: 2, month: 5, title: '중간고사 시작', color: 'bg-red-400' },
@@ -64,9 +48,18 @@ const MONTH_NAMES = [
 
 const todayReal = new Date();
 
+const formatDate = (d: Date) =>
+  `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+
 export const LeftWidget = () => {
   const [activeMeal, setActiveMeal] = useState<MealType>('중식');
   const [currentDate, setCurrentDate] = useState(new Date(2026, 5, 1));
+
+  const { data: mealData, isLoading: mealLoading } = useQuery({
+    queryKey: ['meal', formatDate(todayReal)],
+    queryFn: () => getMeal(formatDate(todayReal)),
+    staleTime: 1000 * 60 * 60 * 12,
+  });
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -80,7 +73,9 @@ export const LeftWidget = () => {
   const monthEvents = MOCK_EVENTS.filter((e) => e.month === month);
   const eventDateSet = new Set(monthEvents.map((e) => e.date));
 
-  const currentMeal = MOCK_MEALS.find((m) => m.type === activeMeal)!;
+  const rawMeal = mealData?.[MEAL_KEY_MAP[activeMeal]] ?? null;
+  const currentMeal: MealInfo | null =
+    rawMeal && typeof rawMeal === 'object' ? (rawMeal as MealInfo) : null;
 
   const calDays: (number | null)[] = [
     ...Array(firstDay).fill(null),
@@ -93,7 +88,7 @@ export const LeftWidget = () => {
   const mealDate = `${todayReal.getMonth() + 1}월 ${todayReal.getDate()}일`;
 
   return (
-    <div className="flex flex-col gap-4 w-68 py-25">
+    <div className="flex flex-col gap-4 w-72 py-8">
       {/* 급식 카드 */}
       <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
         <div className="px-4 pt-4 pb-2 flex items-center gap-2">
@@ -121,15 +116,27 @@ export const LeftWidget = () => {
 
         {/* 메뉴 목록 */}
         <ul className="px-4 pb-4 space-y-1.5">
-          {currentMeal.items.map((item, i) => (
-            <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
-              {item}
-            </li>
-          ))}
-          <li className="pt-1 text-xs text-gray-400 font-medium text-right">
-            {currentMeal.kcal} kcal
-          </li>
+          {mealLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <li key={i} className="h-3.5 bg-gray-100 rounded-full animate-pulse w-3/4" />
+            ))
+          ) : !currentMeal ? (
+            <li className="text-xs text-gray-400 text-center py-2">급식 정보가 없습니다</li>
+          ) : (
+            <>
+              {(currentMeal.menus ?? []).map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-300 shrink-0" />
+                  {item}
+                </li>
+              ))}
+              {currentMeal.calorie && (
+                <li className="pt-1 text-xs text-gray-400 font-medium text-right">
+                  {currentMeal.calorie}
+                </li>
+              )}
+            </>
+          )}
         </ul>
       </div>
 

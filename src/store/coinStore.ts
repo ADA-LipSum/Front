@@ -1,3 +1,4 @@
+// TODO: 어짜피 단순 조회용이라서 TANSTACK QUERY로 바꿔도 될 것 같음.
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import {
@@ -108,9 +109,7 @@ export const useCoinStore = create<CoinStore>()(
           const updated = await apiUpdateCartQuantity(cartItemUuid, quantity);
           set((state) => ({
             cartLoading: false,
-            cartItems: state.cartItems.map((i) =>
-              i.cartItemUuid === cartItemUuid ? updated : i,
-            ),
+            cartItems: state.cartItems.map((i) => (i.cartItemUuid === cartItemUuid ? updated : i)),
           }));
         } catch (err: any) {
           set({ cartLoading: false, cartError: err.response?.data?.message || '수량 변경 실패' });
@@ -127,9 +126,7 @@ export const useCoinStore = create<CoinStore>()(
           const message: string = err.response?.data?.message || '결제 실패';
           // 재고 부족/비활성 아이템이 로컬 카트에 있으면 제거해 다음 결제를 허용
           set((state) => {
-            const filtered = state.cartItems.filter(
-              (i) => !message.includes(i.itemName),
-            );
+            const filtered = state.cartItems.filter((i) => !message.includes(i.itemName));
             return { cartLoading: false, cartError: message, cartItems: filtered };
           });
           return false;
@@ -137,7 +134,15 @@ export const useCoinStore = create<CoinStore>()(
       },
 
       clearCoin: () => {
-        set({ balance: 0, purchases: [], loading: false, error: null, cartItems: [], cartLoading: false, cartError: null });
+        set({
+          balance: 0,
+          purchases: [],
+          loading: false,
+          error: null,
+          cartItems: [],
+          cartLoading: false,
+          cartError: null,
+        });
       },
     }),
     {

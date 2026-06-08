@@ -5,7 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 
 import LipSum_Logo_Black from '@/assets/LipSum-logo-black.svg';
 
-import { Bell } from 'lucide-react';
+import { Bell, Pen } from 'lucide-react';
 
 import Avatar from '@/components/global/Avatar';
 import ProfileDropdown from '@/components/Page/profile/ProfileDropdown';
@@ -58,6 +58,12 @@ export const Header = () => {
       <div className="ml-auto mr-6 flex items-center gap-5">
         {isLoggedIn ? (
           <>
+            <Link to="/community/write">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group bg-green-500 hover:bg-green-600 transition">
+                <Pen size={20} color="#fff" />
+              </div>
+            </Link>
+
             <div className="w-10 h-10 rounded-lg flex items-center justify-center relative hover:cursor-pointer group border border-gray-300 hover:bg-gray-100">
               <Bell size={20} color="#6b7280" />
             </div>
