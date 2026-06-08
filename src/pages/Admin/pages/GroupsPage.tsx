@@ -157,7 +157,7 @@ export default function GroupsPage() {
                 />
               </div>
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? 'all')}>
-                <SelectTrigger className="w-28 h-8"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-28 h-8"><SelectValue>{{ all: '전체 상태', OPEN: '활성', CLOSED: '해산' }[statusFilter] ?? statusFilter}</SelectValue></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">전체 상태</SelectItem>
                   <SelectItem value="OPEN">활성</SelectItem>

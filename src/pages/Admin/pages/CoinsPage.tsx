@@ -200,7 +200,7 @@ export default function CoinsPage() {
                 <div className="space-y-1.5">
                   <Label>대상 화폐</Label>
                   <Select value={individualForm.target} onValueChange={(v) => setIndividualForm((f) => ({ ...f, target: (v ?? 'coin') as 'coin' | 'point' }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger><SelectValue>{{ coin: '코인', point: '포인트' }[individualForm.target] ?? individualForm.target}</SelectValue></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="coin">코인</SelectItem>
                       <SelectItem value="point">포인트</SelectItem>
@@ -211,7 +211,7 @@ export default function CoinsPage() {
                   <div className="space-y-1.5">
                     <Label>조정 유형</Label>
                     <Select value={individualForm.type} onValueChange={(v) => setIndividualForm((f) => ({ ...f, type: (v ?? 'ADD') as 'ADD' | 'DEDUCT' }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger><SelectValue>{{ ADD: '지급', DEDUCT: '차감' }[individualForm.type] ?? individualForm.type}</SelectValue></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="ADD">지급</SelectItem>
                         <SelectItem value="DEDUCT">차감</SelectItem>
@@ -260,7 +260,7 @@ export default function CoinsPage() {
               <div className="space-y-1.5">
                 <Label>대상 역할</Label>
                 <Select value={bulkForm.role} onValueChange={(v) => setBulkForm((f) => ({ ...f, role: v ?? 'STUDENT' }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue>{{ STUDENT: '학생', MENTOR: '멘토', TEACHER: '선생님', ADMIN: '관리자' }[bulkForm.role] ?? bulkForm.role}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="STUDENT">학생</SelectItem>
                     <SelectItem value="MENTOR">멘토</SelectItem>
@@ -273,7 +273,7 @@ export default function CoinsPage() {
                 <div className="space-y-1.5">
                   <Label>처리 유형</Label>
                   <Select value={bulkForm.type} onValueChange={(v) => setBulkForm((f) => ({ ...f, type: (v ?? 'GAIN') as 'GAIN' | 'LOSS' }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger><SelectValue>{{ GAIN: '지급', LOSS: '차감' }[bulkForm.type] ?? bulkForm.type}</SelectValue></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="GAIN">지급</SelectItem>
                       <SelectItem value="LOSS">차감</SelectItem>
