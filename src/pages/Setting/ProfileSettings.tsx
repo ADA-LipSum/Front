@@ -5,6 +5,7 @@ import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toa
 import Avatar from '@/components/global/Avatar';
 import { Globe, Upload, PlusCircleIcon } from 'lucide-react';
 import { SetBannerModal } from '@/components/Page/setting/SetBannerModal';
+import { ImageCropModal } from '@/components/Page/setting/ImageCropModal';
 
 import GitHub from '@/assets/GitHub.png';
 import Linkedin from '@/assets/Linkedin.png';
@@ -35,6 +36,8 @@ export const ProfileSettings = () => {
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
   const [profileOutlineColor, setProfileOutlineColor] = useState('#3b82f6');
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -55,12 +58,33 @@ export const ProfileSettings = () => {
     }
   }, [fetchProfile, user?.uuid]);
 
+  const IMAGE_SIZE_THRESHOLD = 128; // pixels
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPendingImageFile(file);
-    setPreviewImageUrl(URL.createObjectURL(file));
+
+    const fileUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      if (img.width >= IMAGE_SIZE_THRESHOLD || img.height >= IMAGE_SIZE_THRESHOLD) {
+        setImageToCrop(fileUrl);
+        setShowCropModal(true);
+      } else {
+        setPendingImageFile(file);
+        setPreviewImageUrl(fileUrl);
+      }
+    };
+
+    img.src = fileUrl;
     e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setPendingImageFile(croppedFile);
+    setPreviewImageUrl(URL.createObjectURL(croppedFile));
+    setImageToCrop(null);
   };
 
   const handleSave = async () => {
@@ -350,6 +374,18 @@ export const ProfileSettings = () => {
           onClose={() => {
             setPreviewBannerUrl(null);
             setShowBannerModal(false);
+          }}
+        />
+      )}
+
+      {showCropModal && imageToCrop && (
+        <ImageCropModal
+          imageUrl={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onClose={() => {
+            setShowCropModal(false);
+            if (imageToCrop) URL.revokeObjectURL(imageToCrop);
+            setImageToCrop(null);
           }}
         />
       )}

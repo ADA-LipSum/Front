@@ -86,7 +86,9 @@ export const EventCard = ({ events = MOCK_EVENTS }: EventCardProps) => {
         </div>
       </div>
 
-      <div className={`transition-all duration-200 overflow-hidden ${openEvent ? 'max-h-96' : 'max-h-0'}`}>
+      <div
+        className={`transition-all duration-200 overflow-hidden ${openEvent ? 'max-h-96' : 'max-h-0'}`}
+      >
         {/* 아트 영역 — 이미지 자리 */}
         <div className="mx-4 rounded-sm overflow-hidden bg-gray-100 relative">
           <img
@@ -106,7 +108,7 @@ export const EventCard = ({ events = MOCK_EVENTS }: EventCardProps) => {
           <p className="text-sm font-bold leading-snug text-gray-900 mb-3 whitespace-pre-line">
             {currentEvent.description}
           </p>
-          <button className="w-full py-2.5 bg-gray-900 hover:bg-gray-700 active:bg-gray-600 transition text-sm font-bold text-white rounded-lg">
+          <button className="w-full py-2.5 bg-green-500 hover:bg-green-600 active:bg-green-700 transition text-sm font-bold text-white rounded-lg">
             자세히 보기
           </button>
         </div>

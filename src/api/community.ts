@@ -192,7 +192,11 @@ export const createGeneralPost = async (data: CreateGeneralPostRequest): Promise
   if (data.showMediaInList !== undefined) requestBody.showMediaInList = data.showMediaInList;
   if (data.poll) requestBody.poll = data.poll;
 
-  formData.append('request', new Blob([JSON.stringify(requestBody)], { type: 'application/json' }), 'request.json');
+  formData.append(
+    'request',
+    new Blob([JSON.stringify(requestBody)], { type: 'application/json' }),
+    'request.json',
+  );
 
   data.images?.forEach((file) => formData.append('attachments', file));
   data.videos?.forEach((file) => formData.append('attachments', file));

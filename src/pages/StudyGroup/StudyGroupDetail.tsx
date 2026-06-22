@@ -26,7 +26,7 @@ import {
   StudyGroupCreateModal,
   type ExtendedCreateForm,
   EMPTY_FORM,
-} from '@/components/StudyGroup/StudyGroupCreateModal';
+} from '@/components/Page/study-group/StudyGroupCreateModal';
 
 type CategoryFilter = 'ALL' | '언어 공부' | '프로젝트';
 
@@ -723,9 +723,7 @@ export const StudyGroupDetail = () => {
                       type="button"
                       onClick={() => setSelectedGroup(g)}
                       className={`w-full text-left rounded-sm overflow-hidden transition-all bg-white flex flex-col h-72 ${
-                        isSelected
-                          ? 'shadow-lg'
-                          : 'hover:shadow-md'
+                        isSelected ? 'shadow-lg' : 'hover:shadow-md'
                       }`}
                     >
                       {/* Banner */}
