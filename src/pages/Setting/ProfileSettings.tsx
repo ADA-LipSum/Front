@@ -34,6 +34,7 @@ export const ProfileSettings = () => {
   const [isUploadBanner, setIsUploadBanner] = useState(false);
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
+  const [profileOutlineColor, setProfileOutlineColor] = useState('#3b82f6');
 
   useEffect(() => {
     if (profile) {
@@ -354,9 +355,14 @@ export const ProfileSettings = () => {
       )}
 
       {/* 프로필 이미지 */}
-      <div className="w-55 flex justify-center">
+      <div className="w-55 flex flex-col items-center gap-6">
         <div
-          className="relative w-45 h-45 rounded-full overflow-hidden bg-gray-200 cursor-pointer"
+          className="relative rounded-full overflow-hidden bg-gray-200 cursor-pointer"
+          style={{
+            width: '180px',
+            height: '180px',
+            border: `8px solid ${profileOutlineColor}`,
+          }}
           onMouseEnter={() => setIsImageHovered(true)}
           onMouseLeave={() => setIsImageHovered(false)}
           onClick={() => fileInputRef.current?.click()}
@@ -380,8 +386,19 @@ export const ProfileSettings = () => {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handleFileChange} // TODO: 파일 업로드 후 crop 기능을 통해 원하는 이미지를 프로필로 할 수 있게 추가하기
+            onChange={handleFileChange}
           />
+        </div>
+
+        {/* 아웃라인 색상 선택 */}
+        <div className="flex gap-2 items-center">
+          <input
+            type="color"
+            value={profileOutlineColor}
+            onChange={(e) => setProfileOutlineColor(e.target.value)}
+            className="w-8 h-8 rounded cursor-pointer"
+          />
+          <div className="text-xs text-gray-500">{profileOutlineColor}</div>
         </div>
       </div>
     </div>

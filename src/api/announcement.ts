@@ -9,16 +9,15 @@ interface ApiResponse<T> {
 export type NoticeCategory = 'EVENT' | 'SERVICE' | 'EMPLOYMENT' | 'OTHER';
 
 export interface NoticeItem {
-  id: string;
   seq: number;
   title: string;
-  authorName: string;
-  authorProfileImage: string;
-  createdAt: string;
+  writedAt: string;
   views: number;
-  noticeCategory: NoticeCategory | null;
-  isPinned: boolean | null;
-  pinnedAt: string | null;
+  tag: NoticeCategory | null;
+  tagLabel: string | null;
+  isPinned: boolean;
+  authorName?: string;
+  authorProfileImage?: string;
 }
 
 export interface NoticesPage {
@@ -41,28 +40,17 @@ export const getNotices = async (params: GetNoticesParams = {}): Promise<Notices
   return res.data.data;
 };
 
-export interface NoticeAttachment {
-  id: number;
-  fileName: string;
-  fileUrl: string;
-  fileType: string;
-  fileSize: number;
-  uploadedAt: string;
-}
-
 export interface NoticeDetail {
-  postUuid: string;
   seq: number;
-  writer: string;
-  writerProfileImage: string;
+  tag: NoticeCategory | null;
+  tagLabel: string | null;
   title: string;
-  content: string;
+  writer: string;
   writedAt: string;
   views: number;
-  noticeCategory: NoticeCategory | null;
+  content: string;
   isPinned: boolean | null;
-  pinnedAt: string | null;
-  attachments: NoticeAttachment[];
+  attachments: string[];
 }
 
 export const getNoticeDetail = async (seq: number): Promise<NoticeDetail> => {

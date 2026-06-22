@@ -41,16 +41,14 @@ export const AnnouncementOverView = ({
       )}
 
       {posts.map((post) => {
-        const isSelected = selectedPost?.id === post.id;
-        const categoryLabel = post.noticeCategory
-          ? (NOTICE_CATEGORY_LABEL[post.noticeCategory] ?? '기타')
-          : '기타';
+        const isSelected = selectedPost?.seq === post.seq;
+        const categoryLabel = post.tagLabel ?? '기타';
         const colorClass = CATEGORY_COLORS[categoryLabel] ?? 'bg-gray-100 text-gray-600';
-        const dateStr = post.createdAt ? post.createdAt.slice(0, 10).replace(/-/g, '.') : '';
+        const writedAt = post.writedAt ? post.writedAt.slice(0, 10).replace(/-/g, '.') : '-';
 
         return (
           <div
-            key={post.id}
+            key={post.seq}
             onClick={() => onSelectPost(post)}
             className={`relative grid grid-cols-[72px_88px_1fr_100px] items-center px-5 py-3.5 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors ${
               isSelected ? 'bg-blue-50/40' : 'hover:bg-gray-50'
@@ -86,7 +84,7 @@ export const AnnouncementOverView = ({
             </div>
 
             <div className="text-center">
-              <span className="text-xs text-gray-500">{dateStr}</span>
+              <span className="text-xs text-gray-500">{writedAt}</span>
             </div>
           </div>
         );

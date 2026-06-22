@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Download, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import axiosInstance from '@/api/axios';
 import {
   AnnouncementOverView,
   CATEGORY_COLORS,
-  NOTICE_CATEGORY_LABEL,
 } from '@/components/Page/announcement/AnnouncementOverView';
 import { getNotices, getNoticeDetail } from '@/api/announcement';
 import type { NoticeItem, NoticeCategory } from '@/api/announcement';
@@ -28,6 +28,23 @@ const CATEGORIES: { label: KoreanCategory; icon: string }[] = [
 ];
 
 const PAGE_SIZE = 8;
+
+const downloadFile = async (url: string, fileName: string) => {
+  try {
+    const response = await axiosInstance.get(url, { responseType: 'blob' });
+    const blob = new Blob([response.data]);
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(objectUrl);
+  } catch (error) {
+    console.error('파일 다운로드 실패:', error);
+  }
+};
 
 export const Announcement = () => {
   const [selectedCategory, setSelectedCategory] = useState<KoreanCategory>('전체');
@@ -70,9 +87,7 @@ export const Announcement = () => {
     setCurrentPage(1);
   };
 
-  const categoryLabel = detail?.noticeCategory
-    ? (NOTICE_CATEGORY_LABEL[detail.noticeCategory] ?? '기타')
-    : null;
+  const categoryLabel = detail?.tagLabel ?? null;
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
@@ -228,28 +243,32 @@ export const Announcement = () => {
                       <p className="text-xs font-semibold text-gray-500 mb-2">
                         첨부파일 {detail.attachments.length}
                       </p>
-                      {detail.attachments.map((att) => (
-                        <div
-                          key={att.id}
-                          className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 mb-1.5 last:mb-0"
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center shrink-0">
-                              <span className="text-[9px] font-bold text-blue-600 leading-none">
-                                {att.fileType.slice(0, 3).toUpperCase()}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-700 truncate">{att.fileName}</span>
-                          </div>
-                          <a
-                            href={att.fileUrl}
-                            download={att.fileName}
-                            className="ml-2 text-gray-400 hover:text-gray-700 shrink-0 transition-colors"
+                      {detail.attachments.map((url, i) => {
+                        const fileName = url.split('/').pop()?.split('?')[0] ?? url;
+                        const ext = fileName.split('.').pop() ?? '';
+                        return (
+                          <div
+                            key={i}
+                            className="flex items-center justify-between py-2 px-3 rounded-lg bg-gray-50 mb-1.5 last:mb-0"
                           >
-                            <Download size={14} />
-                          </a>
-                        </div>
-                      ))}
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center shrink-0">
+                                <span className="text-[9px] font-bold text-blue-600 leading-none">
+                                  {ext.slice(0, 3).toUpperCase()}
+                                </span>
+                              </div>
+                              <span className="text-xs text-gray-700 truncate">{fileName}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => downloadFile(url, fileName)}
+                              className="ml-2 text-gray-400 hover:text-gray-700 shrink-0 transition-colors"
+                            >
+                              <Download size={14} />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </>

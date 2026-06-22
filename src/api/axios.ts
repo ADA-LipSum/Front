@@ -46,7 +46,13 @@ const reissueAccessToken = (): Promise<string | null> => {
 
 // 요청 인터셉터 - 토큰이 없으면 reissue를 먼저 수행한 뒤 헤더에 주입
 instance.interceptors.request.use(async (config) => {
-  if (config.url?.includes('/auth/reissue') || config.url?.includes('/auth/login')) {
+  // axios 1.x transformRequest converts FormData to JSON when Content-Type is application/json.
+  // Delete the header here (before transformRequest runs) so FormData is sent as multipart.
+  if (config.data instanceof FormData) {
+    config.headers.delete('Content-Type');
+  }
+
+  if (config.url?.includes('/auth/reissue') || config.url?.includes('/auth/login') || config.url?.includes('/auth/logout')) {
     log.req(config.method ?? 'get', config.url ?? '', false);
     return config;
   }

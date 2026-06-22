@@ -341,8 +341,8 @@ export const Community = () => {
           </div>
         ) : (
           <div className="w-180 flex flex-col items-center justify-center py-20 gap-3 text-gray-400">
-            <span className="text-4xl">🔍</span>
-            <p className="text-sm font-medium">해당 조건의 게시글이 없어요</p>
+            <span className="text-4xl"></span>
+            <p className="text-sm font-medium">해당 조건의 게시글을 찾을 수 없어요</p>
           </div>
         )}
       </main>

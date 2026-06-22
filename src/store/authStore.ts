@@ -51,11 +51,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
     const meData = me.data.data ?? me.data;
     console.log('[Auth] /auth/status 응답:', meData);
 
+    const finalUuid = meData.uuid ?? uuid;
+    localStorage.setItem('expectedUuid', finalUuid);
+
     set({
       isLoggedIn: true,
       loading: false,
       user: {
-        uuid: meData.uuid ?? uuid,
+        uuid: finalUuid,
         adminId: meData.adminId ?? adminId,
         customId: meData.customId ?? customId,
         userRealname: meData.userRealname ?? userRealname,
@@ -71,10 +74,20 @@ export const useAuthStore = create<AuthStore>((set) => ({
   checkLogin: async () => {
     console.log('[Auth] checkLogin 시작');
     const attempt = async () => {
-      // reissue는 axios 요청 인터셉터가 자동으로 처리
       const me = await axios.get('/api/auth/status');
       const meData = me.data.data ?? me.data;
       console.log('[Auth] checkLogin 성공:', meData);
+
+      // reissue 후 쿠키가 다른 사용자 것으로 교체된 경우 감지
+      const expectedUuid = localStorage.getItem('expectedUuid');
+      if (expectedUuid && meData.uuid !== expectedUuid) {
+        console.warn(`[Auth] 세션 불일치 감지 — 기대: ${expectedUuid}, 실제: ${meData.uuid} → 강제 로그아웃`);
+        localStorage.removeItem('expectedUuid');
+        delete axios.defaults.headers.common['Authorization'];
+        set({ isLoggedIn: false, loading: false, user: null, accessToken: null });
+        window.location.href = '/login';
+        return;
+      }
 
       set({
         isLoggedIn: true,
@@ -100,7 +113,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
         return;
       } catch (e: unknown) {
         console.warn(`[Auth] checkLogin 실패 (시도 ${i + 1}/${MAX_RETRIES + 1}):`, e);
-        // reissue 자체가 실패(refresh token 없음)한 경우엔 재시도해도 의미 없음
         if ((e as { config?: { _reissueFailed?: boolean } })?.config?._reissueFailed) break;
         if (i === MAX_RETRIES) break;
         await new Promise((r) => setTimeout(r, 700));
@@ -118,42 +130,28 @@ export const useAuthStore = create<AuthStore>((set) => ({
       await axios.post('/api/auth/logout');
       console.log('[Auth] 로그아웃 완료');
     } finally {
+      localStorage.removeItem('expectedUuid');
       delete axios.defaults.headers.common['Authorization'];
-
-      set({
-        isLoggedIn: false,
-        user: null,
-        accessToken: null,
-      });
+      set({ isLoggedIn: false, user: null, accessToken: null });
     }
   },
 
   setAccessToken: (accessToken) => {
     console.log('[Auth] accessToken 갱신');
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-
     set({ accessToken });
   },
 
   clearCredentials: () => {
     console.warn('[Auth] clearCredentials — 인증 정보 초기화');
+    localStorage.removeItem('expectedUuid');
     delete axios.defaults.headers.common['Authorization'];
-
-    set({
-      accessToken: null,
-      isLoggedIn: false,
-      user: null,
-    });
+    set({ accessToken: null, isLoggedIn: false, user: null });
   },
 
   updateUserProfileImage: (imageUrl) => {
     set((state) => ({
-      user: state.user
-        ? {
-            ...state.user,
-            profileImage: imageUrl,
-          }
-        : null,
+      user: state.user ? { ...state.user, profileImage: imageUrl } : null,
     }));
   },
 }));

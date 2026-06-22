@@ -32,6 +32,7 @@ const TECH_SUB_TAG_LABEL: Record<string, string> = {
   CHAT: '잡담',
   TIP: '팁',
   POLL: '투표',
+  RESOURCE_SHARING: '자료공유',
 };
 
 const FILE_SIZE_LABEL = (bytes: number) => {
@@ -521,7 +522,9 @@ export const CommunityPostDetail = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-2">게시글 삭제</h2>
-            <p className="text-sm text-gray-500 mb-6">정말 이 게시글을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.</p>
+            <p className="text-sm text-gray-500 mb-6">
+              정말 이 게시글을 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.
+            </p>
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"

@@ -193,10 +193,10 @@ export const CommunityPostCreate = () => {
       <div className="max-w-3xl mx-auto px-4 py-7 space-y-4">
         {/* Community type selector + submit button */}
         <div className="flex items-center justify-between">
-          <div className="inline-flex bg-white border border-gray-200 rounded-2xl p-1 gap-0.5">
+          <div className="inline-flex bg-white border border-gray-200 rounded-md p-1 gap-0.5">
             <button
               onClick={() => setCommunityType('general')}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+              className={`px-5 py-2 rounded-md text-sm font-semibold transition-all ${
                 !isDev ? 'bg-green-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -204,7 +204,7 @@ export const CommunityPostCreate = () => {
             </button>
             <button
               onClick={() => setCommunityType('dev')}
-              className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+              className={`px-5 py-2 rounded-md text-sm font-semibold transition-all ${
                 isDev ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
@@ -214,7 +214,7 @@ export const CommunityPostCreate = () => {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className={`px-5 py-2 text-sm font-semibold rounded-lg text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`px-5 py-2 text-sm font-semibold rounded-md text-white transition disabled:opacity-50 disabled:cursor-not-allowed ${
               isDev ? 'bg-indigo-500 hover:bg-indigo-600' : 'bg-green-500 hover:bg-green-600'
             }`}
           >
@@ -224,14 +224,14 @@ export const CommunityPostCreate = () => {
 
         {/* SubTag (dev only) */}
         {isDev && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="bg-white rounded-md border border-gray-200 p-5">
             <p className="text-sm font-semibold text-gray-700 mb-3">게시글 유형</p>
             <div className="flex gap-2 flex-wrap">
               {DEV_SUBTAGS.map((item) => (
                 <button
                   key={item.value}
                   onClick={() => setDevSubTag(item.value)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all border ${
                     devSubTag === item.value
                       ? 'bg-indigo-500 text-white border-indigo-500'
                       : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -246,7 +246,7 @@ export const CommunityPostCreate = () => {
 
         {/* 파일 첨부 (general only) */}
         {!isDev && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+          <div className="bg-white rounded-md border border-gray-200 p-5 space-y-4">
             <p className="text-sm font-semibold text-gray-700">파일 첨부</p>
 
             {/* 이미지 */}
@@ -277,9 +277,15 @@ export const CommunityPostCreate = () => {
               {imageFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {imageFiles.map((file, i) => (
-                    <div key={i} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
+                    <div
+                      key={i}
+                      className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1.5 text-xs text-gray-600"
+                    >
                       <span className="max-w-32 truncate">{file.name}</span>
-                      <button onClick={() => setImageFiles((prev) => prev.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-400 transition">
+                      <button
+                        onClick={() => setImageFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="text-gray-400 hover:text-red-400 transition"
+                      >
                         <Trash2 size={11} />
                       </button>
                     </div>
@@ -294,7 +300,7 @@ export const CommunityPostCreate = () => {
                 <button
                   type="button"
                   onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
                 >
                   <Video size={13} />
                   영상 추가
@@ -316,9 +322,15 @@ export const CommunityPostCreate = () => {
               {videoFiles.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {videoFiles.map((file, i) => (
-                    <div key={i} className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-gray-600">
+                    <div
+                      key={i}
+                      className="flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1.5 text-xs text-gray-600"
+                    >
                       <span className="max-w-32 truncate">{file.name}</span>
-                      <button onClick={() => setVideoFiles((prev) => prev.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-400 transition">
+                      <button
+                        onClick={() => setVideoFiles((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="text-gray-400 hover:text-red-400 transition"
+                      >
                         <Trash2 size={11} />
                       </button>
                     </div>
@@ -331,15 +343,19 @@ export const CommunityPostCreate = () => {
             <div className="flex items-center justify-between pt-1 border-t border-gray-100">
               <div>
                 <span className="text-sm text-gray-700">목록에서 미디어 노출</span>
-                <p className="text-xs text-gray-400 mt-0.5">끄면 상세 조회에서만 이미지·영상이 보입니다</p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  끄면 상세 조회에서만 이미지·영상이 보입니다
+                </p>
               </div>
               <button
                 onClick={() => setShowMediaInList((v) => !v)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${showMediaInList ? 'bg-green-500' : 'bg-gray-200'}`}
+                className={`relative w-11 h-6 rounded-md transition-colors duration-200 focus:outline-none ${showMediaInList ? 'bg-green-500' : 'bg-gray-200'}`}
                 role="switch"
                 aria-checked={showMediaInList}
               >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${showMediaInList ? 'translate-x-5' : 'translate-x-0'}`} />
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-md shadow-sm transition-transform duration-200 ${showMediaInList ? 'translate-x-5' : 'translate-x-0'}`}
+                />
               </button>
             </div>
           </div>
@@ -347,7 +363,7 @@ export const CommunityPostCreate = () => {
 
         {/* Tech tags (dev only) */}
         {isDev && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="bg-white rounded-md border border-gray-200 p-5">
             <p className="text-sm font-semibold text-gray-700 mb-3">
               기술 태그 <span className="text-xs font-normal text-gray-400">(최대 5개)</span>
             </p>
@@ -376,7 +392,7 @@ export const CommunityPostCreate = () => {
                 {techTags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-md text-sm font-medium"
                   >
                     {tag}
                     <button
@@ -405,7 +421,7 @@ export const CommunityPostCreate = () => {
         )}
 
         {/* Title */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        <div className="bg-white rounded-md border border-gray-200 p-5">
           <label className="block text-sm font-semibold text-gray-700 mb-2">제목</label>
           <input
             type="text"
@@ -413,19 +429,19 @@ export const CommunityPostCreate = () => {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="제목을 입력하세요"
             maxLength={20}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
+            className="w-full px-4 py-3 rounded-md border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent"
           />
           <div className="text-right text-xs text-gray-400 mt-1.5">{title.length}/20</div>
         </div>
 
         {/* Content editor */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
           {/* Editor header */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
             <span className="text-sm font-semibold text-gray-700">내용</span>
             <button
               onClick={() => setIsPreview((p) => !p)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition border border-gray-200"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:bg-gray-100 transition border border-gray-200"
             >
               {isPreview ? <EyeOff size={13} /> : <Eye size={13} />}
               {isPreview ? '편집 모드' : '미리보기'}
@@ -481,8 +497,8 @@ export const CommunityPostCreate = () => {
         </div>
 
         {/* Poll */}
-        {(
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        {
+          <div className="bg-white rounded-md border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-sm font-semibold text-gray-700">투표 추가</span>
@@ -490,14 +506,14 @@ export const CommunityPostCreate = () => {
               </div>
               <button
                 onClick={() => setHasPoll((p) => !p)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+                className={`relative w-11 h-6 rounded-md transition-colors duration-200 focus:outline-none ${
                   hasPoll ? 'bg-indigo-500' : 'bg-gray-200'
                 }`}
                 role="switch"
                 aria-checked={hasPoll}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200 ${
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-md shadow-sm transition-transform duration-200 ${
                     hasPoll ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
@@ -512,7 +528,7 @@ export const CommunityPostCreate = () => {
                   value={pollQuestion}
                   onChange={(e) => setPollQuestion(e.target.value)}
                   placeholder="투표 질문을 입력하세요"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                  className="w-full px-4 py-2.5 rounded-md border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                 />
 
                 {/* Poll options */}
@@ -527,7 +543,7 @@ export const CommunityPostCreate = () => {
                         value={option}
                         onChange={(e) => updatePollOption(idx, e.target.value)}
                         placeholder={`항목 ${idx + 1}`}
-                        className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                        className="flex-1 px-4 py-2.5 rounded-md border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                       />
                       {pollOptions.length > 2 && (
                         <button
@@ -561,7 +577,7 @@ export const CommunityPostCreate = () => {
                       type="datetime-local"
                       value={pollEndsAt}
                       onChange={(e) => setPollEndsAt(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
+                      className="w-full px-4 py-2.5 rounded-md border border-gray-200 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent"
                     />
                   </div>
                   <div className="flex items-end pb-0.5">
@@ -570,7 +586,7 @@ export const CommunityPostCreate = () => {
                         type="checkbox"
                         checked={pollAnonymous}
                         onChange={(e) => setPollAnonymous(e.target.checked)}
-                        className="w-4 h-4 rounded accent-indigo-500 cursor-pointer"
+                        className="w-4 h-4 rounded-md accent-indigo-500 cursor-pointer"
                       />
                       <span className="text-sm text-gray-600">익명 투표</span>
                     </label>
@@ -579,7 +595,7 @@ export const CommunityPostCreate = () => {
               </div>
             )}
           </div>
-        )}
+        }
       </div>
     </div>
   );

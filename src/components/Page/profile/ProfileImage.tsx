@@ -9,7 +9,7 @@ const ProfileImage = () => {
   }
 
   return (
-    <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-11 outline-[#F5F5F5]">
+    <div className="w-40 h-40 rounded-full overflow-hidden bg-white outline-11 outline-[#ff8556]">
       <Avatar
         size="full"
         className="object-cover"

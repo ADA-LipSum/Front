@@ -32,7 +32,7 @@ export default function AnnounceBanner() {
         key={BANNERS.length}
         modules={[Autoplay, Pagination]}
         slidesPerView={1}
-        loop
+        loop={BANNERS.length > 1}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         observer
         observeParents

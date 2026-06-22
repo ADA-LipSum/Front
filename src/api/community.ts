@@ -186,19 +186,18 @@ export interface CreateDevPostRequest {
 // 일반 커뮤니티 게시글 작성 (multipart/form-data)
 export const createGeneralPost = async (data: CreateGeneralPostRequest): Promise<number> => {
   const formData = new FormData();
-  formData.append('title', data.title);
-  if (data.content) formData.append('content', data.content);
-  data.images?.forEach((file) => formData.append('images', file));
-  data.videos?.forEach((file) => formData.append('videos', file));
-  if (data.showMediaInList !== undefined) {
-    formData.append('showMediaInList', String(data.showMediaInList));
-  }
-  if (data.poll) {
-    formData.append('poll', JSON.stringify(data.poll));
-  }
-  const res = await axios.post<ApiResponse<number>>('/api/community/posts', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+
+  const requestBody: Record<string, unknown> = { title: data.title };
+  if (data.content) requestBody.content = data.content;
+  if (data.showMediaInList !== undefined) requestBody.showMediaInList = data.showMediaInList;
+  if (data.poll) requestBody.poll = data.poll;
+
+  formData.append('request', new Blob([JSON.stringify(requestBody)], { type: 'application/json' }), 'request.json');
+
+  data.images?.forEach((file) => formData.append('attachments', file));
+  data.videos?.forEach((file) => formData.append('attachments', file));
+
+  const res = await axios.post<ApiResponse<number>>('/api/community/posts', formData);
   return res.data.data;
 };
 

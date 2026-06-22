@@ -1,4 +1,5 @@
-import { ShoppingCart, Plus, Minus, Trash2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { ShoppingCart, Plus, Minus, Trash2, AlertCircle, ChevronDown } from 'lucide-react';
 import type { Product } from './ProductCard';
 
 export interface CartItem {
@@ -28,21 +29,31 @@ export const Cart = ({
   error,
   currencyLabel = '코인',
 }: CartProps) => {
+  const [open, setOpen] = useState(true);
   const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const afterBalance = coinBalance - totalPrice;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 flex flex-col gap-3">
-      <div className="flex items-center gap-2">
+    <div className="bg-white rounded-xl border border-gray-200">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-2 px-4 pt-4 pb-3 text-left"
+      >
         <ShoppingCart size={16} className="text-[#e8d13a]" />
         <p className="text-xs text-gray-500 font-medium">장바구니</p>
         {items.length > 0 && (
-          <span className="ml-auto bg-[#e8d13a] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+          <span className="bg-[#e8d13a] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
             {items.length}
           </span>
         )}
-      </div>
+        <ChevronDown
+          size={13}
+          className={`ml-auto text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
 
+      <div className={`transition-all duration-200 overflow-hidden ${open ? 'max-h-125' : 'max-h-0'}`}>
+      <div className="px-4 pb-4 flex flex-col gap-3">
       {items.length === 0 ? (
         <p className="text-xs text-gray-400 text-center py-6">장바구니가 비어있습니다.</p>
       ) : (
@@ -124,6 +135,8 @@ export const Cart = ({
           </button>
         </>
       )}
+      </div>
+      </div>
     </div>
   );
 };
