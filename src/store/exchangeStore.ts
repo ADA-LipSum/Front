@@ -1,3 +1,4 @@
+// TODO: 어짜피 단순 조회용이라서 TANSTACK QUERY로 바꿔도 될 것 같음.
 import { create } from 'zustand';
 import { searchExchanges } from '@/api/exchange';
 import type { ExchangeSearchParam, ExchangeSearchResponse } from '@/api/exchange';
@@ -43,6 +44,13 @@ export const useExchangeStore = create<ExchangeStore>((set) => ({
   },
 
   clearExchange: () => {
-    set({ items: [], loading: false, error: null, searchParams: {}, totalPages: 1, totalElements: 0 });
+    set({
+      items: [],
+      loading: false,
+      error: null,
+      searchParams: {},
+      totalPages: 1,
+      totalElements: 0,
+    });
   },
 }));

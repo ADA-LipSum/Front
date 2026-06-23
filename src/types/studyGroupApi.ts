@@ -4,6 +4,13 @@ export type StudyGroupVisibility = 'PUBLIC' | 'PRIVATE';
 export type StudyGroupRecruitStatus = 'OPEN' | 'CLOSED';
 export type StudyGroupJoinRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export type StudyGroupMemberRole = 'LEADER' | 'MEMBER';
+export type StudyGroupCategory = 'LANGUAGE_STUDY' | 'PROJECT_DEVELOPMENT';
+
+export interface StudyGroupMemberBasic {
+  userUuid: string;
+  name: string;
+  profileImage?: string;
+}
 
 export interface StudyGroupSummary {
   groupUuid: string;
@@ -15,13 +22,18 @@ export interface StudyGroupSummary {
   capacity: number;
   ownerUuid: string;
   ownerCustomId: string;
+  ownerProfileImage?: string;
   memberCount: number;
+  thumbnailImage?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  isMember?: boolean;
+  myRole?: string | null;
+  members?: StudyGroupMemberBasic[];
 }
 
 /** 상세 조회 시 서버가 내려줄 수 있는 현재 사용자 컨텍스트 */
 export interface StudyGroupDetail extends StudyGroupSummary {
-  isMember?: boolean;
-  myRole?: StudyGroupMemberRole | null;
   myJoinRequestStatus?: StudyGroupJoinRequestStatus | null;
 }
 
@@ -35,6 +47,8 @@ export interface StudyGroupMember {
 
 export interface StudyGroupJoinRequest {
   userUuid: string;
+  customId: string;
+  profileImage?: string;
   status: StudyGroupJoinRequestStatus;
   requestedAt: string;
   applicantCustomId?: string;
@@ -42,10 +56,12 @@ export interface StudyGroupJoinRequest {
 
 export interface CreateStudyGroupBody {
   name: string;
-  description: string;
-  techTags: string;
+  description?: string;
+  techTags?: string;
+  category: StudyGroupCategory;
   visibility: StudyGroupVisibility;
   capacity: number;
+  inviteLink?: string;
 }
 
 export interface CreateStudyGroupResponse {

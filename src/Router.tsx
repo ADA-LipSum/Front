@@ -33,6 +33,7 @@ import Profile from './pages/Profile/Profile';
 import { PointExchange } from './pages/Exchange/PointExchange';
 import { Login } from './pages/Auth/Login';
 import { Community } from './pages/Community/Community';
+import { CommunityPostCreate } from './pages/Community/CommunityPostCreate';
 const Router = () => {
   const checkLogin = useAuthStore((state) => state.checkLogin);
 
@@ -44,9 +45,10 @@ const Router = () => {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Community />} />
+        <Route path="/community/write" element={<CommunityPostCreate />} />
         <Route path="/article/:postId" element={<CommunityPostDetail />} />
-        <Route path="/study-group/:groupUuid" element={<StudyGroupDetail />} />
-        <Route path="/study-group" element={<StudyGroup />} />
+        <Route path="/study-group/:groupUuid" element={<StudyGroup />} />
+        <Route path="/study-group" element={<StudyGroupDetail />} />
         <Route path="/announcement" element={<Announcement />} />
         <Route path="/exchange/coin" element={<CoinExchange />} />
         <Route path="/exchange/point" element={<PointExchange />} />

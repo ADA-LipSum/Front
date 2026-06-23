@@ -12,6 +12,7 @@ import { useAuthStore } from '@/store/authStore';
 import { usePointStore } from '@/store/pointStore';
 import { purchaseWithPoints } from '@/api/exchange';
 import { toast } from 'react-toastify';
+import { ShowWarningToast } from '@/components/Library/Toast/Toast';
 
 const toPaymentRecord = (tx: Record<string, any>): PaymentRecord => {
   const changeType: string = (tx.changeType ?? tx.type ?? '').toUpperCase();
@@ -66,6 +67,12 @@ export const PointExchange = () => {
         fetchTransactions(userUuid);
       }
     } catch (err: any) {
+      if (err?.response?.status === 409) {
+        const message = err?.response?.data?.message || '이미 보유 중인 아이템입니다.';
+        ShowWarningToast(message);
+        setSelectedProduct(null);
+        return;
+      }
       setPurchaseError(err.message || '구매에 실패했습니다.');
     } finally {
       setPurchasing(false);
@@ -75,7 +82,8 @@ export const PointExchange = () => {
   };
 
   function handleCloseModal(): void {
-    throw new Error('Function not implemented.');
+    setSelectedProduct(null);
+    setPurchaseError(null);
   }
 
   return (

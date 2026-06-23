@@ -221,7 +221,7 @@ export default function PostsPage() {
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">AUTO_INCREMENT 재정렬</Label>
               <div className="flex items-center gap-2">
-                <Select value={reseqTable} onValueChange={setReseqTable}>
+                <Select value={reseqTable} onValueChange={(value) => value !== null && setReseqTable(value)}>
                   <SelectTrigger className="w-40 h-8"><SelectValue>{{ posts: '게시글 (posts)', comments: '댓글 (comments)' }[reseqTable] ?? reseqTable}</SelectValue></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="posts">게시글 (posts)</SelectItem>

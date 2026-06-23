@@ -4,7 +4,7 @@ const Intro = () => {
   const { profile } = useProfileStore();
 
   return (
-    <div className="text-center mt-5 w-full max-w-3xl mx-auto">
+    <div className="text-center mt-2 w-full max-w-3xl mx-auto">
       {profile?.intro ? (
         <p className="text-gray-600">
           {profile.intro

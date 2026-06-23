@@ -18,6 +18,7 @@ interface ProfileStore {
     uuid: string;
     userNickname?: string;
     intro?: string;
+    profileImageOutlineColor?: string;
     socialLinks?: {
       githubUrl?: string;
       notionUrl?: string;
@@ -54,12 +55,13 @@ export const useProfileStore = create<ProfileStore>((set) => ({
     }
   },
 
-  updateProfile: async ({ uuid, userNickname, intro, socialLinks }) => {
+  updateProfile: async ({ uuid, userNickname, intro, profileImageOutlineColor, socialLinks }) => {
     set({ loading: true, error: null });
     try {
       await editProfile(uuid, {
         ...(userNickname !== undefined ? { nickname: userNickname } : {}),
         ...(intro !== undefined ? { intro } : {}),
+        ...(profileImageOutlineColor !== undefined ? { profileImageOutlineColor } : {}),
         ...(socialLinks ?? {}),
       });
       set((state) => ({
@@ -69,6 +71,7 @@ export const useProfileStore = create<ProfileStore>((set) => ({
               ...state.profile,
               ...(userNickname !== undefined ? { userNickname } : {}),
               ...(intro !== undefined ? { intro } : {}),
+              ...(profileImageOutlineColor !== undefined ? { profileImageOutlineColor } : {}),
               ...(socialLinks !== undefined ? { socialLinks } : {}),
             }
           : state.profile,

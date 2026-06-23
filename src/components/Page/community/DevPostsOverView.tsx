@@ -1,7 +1,7 @@
 import Avatar from '@/components/global/Avatar';
 import { Eye, MessageCircle } from 'lucide-react';
 
-export interface QnAPostOverViewItem {
+export interface DevPostOverViewItem {
   seq: number;
   postUuid?: string;
   title: string;
@@ -29,29 +29,30 @@ const TAG_COLORS: Record<string, string> = {
   잡담: 'text-gray-400 bg-gray-50 border-gray-200',
   질문: 'text-blue-500 bg-blue-50 border-blue-100',
   투표: 'text-yellow-500 bg-yellow-50 border-yellow-100',
+  자료공유: 'text-green-500 bg-green-50 border-green-100',
 };
 
 const PostCard = ({
   post,
   onClick,
 }: {
-  post: QnAPostOverViewItem;
+  post: DevPostOverViewItem;
   onClick?: () => void;
   rank: number;
 }) => (
   <div
     onClick={onClick}
-    className="flex items-start gap-3 px-4 py-4 cursor-pointer group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-100 transition-all duration-200"
+    className="flex items-start gap-3 px-4 py-4 cursor-pointer group bg-white rounded-sm border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-blue-100 transition-all duration-200"
   >
     {post.writerProfileImage ? (
       <Avatar
         name={post.writer}
         src={post.writerProfileImage}
         size="md"
-        className="rounded-full bg-gray-100 shrink-0 object-cover mt-0.5"
+        className="rounded-sm bg-gray-100 shrink-0 object-cover mt-0.5"
       />
     ) : (
-      <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
+      <div className="w-9 h-9 rounded-sm bg-linear-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold shrink-0 mt-0.5">
         {post.writer.charAt(0)}
       </div>
     )}
@@ -60,7 +61,7 @@ const PostCard = ({
       <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
         {post.tag && (
           <span
-            className={`text-[10px] font-semibold border px-1.5 py-0.5 rounded-full ${
+            className={`text-[10px] font-semibold border px-1.5 py-0.5 rounded-sm ${
               TAG_COLORS[post.tag] ?? 'text-gray-400 bg-gray-50 border-gray-200'
             }`}
           >
@@ -70,7 +71,7 @@ const PostCard = ({
         {post.techTags?.map((t) => (
           <span
             key={t}
-            className="text-[10px] font-semibold border px-1.5 py-0.5 rounded-full text-violet-500 bg-violet-50 border-violet-100"
+            className="text-[10px] font-semibold border px-1.5 py-0.5 rounded-sm text-violet-500 bg-violet-50 border-violet-100"
           >
             {t}
           </span>
@@ -97,12 +98,12 @@ const PostCard = ({
   </div>
 );
 
-interface QnAPostsOverViewProps {
-  posts?: QnAPostOverViewItem[];
+interface DevPostsOverViewProps {
+  posts?: DevPostOverViewItem[];
   onPostClick?: (seq: number) => void;
 }
 
-export const QnAPostsOverView = ({ posts = [], onPostClick }: QnAPostsOverViewProps) => {
+export const DevPostsOverView = ({ posts = [], onPostClick }: DevPostsOverViewProps) => {
   if (posts.length === 0) {
     return (
       <div className="py-16 text-center">
@@ -119,4 +120,3 @@ export const QnAPostsOverView = ({ posts = [], onPostClick }: QnAPostsOverViewPr
     </div>
   );
 };
-

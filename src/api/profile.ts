@@ -89,6 +89,7 @@ export const editProfile = async (
     notionUrl?: string;
     linkedinUrl?: string;
     personalWebsiteUrl?: string;
+    profileImageOutlineColor?: string;
   },
 ) => {
   const response = await axios.patch<ApiResponse<void>>(`api/users/${uuid}/profile`, data);

@@ -4,7 +4,6 @@ import { useAuthStore } from '@/store/authStore';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
 
@@ -46,7 +45,13 @@ const reissueAccessToken = (): Promise<string | null> => {
 
 // 요청 인터셉터 - 토큰이 없으면 reissue를 먼저 수행한 뒤 헤더에 주입
 instance.interceptors.request.use(async (config) => {
-  if (config.url?.includes('/auth/reissue') || config.url?.includes('/auth/login')) {
+  // Handle FormData: let browser set multipart/form-data with boundary
+  if (!(config.data instanceof FormData)) {
+    // Set Content-Type for JSON requests only
+    config.headers['Content-Type'] = 'application/json';
+  }
+
+  if (config.url?.includes('/auth/reissue') || config.url?.includes('/auth/login') || config.url?.includes('/auth/logout')) {
     log.req(config.method ?? 'get', config.url ?? '', false);
     return config;
   }

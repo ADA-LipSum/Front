@@ -1,3 +1,4 @@
+// TODO: 어짜피 단순 조회용이라서 TANSTACK QUERY로 바꿔도 될 것 같음.
 import { create } from 'zustand';
 import { fetchPointsBalance, fetchPointTransactions } from '@/api/points';
 import type { PointTransaction } from '@/api/points';

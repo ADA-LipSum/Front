@@ -5,6 +5,7 @@ import { ShowErrorToast, ShowSuccessToast } from '@/components/Library/Toast/Toa
 import Avatar from '@/components/global/Avatar';
 import { Globe, Upload, PlusCircleIcon } from 'lucide-react';
 import { SetBannerModal } from '@/components/Page/setting/SetBannerModal';
+import { ImageCropModal } from '@/components/Page/setting/ImageCropModal';
 
 import GitHub from '@/assets/GitHub.png';
 import Linkedin from '@/assets/Linkedin.png';
@@ -34,6 +35,9 @@ export const ProfileSettings = () => {
   const [isUploadBanner, setIsUploadBanner] = useState(false);
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
+  const [profileImageOutlineColor, setProfileImageOutlineColor] = useState('#3b82f6');
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -45,6 +49,7 @@ export const ProfileSettings = () => {
         linkedinUrl: profile.socialLinks?.linkedinUrl ?? '',
         personalWebsiteUrl: profile.socialLinks?.personalWebsiteUrl ?? '',
       });
+      setProfileImageOutlineColor(profile.profileImageOutlineColor ?? '#3b82f6');
     }
   }, [profile]);
 
@@ -54,12 +59,33 @@ export const ProfileSettings = () => {
     }
   }, [fetchProfile, user?.uuid]);
 
+  const IMAGE_SIZE_THRESHOLD = 128; // pixels
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setPendingImageFile(file);
-    setPreviewImageUrl(URL.createObjectURL(file));
+
+    const fileUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      if (img.width >= IMAGE_SIZE_THRESHOLD || img.height >= IMAGE_SIZE_THRESHOLD) {
+        setImageToCrop(fileUrl);
+        setShowCropModal(true);
+      } else {
+        setPendingImageFile(file);
+        setPreviewImageUrl(fileUrl);
+      }
+    };
+
+    img.src = fileUrl;
     e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setPendingImageFile(croppedFile);
+    setPreviewImageUrl(URL.createObjectURL(croppedFile));
+    setImageToCrop(null);
   };
 
   const handleSave = async () => {
@@ -81,6 +107,7 @@ export const ProfileSettings = () => {
         uuid: profile.uuid,
         userNickname: editNickname,
         intro: editIntro,
+        profileImageOutlineColor,
         socialLinks: editSocialLinks,
       });
 
@@ -112,11 +139,15 @@ export const ProfileSettings = () => {
                   <PlusCircleIcon className="w-10 h-10 text-white" />
                 </div>
               )}
-              <img
-                src={previewBannerUrl ?? profile?.profileBanner}
-                alt="배너 이미지"
-                className="object-cover w-full h-full rounded-xl"
-              />
+              {profile?.profileBanner || previewBannerUrl ? (
+                <img
+                  src={previewBannerUrl ?? profile?.profileBanner}
+                  alt="배너 이미지"
+                  className="object-cover w-full h-full rounded-xl"
+                />
+              ) : (
+                <div className="text-gray-500">배너 이미지 선택</div>
+              )}
             </div>
           </div>
 
@@ -353,10 +384,27 @@ export const ProfileSettings = () => {
         />
       )}
 
+      {showCropModal && imageToCrop && (
+        <ImageCropModal
+          imageUrl={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onClose={() => {
+            setShowCropModal(false);
+            if (imageToCrop) URL.revokeObjectURL(imageToCrop);
+            setImageToCrop(null);
+          }}
+        />
+      )}
+
       {/* 프로필 이미지 */}
-      <div className="w-55 flex justify-center">
+      <div className="w-55 flex flex-col items-center gap-6">
         <div
-          className="relative w-45 h-45 rounded-full overflow-hidden bg-gray-200 cursor-pointer"
+          className="relative rounded-full overflow-hidden bg-gray-200 cursor-pointer"
+          style={{
+            width: '180px',
+            height: '180px',
+            border: `8px solid ${profileImageOutlineColor}`,
+          }}
           onMouseEnter={() => setIsImageHovered(true)}
           onMouseLeave={() => setIsImageHovered(false)}
           onClick={() => fileInputRef.current?.click()}
@@ -380,8 +428,19 @@ export const ProfileSettings = () => {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handleFileChange} // TODO: 파일 업로드 후 crop 기능을 통해 원하는 이미지를 프로필로 할 수 있게 추가하기
+            onChange={handleFileChange}
           />
+        </div>
+
+        {/* 아웃라인 색상 선택 */}
+        <div className="flex gap-2 items-center">
+          <input
+            type="color"
+            value={profileImageOutlineColor}
+            onChange={(e) => setProfileImageOutlineColor(e.target.value)}
+            className="w-8 h-8 rounded cursor-pointer"
+          />
+          <div className="text-xs text-gray-500">{profileImageOutlineColor}</div>
         </div>
       </div>
     </div>

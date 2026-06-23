@@ -32,13 +32,17 @@ const Profile = () => {
 
   return (
     <>
-      <div className="min-h-220">
+      <div className="min-h-220 bg-[#f7f8fa]">
         <ProfileBanner />
-        <div className="-mt-25 px-30 flex flex-col items-center">
+        {/* 프로필 이미지 행: 배너와 -mt-25 겹침, 소셜 링크는 이 행 기준으로 absolute */}
+        <div className="relative -mt-25 h-40 flex items-center justify-center">
           <ProfileImage />
+          {isStudent && <SocialLinks />}
+        </div>
+        {/* 나머지 프로필 콘텐츠 */}
+        <div className="flex flex-col items-center px-30">
           <UserNameText />
           <Intro />
-          {isStudent && <SocialLinks />}
           {isStudent && profile?.githubAccount && (
             <ContriGraph githubLogin={profile.githubAccount} />
           )}
