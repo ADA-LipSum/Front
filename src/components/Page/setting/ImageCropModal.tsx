@@ -8,10 +8,17 @@ interface ImageCropModalProps {
   onClose: () => void;
 }
 
+interface CroppedAreaPixels {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export const ImageCropModal = ({ imageUrl, onCropComplete, onClose }: ImageCropModalProps) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CroppedAreaPixels | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const onCropAreaChange = useCallback((_crop: any, croppedAreaPixels: any) => {
