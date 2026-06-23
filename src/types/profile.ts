@@ -15,6 +15,7 @@ export interface Profile {
   useNickname: boolean;
   profileImage: string;
   profileBanner: string;
+  profileImageOutlineColor?: string;
   role: string;
   githubAccount: string | null;
   intro: string;

@@ -32,7 +32,7 @@ const Profile = () => {
 
   return (
     <>
-      <div className="min-h-220">
+      <div className="min-h-220 bg-[#f7f8fa]">
         <ProfileBanner />
         {/* 프로필 이미지 행: 배너와 -mt-25 겹침, 소셜 링크는 이 행 기준으로 absolute */}
         <div className="relative -mt-25 h-40 flex items-center justify-center">

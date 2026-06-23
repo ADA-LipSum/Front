@@ -35,7 +35,7 @@ export const ProfileSettings = () => {
   const [isUploadBanner, setIsUploadBanner] = useState(false);
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
-  const [profileOutlineColor, setProfileOutlineColor] = useState('#3b82f6');
+  const [profileImageOutlineColor, setProfileImageOutlineColor] = useState('#3b82f6');
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
 
@@ -49,6 +49,7 @@ export const ProfileSettings = () => {
         linkedinUrl: profile.socialLinks?.linkedinUrl ?? '',
         personalWebsiteUrl: profile.socialLinks?.personalWebsiteUrl ?? '',
       });
+      setProfileImageOutlineColor(profile.profileImageOutlineColor ?? '#3b82f6');
     }
   }, [profile]);
 
@@ -106,6 +107,7 @@ export const ProfileSettings = () => {
         uuid: profile.uuid,
         userNickname: editNickname,
         intro: editIntro,
+        profileImageOutlineColor,
         socialLinks: editSocialLinks,
       });
 
@@ -137,11 +139,15 @@ export const ProfileSettings = () => {
                   <PlusCircleIcon className="w-10 h-10 text-white" />
                 </div>
               )}
-              <img
-                src={previewBannerUrl ?? profile?.profileBanner}
-                alt="배너 이미지"
-                className="object-cover w-full h-full rounded-xl"
-              />
+              {profile?.profileBanner || previewBannerUrl ? (
+                <img
+                  src={previewBannerUrl ?? profile?.profileBanner}
+                  alt="배너 이미지"
+                  className="object-cover w-full h-full rounded-xl"
+                />
+              ) : (
+                <div className="text-gray-500">배너 이미지 선택</div>
+              )}
             </div>
           </div>
 
@@ -397,7 +403,7 @@ export const ProfileSettings = () => {
           style={{
             width: '180px',
             height: '180px',
-            border: `8px solid ${profileOutlineColor}`,
+            border: `8px solid ${profileImageOutlineColor}`,
           }}
           onMouseEnter={() => setIsImageHovered(true)}
           onMouseLeave={() => setIsImageHovered(false)}
@@ -430,11 +436,11 @@ export const ProfileSettings = () => {
         <div className="flex gap-2 items-center">
           <input
             type="color"
-            value={profileOutlineColor}
-            onChange={(e) => setProfileOutlineColor(e.target.value)}
+            value={profileImageOutlineColor}
+            onChange={(e) => setProfileImageOutlineColor(e.target.value)}
             className="w-8 h-8 rounded cursor-pointer"
           />
-          <div className="text-xs text-gray-500">{profileOutlineColor}</div>
+          <div className="text-xs text-gray-500">{profileImageOutlineColor}</div>
         </div>
       </div>
     </div>
